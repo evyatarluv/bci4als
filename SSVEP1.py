@@ -9,20 +9,11 @@ import time
 trial_length = 5  # each trial length in seconds
 num_trials = 30  # set number of training trials
 num_targets = 2  # set number of possible targets
-
-low_end = 7  # lower bound of target frequency
-high_end = 24  # higher bound of target frequency
-freq_step = 1  # difference between each neighboring frequency
+condition_freq = [7, 17]  # frequency vectors for each target (length must correspond to num_targets)
 
 visual_params = {
     'white_rect_size': 180,
     'green_rect_size': 200,
-}
-
-stimulus_params = {
-    'refresh_rate': 100,  # refresh rate for the monitor
-    'condition_freq': [7, 17],  # which frequencies to create
-    'stim_time': 5  # overall time of sequence
 }
 
 
@@ -34,21 +25,17 @@ def plot_figure(sin, binary, t, freq):
     plt.show()
 
 
-def binary_stim_init(figure_flag=False):
+def binary_stim_init(refresh_rate, figure_flag=False):
 
     """
     This function creates dict containing a binary sequence of sine waves
+    :param refresh_rate: refresh rate for the monitor
     :param figure_flag: would you like to show the output waves? (bool)
     :return: dict with all frequencies binary sequence
     """
 
-    # Set params
-    refresh_rate = stimulus_params['refresh_rate']
-    condition_freq = stimulus_params['condition_freq']
-    stim_time = stimulus_params['stim_time']
-
     dt = 1 / refresh_rate
-    t = np.arange(0, stim_time, dt)
+    t = np.arange(0, trial_length, dt)
 
     sine_waves = {}  # save the sine wave in order to plot it
     binary_vector = {}  # the final binary vector for each freq
@@ -80,7 +67,7 @@ def window_init():
     # Create green rectangle
     green_rect = visual.Rect(win=main_window, size=[green_size, green_size], units='pix', lineColor='green')
 
-    # Create white rectangles according to the num_target
+    # Create white rectangles and locate them on screen
     white_rect = []
     spacing = (main_window.size[0] - (rect_size * num_targets)) / (num_targets + 1)
     current_pos = -main_window.size[0] / 2
@@ -103,7 +90,7 @@ def prepare_training():
     # TODO: save this vector
 
     # What is the frequency of the chosen rectangle
-    session_freq = [stimulus_params['condition_freq'][i] for i in training_vector]
+    session_freq = [condition_freq[i] for i in training_vector]
     # TODO: save this vector
 
     return training_vector, session_freq
@@ -118,27 +105,56 @@ def ready_message(main_window):
 
 
 def show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector):
+
+    pass
+
+
+def get_screen_params(window):
+
+    refresh_rate = 1 / window.monitorFramePeriod
+
+    num_frames = np.floor(trial_length / window.monitorFramePeriod)
+
+    wait_frames = 1
+
+    return {'refresh_rate': refresh_rate, 'num_frame': num_frames, 'wait_frames': wait_frames}
+
+
+def trial_state_message(main_window):
+
     pass
 
 
 def main():
 
+    # Initialize the LSL
     # TODO: init LSL
 
+    # Initialize the main window and rectangles
     main_window, white_rect, green_rect = window_init()
+    screen_params = get_screen_params(main_window)
 
-    condition_binary = binary_stim_init(figure_flag=False)
+    # Building the binary stimulus vectors
+    condition_binary = binary_stim_init(refresh_rate=screen_params['refresh_rate'],
+                                        figure_flag=True)
 
-    training_vector,  = prepare_training()
+    # Prepare set of training trials
+    training_vector, session_freq = prepare_training()
 
     # Run trials
     for i in range(num_trials):
 
+        # Update the current trial & frequency
         current_trial = training_vector[i]
-        # current_freq = ??
+        current_freq = session_freq[i]
 
+        # Show 'Ready' message on screen
         ready_message(main_window)
 
+        # Show trial state message
+        trial_state_message(main_window)
+
+        # Show the stimulus
         show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector)
 
     # Debug - show the screen
