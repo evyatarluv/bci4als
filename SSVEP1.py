@@ -97,13 +97,16 @@ def window_init():
 
 def prepare_training():
 
-    training_vector = rnd.choices(range(1, num_targets + 1), k=num_trials)
+    # Which rectangle is the rectangle with the green rect surround him,
+    # in each trial
+    training_vector = rnd.choices(range(num_targets), k=num_trials)
     # TODO: save this vector
 
-    # TODO: understand this code line:
-    # sessionFreqs = conditionFreq(trainingVec);              % Vector with the frequencies for each trial
+    # What is the frequency of the chosen rectangle
+    session_freq = [stimulus_params['condition_freq'][i] for i in training_vector]
+    # TODO: save this vector
 
-    return training_vector
+    return training_vector, session_freq
 
 
 def ready_message(main_window):
@@ -126,7 +129,7 @@ def main():
 
     condition_binary = binary_stim_init(figure_flag=False)
 
-    training_vector = prepare_training()
+    training_vector,  = prepare_training()
 
     # Run trials
     for i in range(num_trials):
