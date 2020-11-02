@@ -104,7 +104,7 @@ def ready_message(main_window):
     time.sleep(2)
 
 
-def show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector):
+def show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector, screen_params):
 
     pass
 
@@ -152,10 +152,11 @@ def main():
         ready_message(main_window)
 
         # Show trial state message
+        # TODO: add this message on screen (?)
         trial_state_message(main_window)
 
         # Show the stimulus
-        show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector)
+        show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector, screen_params)
 
     # Debug - show the screen
     # draw the stimuli and update the window
