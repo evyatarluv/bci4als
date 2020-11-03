@@ -155,6 +155,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
         # Flip the screen
         main_window.flip()
 
+        # TODO: Make it work
         # Halt if escape was pressed
         # print(event.getKeys())
         # if 'escape' == event.getKeys()[0]:
