@@ -96,17 +96,25 @@ def window_init():
 
 
 def prepare_training():
+    """
+    The function create two list for the training part.
+    The first list include the index of the white rect which surrounded with green frame in the specific trial.
+    For example: surrounded_index[i] = j means that in the i trial the j rectangle is surrounded.
+    The second list include the frequency of the surrounded rectangle.
+    For example: surrounded_freq[i] = j means that in the i trial the surrounded rectangle showed in frequency j.
+    :return: two lists
+    """
 
     # Which rectangle is the rectangle with the green rect surround him,
     # in each trial
-    surrounded_rect = rnd.choices(range(num_targets), k=num_trials)
+    surrounded_index = rnd.choices(range(num_targets), k=num_trials)
     # TODO: save this vector
 
     # What is the frequency of the chosen rectangle
-    session_freq = [condition_freq[i] for i in surrounded_rect]
+    surrounded_freq = [condition_freq[i] for i in surrounded_index]
     # TODO: save this vector
 
-    return surrounded_rect, session_freq
+    return surrounded_index, surrounded_freq
 
 
 def ready_message(main_window):
@@ -171,7 +179,7 @@ def main():
                                         figure_flag=True)
 
     # Prepare set of training trials
-    training_vector, session_freq = prepare_training()
+    surrounded_rect, session_freq = prepare_training()
 
     # Run trials
     for i in range(num_trials):
