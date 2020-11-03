@@ -125,18 +125,7 @@ def ready_message(main_window):
     time.sleep(2)
 
 
-def show_stimulus(current_trial, current_freq, condition_binary, training_vector, screen_params, psychopy_params):
-
-    """
-
-    :param current_trial:
-    :param current_freq:
-    :param condition_binary:
-    :param training_vector:
-    :param screen_params:
-    :param psychopy_params:
-    :return:
-    """
+def show_stimulus(condition_binary, surrounded_index, screen_params, psychopy_params):
 
     # Exclude params from dictionaries
     num_frames = screen_params['num_frames']
@@ -144,9 +133,25 @@ def show_stimulus(current_trial, current_freq, condition_binary, training_vector
     white_rect = psychopy_params['white_rect']
     green_rect = psychopy_params['green_rect']
 
+    # For each frame decide for each rect if to show it or hide it by his frequency
     for frame in range(num_frames):
 
-        pass
+        # Clear the screen
+        main_window.flip()
+
+        # For each frequency & rectangle index
+        for rect_index, freq in enumerate(condition_binary):
+
+            if condition_binary[freq][frame] == 1:
+
+                white_rect[rect_index].draw()
+
+        # Show the green rectangle
+        green_rect.pos = white_rect[surrounded_index].pos
+        green_rect.draw()
+
+        # Flip the screen
+        main_window.flip()
 
 
 def get_screen_params(window):
@@ -199,8 +204,7 @@ def main():
         # TODO: add LSL push: (1111), (current_rect_index), (current_rect_freq)
 
         # Show the stimulus
-        show_stimulus(current_rect_index, current_rect_freq, condition_binary, surrounded_index,
-                      screen_params, psychopy_params)
+        show_stimulus(condition_binary, surrounded_index, screen_params, psychopy_params)
 
     # Debug - show the screen
     # draw the stimuli and update the window
