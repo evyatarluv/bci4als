@@ -99,14 +99,14 @@ def prepare_training():
 
     # Which rectangle is the rectangle with the green rect surround him,
     # in each trial
-    training_vector = rnd.choices(range(num_targets), k=num_trials)
+    surrounded_rect = rnd.choices(range(num_targets), k=num_trials)
     # TODO: save this vector
 
     # What is the frequency of the chosen rectangle
-    session_freq = [condition_freq[i] for i in training_vector]
+    session_freq = [condition_freq[i] for i in surrounded_rect]
     # TODO: save this vector
 
-    return training_vector, session_freq
+    return surrounded_rect, session_freq
 
 
 def ready_message(main_window):
@@ -117,20 +117,24 @@ def ready_message(main_window):
     time.sleep(2)
 
 
-def show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector, screen_params):
+def show_stimulus(current_trial, current_freq, condition_binary, training_vector, screen_params, psychopy_params):
 
     """
-    The function display the white squares and green cure. Additionally keypress listener.
-    :param main_window:
-    :param white_rect:
-    :param green_rect:
+
+    :param current_trial:
+    :param current_freq:
     :param condition_binary:
     :param training_vector:
     :param screen_params:
+    :param psychopy_params:
     :return:
     """
 
+    # Exclude params from dictionaries
     num_frames = screen_params['num_frames']
+    main_window = psychopy_params['main_window']
+    white_rect = psychopy_params['white_rect']
+    green_rect = psychopy_params['green_rect']
 
     for frame in range(num_frames):
 
