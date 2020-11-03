@@ -125,7 +125,7 @@ def ready_message(main_window):
     time.sleep(2)
 
 
-def show_stimulus(condition_binary, surrounded_index, screen_params, psychopy_params):
+def show_stimulus(condition_binary, current_rect_index, screen_params, psychopy_params):
 
     # Exclude params from dictionaries
     num_frames = screen_params['num_frames']
@@ -147,7 +147,7 @@ def show_stimulus(condition_binary, surrounded_index, screen_params, psychopy_pa
                 white_rect[rect_index].draw()
 
         # Show the green rectangle
-        green_rect.pos = white_rect[surrounded_index].pos
+        green_rect.pos = white_rect[current_rect_index].pos
         green_rect.draw()
 
         # Flip the screen
@@ -158,16 +158,21 @@ def get_screen_params(window):
 
     refresh_rate = 1 / window.monitorFramePeriod
 
-    num_frames = np.floor(trial_length / window.monitorFramePeriod)
+    num_frames = int(np.floor(trial_length / window.monitorFramePeriod))
 
     wait_frames = 1
 
     return {'refresh_rate': refresh_rate, 'num_frames': num_frames, 'wait_frames': wait_frames}
 
 
-def trial_state_message(main_window):
+def trial_state_message(main_window, current_trial, total_trials):
 
-    pass
+    trial_state = 'Trial: #{} from {}'.format(current_trial, total_trials)
+
+    ready_text = visual.TextStim(main_window, trial_state, pos=[0, 0], color='white')
+    ready_text.draw()
+    main_window.flip()
+    time.sleep(2)
 
 
 def main():
@@ -198,13 +203,13 @@ def main():
 
         # Show trial state message
         # TODO: add this message on screen (?)
-        trial_state_message(psychopy_params['main_window'])
+        trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
         # TODO: add LSL push: (1111), (current_rect_index), (current_rect_freq)
 
         # Show the stimulus
-        show_stimulus(condition_binary, surrounded_index, screen_params, psychopy_params)
+        show_stimulus(condition_binary, current_rect_index, screen_params, psychopy_params)
 
     # Debug - show the screen
     # draw the stimuli and update the window
