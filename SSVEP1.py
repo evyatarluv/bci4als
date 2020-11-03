@@ -74,6 +74,11 @@ def create_white_rect(main_window, rect_size):
 
 def window_init():
 
+    """
+    init the psychopy window
+    :return: dictionary with the window, white rect and green rect
+    """
+
     green_size = visual_params['green_rect_size']
     rect_size = visual_params['white_rect_size']
 
@@ -87,7 +92,7 @@ def window_init():
     # Create white rectangles and locate them on screen
     white_rect = create_white_rect(main_window, rect_size)
 
-    return main_window, white_rect, green_rect
+    return {'main_window': main_window, 'white_rect': white_rect, 'green_rect': green_rect}
 
 
 def prepare_training():
