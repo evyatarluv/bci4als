@@ -135,8 +135,6 @@ def show_stimulus(main_window, white_rect, green_rect, condition_binary, trainin
     for frame in range(num_frames):
 
 
-
-
 def get_screen_params(window):
 
     refresh_rate = 1 / window.monitorFramePeriod
@@ -160,8 +158,7 @@ def main():
 
     # Initialize the main window and rectangles
     psychopy_params = window_init()
-    main_window, white_rect, green_rect = window_init()
-    screen_params = get_screen_params(main_window)
+    screen_params = get_screen_params(psychopy_params['main_window'])
 
     # Building the binary stimulus vectors
     condition_binary = binary_stim_init(refresh_rate=screen_params['refresh_rate'],
@@ -178,14 +175,14 @@ def main():
         current_freq = session_freq[i]
 
         # Show 'Ready' message on screen
-        ready_message(main_window)
+        ready_message(psychopy_params['main_window'])
 
         # Show trial state message
         # TODO: add this message on screen (?)
-        trial_state_message(main_window)
+        trial_state_message(psychopy_params['main_window'])
 
         # Show the stimulus
-        show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector, screen_params)
+        show_stimulus(current_trial, current_freq, condition_binary, training_vector, screen_params, psychopy_params)
 
     # Debug - show the screen
     # draw the stimuli and update the window
