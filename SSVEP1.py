@@ -134,10 +134,12 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
     green_rect = psychopy_params['green_rect']
 
     # For each frame decide for each rect if to show it or hide it by his frequency
+    # Debug - measure time of trails
+    start_trial = time.time()
     for frame in range(num_frames):
 
         # Clear the screen
-        main_window.flip()
+        main_window.clearBuffer()
 
         # For each frequency & rectangle index
         for rect_index, freq in enumerate(condition_binary):
@@ -154,8 +156,12 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
         main_window.flip()
 
         # Halt if escape was pressed
-        if 'Esc' in event.getKeys():
-            return
+        # print(event.getKeys())
+        # if 'escape' == event.getKeys()[0]:
+        #     return
+
+    # Debug - measure time of trial
+    print('Trial duration: {} (s)'.format(time.time() - start_trial))
 
 
 def get_screen_params(window):
@@ -171,7 +177,7 @@ def get_screen_params(window):
 
 def trial_state_message(main_window, current_trial, total_trials):
 
-    trial_state = 'Trial: #{} from {}'.format(current_trial, total_trials)
+    trial_state = 'Trial: #{} from {}'.format(current_trial + 1, total_trials)
 
     ready_text = visual.TextStim(main_window, trial_state, pos=[0, 0], color='white')
     ready_text.draw()
