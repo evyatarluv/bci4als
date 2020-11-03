@@ -153,6 +153,10 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
         # Flip the screen
         main_window.flip()
 
+        # Halt if escape was pressed
+        if 'Esc' in event.getKeys():
+            return
+
 
 def get_screen_params(window):
 
@@ -198,10 +202,8 @@ def main():
         surrounded_rect_index = surrounded_index[i]
         surrounded_rect_freq = surrounded_freq[i]
 
-        # Show 'Ready' message on screen
+        # Messages for user
         ready_message(psychopy_params['main_window'])
-
-        # Show trial state message
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
