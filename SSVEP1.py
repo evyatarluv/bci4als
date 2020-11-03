@@ -55,6 +55,23 @@ def binary_stim_init(refresh_rate, figure_flag=False):
     return binary_vector
 
 
+def create_white_rect(main_window, rect_size):
+
+    # Params
+    white_rect = []
+    spacing = (main_window.size[0] - (rect_size * num_targets)) / (num_targets + 1)  # space between two rect
+    current_pos = -main_window.size[0] / 2  # current position for locating the next rect
+
+    # Creating & locating the rectangles
+    for i in range(1, num_targets + 1):
+        current_pos += spacing + (rect_size / 2)
+        white_rect.append(visual.Rect(win=main_window, size=[rect_size, rect_size], pos=[current_pos, 0],
+                                      units='pix', lineColor=None, fillColor='white'))
+        current_pos += rect_size / 2
+
+    return white_rect
+
+
 def window_init():
 
     green_size = visual_params['green_rect_size']
@@ -68,16 +85,7 @@ def window_init():
     green_rect = visual.Rect(win=main_window, size=[green_size, green_size], units='pix', lineColor='green')
 
     # Create white rectangles and locate them on screen
-    white_rect = []
-    spacing = (main_window.size[0] - (rect_size * num_targets)) / (num_targets + 1)
-    current_pos = -main_window.size[0] / 2
-
-    for i in range(1, num_targets + 1):
-
-        current_pos += spacing + (rect_size / 2)
-        white_rect.append(visual.Rect(win=main_window, size=[rect_size, rect_size], pos=[current_pos, 0],
-                                      units='pix', lineColor=None, fillColor='white'))
-        current_pos += rect_size / 2
+    white_rect = create_white_rect(main_window, rect_size)
 
     return main_window, white_rect, green_rect
 
@@ -106,7 +114,22 @@ def ready_message(main_window):
 
 def show_stimulus(main_window, white_rect, green_rect, condition_binary, training_vector, screen_params):
 
-    pass
+    """
+    The function display the white squares and green cure. Additionally keypress listener.
+    :param main_window:
+    :param white_rect:
+    :param green_rect:
+    :param condition_binary:
+    :param training_vector:
+    :param screen_params:
+    :return:
+    """
+
+    num_frames = screen_params['num_frames']
+
+    for frame in range(num_frames):
+
+
 
 
 def get_screen_params(window):
@@ -131,6 +154,7 @@ def main():
     # TODO: init LSL
 
     # Initialize the main window and rectangles
+    psychopy_params = window_init()
     main_window, white_rect, green_rect = window_init()
     screen_params = get_screen_params(main_window)
 
