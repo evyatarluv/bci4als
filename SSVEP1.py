@@ -157,7 +157,7 @@ def get_screen_params(window):
 
     wait_frames = 1
 
-    return {'refresh_rate': refresh_rate, 'num_frame': num_frames, 'wait_frames': wait_frames}
+    return {'refresh_rate': refresh_rate, 'num_frames': num_frames, 'wait_frames': wait_frames}
 
 
 def trial_state_message(main_window):
@@ -170,23 +170,23 @@ def main():
     # Initialize the LSL
     # TODO: init LSL
 
-    # Initialize the main window and rectangles
+    # Initialize psychopy and screen params
     psychopy_params = window_init()
     screen_params = get_screen_params(psychopy_params['main_window'])
 
     # Building the binary stimulus vectors
     condition_binary = binary_stim_init(refresh_rate=screen_params['refresh_rate'],
-                                        figure_flag=True)
+                                        figure_flag=False)
 
     # Prepare set of training trials
-    surrounded_rect, session_freq = prepare_training()
+    surrounded_index, surrounded_freq = prepare_training()
 
     # Run trials
     for i in range(num_trials):
 
-        # Update the current trial & frequency
-        current_trial = training_vector[i]
-        current_freq = session_freq[i]
+        # Update the current surrounded rectangle index & frequency
+        current_rect_index = surrounded_index[i]
+        current_rect_freq = surrounded_freq[i]
 
         # Show 'Ready' message on screen
         ready_message(psychopy_params['main_window'])
@@ -195,8 +195,12 @@ def main():
         # TODO: add this message on screen (?)
         trial_state_message(psychopy_params['main_window'])
 
+        # Push LSL samples for start trial and the trial's conditions
+        # TODO: add LSL push: (1111), (current_rect_index), (current_rect_freq)
+
         # Show the stimulus
-        show_stimulus(current_trial, current_freq, condition_binary, training_vector, screen_params, psychopy_params)
+        show_stimulus(current_rect_index, current_rect_freq, condition_binary, surrounded_index,
+                      screen_params, psychopy_params)
 
     # Debug - show the screen
     # draw the stimuli and update the window
