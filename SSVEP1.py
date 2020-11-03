@@ -168,7 +168,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
         #     return
 
     # Debug - measure time of trial
-    print('Trial duration: {} (s)'.format(time.time() - start_trial))
+    print('Trial duration: {} (s)'.format(round(time.time() - start_trial, 3)))
 
 
 def get_screen_params(window):
