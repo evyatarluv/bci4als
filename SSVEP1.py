@@ -134,6 +134,8 @@ def show_stimulus(main_window, white_rect, green_rect, condition_binary, trainin
 
     for frame in range(num_frames):
 
+        pass
+
 
 def get_screen_params(window):
 
@@ -186,6 +188,9 @@ def main():
 
     # Debug - show the screen
     # draw the stimuli and update the window
+    white_rect = psychopy_params['white_rect']
+    green_rect = psychopy_params['green_rect']
+    main_window = psychopy_params['main_window']
     while True:
 
         green_rect.pos = white_rect[0].pos
