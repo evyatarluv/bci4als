@@ -133,6 +133,12 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
     white_rect = psychopy_params['white_rect']
     green_rect = psychopy_params['green_rect']
 
+    # Show the green rectangle first
+    green_rect.pos = white_rect[surrounded_rect_index].pos
+    green_rect.draw()
+    main_window.flip()
+    time.sleep(2)
+
     # For each frame decide for each rect if to show it or hide it by his frequency
     # Debug - measure time of trails
     start_trial = time.time()
