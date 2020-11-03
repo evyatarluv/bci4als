@@ -125,7 +125,7 @@ def ready_message(main_window):
     time.sleep(2)
 
 
-def show_stimulus(condition_binary, current_rect_index, screen_params, psychopy_params):
+def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params):
 
     # Exclude params from dictionaries
     num_frames = screen_params['num_frames']
@@ -147,7 +147,7 @@ def show_stimulus(condition_binary, current_rect_index, screen_params, psychopy_
                 white_rect[rect_index].draw()
 
         # Show the green rectangle
-        green_rect.pos = white_rect[current_rect_index].pos
+        green_rect.pos = white_rect[surrounded_rect_index].pos
         green_rect.draw()
 
         # Flip the screen
@@ -195,23 +195,29 @@ def main():
     for i in range(num_trials):
 
         # Update the current surrounded rectangle index & frequency
-        current_rect_index = surrounded_index[i]
-        current_rect_freq = surrounded_freq[i]
+        surrounded_rect_index = surrounded_index[i]
+        surrounded_rect_freq = surrounded_freq[i]
 
         # Show 'Ready' message on screen
         ready_message(psychopy_params['main_window'])
 
         # Show trial state message
-        # TODO: add this message on screen (?)
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
-        # TODO: add LSL push: (1111), (current_rect_index), (current_rect_freq)
+        # TODO: add LSL push: (1111), (surrounded_rect_index), (surrounded_rect_freq)
 
         # Show the stimulus
-        show_stimulus(condition_binary, current_rect_index, screen_params, psychopy_params)
+        show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params)
 
-    # Debug - show the screen
+
+if __name__ == '__main__':
+
+    main()
+
+
+# old debug
+'''    # Debug - show the screen
     # draw the stimuli and update the window
     white_rect = psychopy_params['white_rect']
     green_rect = psychopy_params['green_rect']
@@ -232,9 +238,4 @@ def main():
 
     # cleanup
     main_window.close()
-    core.quit()
-
-
-if __name__ == '__main__':
-
-    main()
+    core.quit()'''
