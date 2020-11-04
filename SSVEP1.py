@@ -213,7 +213,7 @@ def init_lsl():
 def main():
 
     # Initialize the LSL
-    lsl = init_lsl()
+    outlet_stream = init_lsl()
 
     # Initialize psychopy and screen params
     psychopy_params = window_init()
@@ -238,6 +238,7 @@ def main():
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
+
         # TODO: add LSL push: (1111), (surrounded_rect_index), (surrounded_rect_freq)
 
         # Show the stimulus
