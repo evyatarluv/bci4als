@@ -204,7 +204,6 @@ def init_lsl():
     outlet_stream = pylsl.StreamOutlet(info)
 
     print('Open Lab Recorder & check for MarkerStream and EEG stream')
-
     input('Start recording and hit any key to continue')
 
     return outlet_stream
@@ -227,9 +226,10 @@ def main():
     surrounded_index, surrounded_freq = prepare_training()
 
     # Push marker for starting the training
-    outlet_stream.push_sample(111)
+    outlet_stream.push_sample(['111'])
 
     # Run trials
+    print('\nStart running trials')
     for i in range(num_trials):
 
         # Update the current surrounded rectangle index & frequency
@@ -241,10 +241,16 @@ def main():
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
-        outlet_stream.push_chunk([1111, surrounded_index, surrounded_freq])
+        outlet_stream.push_sample(['1111'])
+        outlet_stream.push_sample([str(surrounded_index)])
+        outlet_stream.push_sample([str(surrounded_freq)])
 
         # Show the stimulus
         show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params)
+
+    # End experiment
+    outlet_stream.push_sample(['99'])  # 99 is end of experiment
+    print('Stop the LabRecording recording')
 
 
 if __name__ == '__main__':
