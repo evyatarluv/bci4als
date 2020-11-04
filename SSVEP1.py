@@ -134,6 +134,13 @@ def get_keypress():
         return None
 
 
+def shutdown_training(win):
+
+    print('Escape was pressed, immediate shutdown')
+    win.close()
+    core.quit()
+
+
 def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params):
 
     # Exclude params from dictionaries
@@ -172,7 +179,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
 
         # Halt if escape was pressed
         if 'escape' == get_keypress():
-            return
+            shutdown_training(main_window)
 
     # Debug - measure time of trial
     print('Trial duration: {} (s)'.format(round(time.time() - start_trial, 3)))
