@@ -20,15 +20,17 @@ def main():
     # next make an outlet
     outlet = StreamOutlet(info)
 
-    print("now sending data...")
+    print("now sending EEG data...")
     while True:
         # make a new random 8-channel sample; this is converted into a
         # pylsl.vectorf (the data type that is expected by push_sample)
-        mysample = [rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()]
+        eeg_sample = [rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()]
         # now send it and wait for a bit
-        outlet.push_sample(mysample)
+        outlet.push_sample(eeg_sample)
         time.sleep(0.01)
 
 
 if __name__ == '__main__':
+
     main()
+
