@@ -200,7 +200,7 @@ def init_lsl():
     :return: outlet stream object
     """
 
-    info = pylsl.StreamInfo('MarkerStream', 'Markers', 1, 0, 'cf_string', 'myuniquesourceid23443')
+    info = pylsl.StreamInfo('MarkerStream', 'Markers', 1, 0, 'string', 'myuniquesourceid23443')
     outlet_stream = pylsl.StreamOutlet(info)
 
     print('Open Lab Recorder & check for MarkerStream and EEG stream')
