@@ -242,8 +242,8 @@ def main():
 
         # Push LSL samples for start trial and the trial's conditions
         outlet_stream.push_sample(['1111'])
-        outlet_stream.push_sample([str(surrounded_index)])
-        outlet_stream.push_sample([str(surrounded_freq)])
+        outlet_stream.push_sample([str(surrounded_rect_index)])
+        outlet_stream.push_sample([str(surrounded_rect_freq)])
 
         # Show the stimulus
         show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params)
