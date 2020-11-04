@@ -210,18 +210,6 @@ def init_lsl():
     return outlet_stream
 
 
-def push_trial_samples(outlet_stream, samples):
-    """
-    function for pushing chunk of samples.
-    :param outlet_stream: the outlet
-    :param samples: list of samples to push
-    :return:
-    """
-    for sample in samples:
-
-        outlet_stream.push_sample(sample)
-
-
 def main():
 
     # Initialize the LSL
@@ -262,28 +250,3 @@ def main():
 if __name__ == '__main__':
 
     main()
-
-
-# old debug
-'''    # Debug - show the screen
-    # draw the stimuli and update the window
-    white_rect = psychopy_params['white_rect']
-    green_rect = psychopy_params['green_rect']
-    main_window = psychopy_params['main_window']
-    while True:
-
-        green_rect.pos = white_rect[0].pos
-        green_rect.draw()
-
-        for r in white_rect:
-            r.draw()
-
-        main_window.flip()
-
-        if len(event.getKeys()) > 0:
-            break
-        event.clearEvents()
-
-    # cleanup
-    main_window.close()
-    core.quit()'''
