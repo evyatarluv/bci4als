@@ -15,15 +15,14 @@ def main():
     # last value would be the serial number of the device or some other more or
     # less locally unique identifier for the stream as far as available (you
     # could also omit it but interrupted connections wouldn't auto-recover)
-    info = StreamInfo('BioSemi', 'EEG', 8, 100, 'float32', 'myuid34234')
+    info = StreamInfo('OpenBCI', 'EEG', 8, 100, 'float32', 'myuid34234')
 
     # next make an outlet
     outlet = StreamOutlet(info)
 
     print("now sending EEG data...")
     while True:
-        # make a new random 8-channel sample; this is converted into a
-        # pylsl.vectorf (the data type that is expected by push_sample)
+
         eeg_sample = [rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()]
         # now send it and wait for a bit
         outlet.push_sample(eeg_sample)
