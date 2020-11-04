@@ -210,6 +210,18 @@ def init_lsl():
     return outlet_stream
 
 
+def push_trial_samples(outlet_stream, samples):
+    """
+    function for pushing chunk of samples.
+    :param outlet_stream: the outlet
+    :param samples: list of samples to push
+    :return:
+    """
+    for sample in samples:
+
+        outlet_stream.push_sample(sample)
+
+
 def main():
 
     # Initialize the LSL
@@ -226,6 +238,9 @@ def main():
     # Prepare set of training trials
     surrounded_index, surrounded_freq = prepare_training()
 
+    # Push marker for starting the training
+    outlet_stream.push_sample(111)
+
     # Run trials
     for i in range(num_trials):
 
@@ -238,8 +253,7 @@ def main():
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
-
-        # TODO: add LSL push: (1111), (surrounded_rect_index), (surrounded_rect_freq)
+        outlet_stream.push_chunk([1111, surrounded_index, surrounded_freq])
 
         # Show the stimulus
         show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params)
