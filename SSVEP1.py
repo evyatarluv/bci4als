@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random as rnd
 import time
+import pylsl
 
 # Params
 # TODO: Rearrange the params into dicts
@@ -192,10 +193,27 @@ def trial_state_message(main_window, current_trial, total_trials):
     time.sleep(2)
 
 
+def init_lsl():
+
+    """
+    Define the stream parameters and create outlet stream.
+    :return: outlet stream object
+    """
+
+    info = pylsl.StreamInfo('MarkerStream', 'Markers', 1, 0, 'cf_string', 'myuniquesourceid23443')
+    outlet_stream = pylsl.StreamOutlet(info)
+
+    print('Open Lab Recorder & check for MarkerStream and EEG stream')
+
+    input('Start recording and hit any key to continue')
+
+    return outlet_stream
+
+
 def main():
 
     # Initialize the LSL
-    # TODO: init LSL
+    lsl = init_lsl()
 
     # Initialize psychopy and screen params
     psychopy_params = window_init()
