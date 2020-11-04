@@ -1,6 +1,6 @@
 """
 Example program to demonstrate how to send a multi-channel time series to LSL.
-I used this example in order to
+I used this example in order to simulate EEG stream
 """
 
 import time
