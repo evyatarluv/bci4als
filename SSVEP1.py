@@ -126,6 +126,14 @@ def ready_message(main_window):
     time.sleep(2)
 
 
+def get_keypress():
+    keys = event.getKeys()
+    if keys:
+        return keys[0]
+    else:
+        return None
+
+
 def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params):
 
     # Exclude params from dictionaries
@@ -141,7 +149,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
     time.sleep(2)
 
     # For each frame decide for each rect if to show it or hide it by his frequency
-    # Debug - measure time of trails
+    # Debug - measure time of trials
     start_trial = time.time()
     for frame in range(num_frames):
 
@@ -162,11 +170,9 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
         # Flip the screen
         main_window.flip()
 
-        # TODO: Make it work
         # Halt if escape was pressed
-        # print(event.getKeys())
-        # if 'escape' == event.getKeys()[0]:
-        #     return
+        if 'escape' == get_keypress():
+            return
 
     # Debug - measure time of trial
     print('Trial duration: {} (s)'.format(round(time.time() - start_trial, 3)))
