@@ -14,6 +14,12 @@ num_trials = 30  # set number of training trials
 num_targets = 2  # set number of possible targets
 condition_freq = [7, 17]  # frequency vectors for each target (length must correspond to num_targets)
 
+lsl_params = {
+    'start_experiment': '1111',
+    'start_trial': '111',
+    'end_experiment': '99',
+}
+
 recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'
 
 visual_params = {
@@ -90,8 +96,7 @@ def window_init():
     rect_size = visual_params['white_rect_size']
 
     # create the main window
-    # will change later to full-screen mode
-    main_window = visual.Window([800, 600], monitor="testMonitor", units="pix")
+    main_window = visual.Window([1280, 720], monitor="testMonitor", units="pix", fullscr=True)
 
     # Create green rectangle
     green_rect = visual.Rect(win=main_window, size=[green_size, green_size], units='pix', lineColor='green')
@@ -197,7 +202,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
 
         # Halt if escape was pressed
         if 'escape' == get_keypress():
-            shutdown_training(main_window, 'User press `escape`, shutdown immediately')
+            shutdown_training(main_window, 'User pressed `escape`, shutdown immediately')
 
     # Debug - measure time of trial
     print('Trial duration: {} (s)'.format(round(time.time() - start_trial, 3)))
@@ -285,8 +290,8 @@ def main():
     # Prepare set of training trials
     surrounded_index, surrounded_freq = prepare_training(subject_folder)
 
-    # Push marker for starting the training
-    outlet_stream.push_sample(['111'])
+    # Push marker to mark the start of the experiment
+    outlet_stream.push_sample([lsl_params['start_experiment']])
 
     # Run trials
     print('\nStart running trials')
@@ -301,7 +306,7 @@ def main():
         trial_state_message(psychopy_params['main_window'], i, num_trials)
 
         # Push LSL samples for start trial and the trial's conditions
-        outlet_stream.push_sample(['1111'])
+        outlet_stream.push_sample([lsl_params['start_trial']])
         outlet_stream.push_sample([str(surrounded_rect_index)])
         outlet_stream.push_sample([str(surrounded_rect_freq)])
 
@@ -309,8 +314,8 @@ def main():
         show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params)
 
     # End experiment
-    outlet_stream.push_sample(['99'])  # 99 is end of experiment
-    print('Stop the LabRecording recording')
+    outlet_stream.push_sample([lsl_params['end_experiment']])
+    shutdown_training(psychopy_params['main_window'], 'Stop the LabRecording recording')
 
 
 if __name__ == '__main__':
