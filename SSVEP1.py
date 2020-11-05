@@ -8,19 +8,21 @@ import os
 import pandas as pd
 
 # Params
-# TODO: Rearrange the params into dicts
 trial_length = 5  # each trial length in seconds
+
 num_trials = 30  # set number of training trials
+
 num_targets = 2  # set number of possible targets
+
 condition_freq = [7, 17]  # frequency vectors for each target (length must correspond to num_targets)
+
+recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'  # folder to locate the subject folder
 
 lsl_params = {
     'start_experiment': '1111',
     'start_trial': '111',
     'end_experiment': '99',
 }
-
-recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'
 
 visual_params = {
     'white_rect_size': 180,
