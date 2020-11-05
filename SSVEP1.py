@@ -5,6 +5,7 @@ import random as rnd
 import time
 import pylsl
 import os
+import pandas as pd
 
 # Params
 # TODO: Rearrange the params into dicts
@@ -29,10 +30,11 @@ def plot_figure(sin, binary, t, freq):
     plt.show()
 
 
-def binary_stim_init(refresh_rate, figure_flag=False):
+def binary_stim_init(refresh_rate, subject_folder, figure_flag=False):
 
     """
     This function creates dict containing a binary sequence of sine waves
+    :param subject_folder: the directory of the current subject
     :param refresh_rate: refresh rate for the monitor
     :param figure_flag: would you like to show the output waves? (bool)
     :return: dict with all frequencies binary sequence
@@ -54,7 +56,8 @@ def binary_stim_init(refresh_rate, figure_flag=False):
         if figure_flag:
             plot_figure(sine_waves[freq], binary_vector[freq], t, freq)
 
-    # TODO: save the binary vector
+    # Save the binary vector as csv file
+    pd.DataFrame.from_dict(binary_vector).to_csv(subject_folder + '\\binary_vectors.csv', index=False)
 
     return binary_vector
 
@@ -99,7 +102,7 @@ def window_init():
     return {'main_window': main_window, 'white_rect': white_rect, 'green_rect': green_rect}
 
 
-def prepare_training():
+def prepare_training(subject_folder):
     """
     The function create two list for the training part.
     The first list include the index of the white rect which surrounded with green frame in the specific trial.
@@ -117,6 +120,13 @@ def prepare_training():
     # What is the frequency of the chosen rectangle
     surrounded_freq = [condition_freq[i] for i in surrounded_index]
     # TODO: save this vector
+
+    # Save the files
+    pd.DataFrame.from_dict({
+        'trial': range(1, num_trials + 1),
+        'surrounded_index': surrounded_index,
+        'surrounded_freq': surrounded_freq
+    }).to_csv(subject_folder + '\\training_trials.csv')
 
     return surrounded_index, surrounded_freq
 
@@ -226,7 +236,7 @@ def init_lsl():
     info = pylsl.StreamInfo('MarkerStream', 'Markers', 1, 0, 'string', 'myuniquesourceid23443')
     outlet_stream = pylsl.StreamOutlet(info)
 
-    print('Open Lab Recorder & check for MarkerStream and EEG stream')
+    print('\nOpen Lab Recorder & check for MarkerStream and EEG stream')
     input('Start recording and hit any key to continue')
 
     return outlet_stream
@@ -239,16 +249,22 @@ def init_directory():
     :return: the subject directory
     """
 
-    # Get the subject id
-    subject_id = input('Please enter subject ID: ')
+    while True:
 
-    # Update the recording folder directory
-    subject_folder = recording_folder + '\\' + subject_id
+        # Get the subject id
+        subject_id = input('Please enter subject ID: ')
 
-    # Create new folder for the current subject
-    os.mkdir(subject_folder)
+        # Update the recording folder directory
+        subject_folder = recording_folder + '\\' + subject_id
 
-    return subject_folder
+        try:
+            # Create new folder for the current subject
+            os.mkdir(subject_folder)
+            print('The subject folder was created successfully')
+            return subject_folder
+
+        except Exception as e:
+            print('An {} exception occurred, insert subject ID again'.format(type(e).__name__))
 
 
 def main():
@@ -265,6 +281,7 @@ def main():
 
     # Building the binary stimulus vectors
     condition_binary = binary_stim_init(refresh_rate=screen_params['refresh_rate'],
+                                        subject_folder=subject_folder,
                                         figure_flag=False)
 
     # Prepare set of training trials
