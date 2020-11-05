@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import random as rnd
 import time
 import pylsl
+import os
 
 # Params
 # TODO: Rearrange the params into dicts
@@ -12,7 +13,7 @@ num_trials = 30  # set number of training trials
 num_targets = 2  # set number of possible targets
 condition_freq = [7, 17]  # frequency vectors for each target (length must correspond to num_targets)
 
-
+recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'
 
 visual_params = {
     'white_rect_size': 180,
@@ -231,12 +232,34 @@ def init_lsl():
     return outlet_stream
 
 
+def init_directory():
+
+    """
+    init the current subject directory
+    :return: the subject directory
+    """
+
+    # Get the subject id
+    subject_id = input('Please enter subject ID: ')
+
+    # Update the recording folder directory
+    subject_folder = recording_folder + '\\' + subject_id
+
+    # Create new folder for the current subject
+    os.mkdir(subject_folder)
+
+    return subject_folder
+
+
 def main():
 
-    # Initialize the LSL
+    # Update the directory for the current subject
+    subject_folder = init_directory()
+
+    # Init the LSL
     outlet_stream = init_lsl()
 
-    # Initialize psychopy and screen params
+    # Init psychopy and screen params
     psychopy_params = window_init()
     screen_params = get_screen_params(psychopy_params['main_window'])
 
