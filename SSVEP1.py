@@ -126,7 +126,7 @@ def prepare_training(subject_folder):
         'trial': range(1, num_trials + 1),
         'surrounded_index': surrounded_index,
         'surrounded_freq': surrounded_freq
-    }).to_csv(subject_folder + '\\training_trials.csv')
+    }).to_csv(subject_folder + '\\training_trials.csv', index=False)
 
     return surrounded_index, surrounded_freq
 
@@ -285,7 +285,7 @@ def main():
                                         figure_flag=False)
 
     # Prepare set of training trials
-    surrounded_index, surrounded_freq = prepare_training()
+    surrounded_index, surrounded_freq = prepare_training(subject_folder)
 
     # Push marker for starting the training
     outlet_stream.push_sample(['111'])
