@@ -1,4 +1,4 @@
-from psychopy import visual, core, event  # import some libraries from PsychoPy
+from psychopy import visual, core, event
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rnd
