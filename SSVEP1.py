@@ -32,6 +32,15 @@ visual_params = {
 
 def plot_figure(sin, binary, t, freq):
 
+    """
+    plot figures of the sin wave and the binary vector
+    :param sin:
+    :param binary:
+    :param t:
+    :param freq:
+    :return:
+    """
+
     plt.plot(t, sin)
     plt.plot(t, binary)
     plt.title('Frequency = {}'.format(freq))
@@ -71,6 +80,14 @@ def binary_stim_init(refresh_rate, subject_folder, figure_flag=False):
 
 
 def create_white_rect(main_window, rect_size):
+
+    """
+    Creating the white rectangle and locate them on the screen.
+    Currently, the rectangles lined up in one row.
+    :param main_window: psycopy window
+    :param rect_size: the size of the white rectangle
+    :return: list with all the rectangles
+    """
 
     # Params
     white_rect = []
@@ -137,7 +154,11 @@ def prepare_training(subject_folder):
 
 
 def ready_message(main_window):
-
+    """
+    Shows 'Ready' message on screen.
+    :param main_window: psychopy window
+    :return:
+    """
     ready_text = visual.TextStim(main_window, 'Ready', pos=[0, 0], color='white')
     ready_text.draw()
     main_window.flip()
@@ -145,6 +166,12 @@ def ready_message(main_window):
 
 
 def get_keypress():
+
+    """
+    Get keypress of the user
+    :return: string of the key
+    """
+
     keys = event.getKeys()
     if keys:
         return keys[0]
@@ -167,6 +194,15 @@ def shutdown_training(win, message):
 
 
 def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psychopy_params):
+
+    """
+    Shows the white rectangles flickering and the green frame rectangle
+    :param condition_binary: dict with binary vector for each freq
+    :param surrounded_rect_index: the index of the white rectangle which need to be surrounded
+    :param screen_params:
+    :param psychopy_params:
+    :return:
+    """
 
     # Exclude params from dictionaries
     num_frames = screen_params['num_frames']
@@ -212,6 +248,12 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
 
 def get_screen_params(window):
 
+    """
+    Get the current screen params
+    :param window: psychopy window
+    :return:
+    """
+
     refresh_rate = 1 / window.monitorFramePeriod
 
     num_frames = int(np.floor(trial_length / window.monitorFramePeriod))
@@ -222,7 +264,13 @@ def get_screen_params(window):
 
 
 def trial_state_message(main_window, current_trial, total_trials):
-
+    """
+    Shows the trail state message on screen.
+    :param main_window: psychopy window
+    :param current_trial: the current trial index
+    :param total_trials: the total amount of trials
+    :return:
+    """
     trial_state = 'Trial: #{} from {}'.format(current_trial + 1, total_trials)
 
     ready_text = visual.TextStim(main_window, trial_state, pos=[0, 0], color='white')
