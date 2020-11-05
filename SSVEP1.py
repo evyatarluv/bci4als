@@ -103,6 +103,7 @@ def window_init():
 
 
 def prepare_training(subject_folder):
+
     """
     The function create two list for the training part.
     The first list include the index of the white rect which surrounded with green frame in the specific trial.
@@ -112,16 +113,13 @@ def prepare_training(subject_folder):
     :return: two lists
     """
 
-    # Which rectangle is the rectangle with the green rect surround him,
-    # in each trial
+    # Which rectangle is the rectangle with the green rect surround him in each trial
     surrounded_index = rnd.choices(range(num_targets), k=num_trials)
-    # TODO: save this vector
 
     # What is the frequency of the chosen rectangle
     surrounded_freq = [condition_freq[i] for i in surrounded_index]
-    # TODO: save this vector
 
-    # Save the files
+    # Save both vectors
     pd.DataFrame.from_dict({
         'trial': range(1, num_trials + 1),
         'surrounded_index': surrounded_index,
