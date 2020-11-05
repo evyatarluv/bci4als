@@ -134,9 +134,16 @@ def get_keypress():
         return None
 
 
-def shutdown_training(win):
+def shutdown_training(win, message):
 
-    print('Escape was pressed, immediate shutdown')
+    """
+    Shutdown the psychopy window after printing a message
+    :param win: psychopy window
+    :param message: shutdown message
+    :return:
+    """
+
+    print(message)
     win.close()
     core.quit()
 
