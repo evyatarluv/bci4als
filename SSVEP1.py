@@ -12,6 +12,8 @@ num_trials = 30  # set number of training trials
 num_targets = 2  # set number of possible targets
 condition_freq = [7, 17]  # frequency vectors for each target (length must correspond to num_targets)
 
+
+
 visual_params = {
     'white_rect_size': 180,
     'green_rect_size': 200,
@@ -186,7 +188,7 @@ def show_stimulus(condition_binary, surrounded_rect_index, screen_params, psycho
 
         # Halt if escape was pressed
         if 'escape' == get_keypress():
-            shutdown_training(main_window)
+            shutdown_training(main_window, 'User press `escape`, shutdown immediately')
 
     # Debug - measure time of trial
     print('Trial duration: {} (s)'.format(round(time.time() - start_trial, 3)))
