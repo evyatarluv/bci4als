@@ -30,9 +30,13 @@ def get_eeg_data():
     # Get the xdf file
     data, header = pyxdf.load_xdf(path)
 
-    # Get the EEG data & add channel names
+    # Get the EEG data
     eeg_data = data[eeg_index]['time_series']
-    eeg_data = pd.DataFrame(data=eeg_data, columns=data_params['channel_names'])
+
+    # Update channels name
+    # TODO: Update this according to OpenBCI setup
+    eeg_data = np.delete(eeg_data, obj=0, axis=1)  # Delete the first channel
+    # eeg_data = pd.DataFrame(data=eeg_data, columns=data_params['channel_names'])  # Add channels names
 
     # Debug print
     print('EEG data loaded\nData shape: {}'.format(eeg_data.shape))
