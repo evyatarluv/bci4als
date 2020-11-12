@@ -70,6 +70,8 @@ def filter_eeg_data(eeg):
     # High-pass filter
     eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
 
+    # Notch filter wasn't added because I didn't understand the Matlab `pop_basicfilter` args
+
     return eeg
 
 
@@ -89,3 +91,5 @@ def main():
 if __name__ == '__main__':
 
     main()
+
+
