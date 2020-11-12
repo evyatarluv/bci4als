@@ -12,7 +12,7 @@ data_params = {
     'eeg_index': 1,
     'channel_names': ['Fp1', 'Fp2', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
-    'sample_freq': 120,
+    'sample_freq': 120,  # TODO: Find the correct sample freq in OpenBCI
 }
 
 filter_params = {
@@ -59,12 +59,16 @@ def filter_eeg_data(eeg):
     # Params
     low_pass = filter_params['low_pass']
     high_pass = filter_params['high_pass']
+    sample_freq = data_params['sample_freq']
+
+    # Convert to float64 in order to fit mne functions
+    eeg = eeg.astype(np.float64)
 
     # Low-pass filter
-    eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass)
+    eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
 
     # High-pass filter
-    eeg = mne.filter.filter_data(eeg, l_freq=high_pass)
+    eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
 
     return eeg
 
@@ -76,6 +80,10 @@ def main():
 
     # Filter the data
     eeg = filter_eeg_data(eeg)
+
+    # TODO: add channel names
+
+    # TODO: save the filtered EEG
 
 
 
