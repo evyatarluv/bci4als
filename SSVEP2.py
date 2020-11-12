@@ -15,6 +15,11 @@ data_params = {
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03']
 }
 
+filter_params = {
+    'low_pass': 40,
+    'high_pass': 0.5,
+}
+
 
 def get_eeg_data():
 
@@ -43,10 +48,27 @@ def get_eeg_data():
     return eeg_data
 
 
+def filter_eeg_data(eeg):
+
+    """
+    All the filtering part will be in this function
+    :param eeg: ndarray of the original EEG data
+    :return: ndarray of the filtered EEG data
+    """
+
+    # Low-pass filter
+    eeg = mne.filter.filter_data(eeg, h_freq=40)
+
+    # High-pass filter
+    eeg = mne.filter.filter_data(eeg, l_freq=0.5)
+
 def main():
 
     # Load the EEG data
     eeg = get_eeg_data()
+
+    # Filter the data
+    eeg = filter_eeg_data(eeg)
 
 
 
