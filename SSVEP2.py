@@ -10,7 +10,6 @@ Preprocessing of EEG data
 data_params = {
     'path': 'exp_example.xdf',
     'eeg_index': 1,
-    'labels_index': 0,
     'channel_names': ['Fp1', 'Fp2', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03']
 }
@@ -21,16 +20,16 @@ filter_params = {
 }
 
 
-def get_eeg_data():
+def get_eeg_data(params):
 
     """
-
+    Get the raw EEG data
     :return:
     """
 
     # Get the params
-    path = data_params['path']
-    eeg_index = data_params['eeg_index']
+    path = params['path']
+    eeg_index = params['eeg_index']
 
     # Get the xdf file
     data, header = pyxdf.load_xdf(path)
@@ -48,27 +47,35 @@ def get_eeg_data():
     return eeg_data
 
 
-def filter_eeg_data(eeg):
+def filter_eeg_data(eeg, params):
 
     """
     All the filtering part will be in this function
+    :param params: dict of filtering parameters
     :param eeg: ndarray of the original EEG data
     :return: ndarray of the filtered EEG data
     """
 
+    # Params
+    low_pass = params['low_pass']
+    high_pass = params['high_pass']
+
     # Low-pass filter
-    eeg = mne.filter.filter_data(eeg, h_freq=40)
+    eeg = mne.filter.filter_data(eeg, h_freq=low_pass)
 
     # High-pass filter
-    eeg = mne.filter.filter_data(eeg, l_freq=0.5)
+    eeg = mne.filter.filter_data(eeg, l_freq=high_pass)
+
+    return eeg
+
 
 def main():
 
     # Load the EEG data
-    eeg = get_eeg_data()
+    eeg = get_eeg_data(data_params)
 
     # Filter the data
-    eeg = filter_eeg_data(eeg)
+    eeg = filter_eeg_data(eeg, filter_params)
 
 
 
