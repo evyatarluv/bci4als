@@ -86,7 +86,6 @@ def main():
     # TODO: save the filtered EEG
 
 
-
 if __name__ == '__main__':
 
     main()
