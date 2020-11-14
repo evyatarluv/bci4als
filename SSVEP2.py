@@ -5,6 +5,9 @@ import numpy as np
 
 """
 Preprocessing of EEG data
+
+The function planned to be stand-alone for later be able to preprocessing multiple
+subjects in easy way.
 """
 
 data_params = {
