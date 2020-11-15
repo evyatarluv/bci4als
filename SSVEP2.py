@@ -65,6 +65,7 @@ def filter_eeg_data(eeg, sample_freq, params):
 
     # Convert to float64 in order to fit mne functions
     eeg = eeg.astype(np.float64)
+    eeg = eeg.T
 
     # Low-pass filter
     eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
