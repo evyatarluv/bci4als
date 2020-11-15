@@ -1,15 +1,16 @@
-import mne
-from
-import pyxdf
-import pandas as pd
-import numpy as np
-
 """
 Preprocessing of EEG data
 
 The function planned to be stand-alone to be able to preprocessing multiple
 subjects in easy way.
 """
+
+import mne
+from filters import butter_lowpass_filter
+import pyxdf
+import pandas as pd
+import numpy as np
+
 
 data_params = {
     'path': 'EEG.xdf',
@@ -32,20 +33,12 @@ def get_eeg_data(path):
     """
 
     # Get the xdf file
-    data, header = pyxdf.load_xdf(path)
+    data, header = pyxdf.load_xdf(path, [{'type': 'EEG'}])
 
     # Get the EEG data
-    eeg_data = None
 
-    for stream in data:
-        if 'EEG' in stream['info']['type']:
-
-            eeg_data = stream['time_series']  # get the data
-            data_params['sample_freq'] = stream['info']['nominal_srate'][0]  # update the sample rate
-
-    # Raise error if EEg stream wasn't found
-    if eeg_data is None:
-        raise NameError('EEG stream was not found in the xdf file')
+    eeg_data = data[0]['time_series']  # get the data
+    data_params['sample_freq'] = int(data[0]['info']['nominal_srate'][0])  # update the sample rate
 
     # Remove the first channel
     eeg_data = np.delete(eeg_data, obj=0, axis=1)
