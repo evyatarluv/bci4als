@@ -11,7 +11,7 @@ subjects in easy way.
 """
 
 data_params = {
-    'path': 'exp_example.xdf',
+    'path': 'EEG.xdf',
     'channel_names': ['Fp1', 'Fp2', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
     'sample_freq': None
@@ -83,6 +83,27 @@ def filter_eeg_data(eeg, sample_freq, params):
     return eeg
 
 
+def save_cleaned_eeg(eeg, channel_names, path):
+
+    """
+    Save the cleaned EEG file after adding the channel names into the file.
+    The cleaned file save in the same path but with `cleaned` added to his name.
+    :param channel_names: list of channel names
+    :param eeg: EEG ndarray
+    :param path: path of the original file (str)
+    :return:
+    """
+
+    # Add channel names
+    cleaned_eeg = pd.DataFrame(data=eeg, columns=channel_names)
+
+    # Create the output path
+    output_path = path.split('.')[0] + '_cleaned.csv'
+
+    # Output the cleaned EEG
+    cleaned_eeg.to_csv(output_path, index=False)
+
+
 def main():
 
     # Load the EEG data
@@ -91,10 +112,8 @@ def main():
     # Filter the data
     eeg = filter_eeg_data(eeg, data_params['sample_freq'], filter_params)
 
-    # Add channel names
-    eeg.columns = data_params['channel_names']
-
-    # TODO: save the filtered EEG
+    # Save the filtered EEG
+    save_cleaned_eeg(eeg, data_params['channel_names'], data_params['path'])
 
 
 if __name__ == '__main__':
