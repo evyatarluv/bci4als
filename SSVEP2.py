@@ -91,7 +91,8 @@ def main():
     # Filter the data
     eeg = filter_eeg_data(eeg, data_params['sample_freq'], filter_params)
 
-    # TODO: add channel names
+    # Add channel names
+    eeg.columns = data_params['channel_names']
 
     # TODO: save the filtered EEG
 
