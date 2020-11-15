@@ -6,7 +6,7 @@ subjects in easy way.
 """
 
 import mne
-from filters import butter_lowpass_filter
+import matplotlib.pyplot as plt
 import pyxdf
 import pandas as pd
 import numpy as np
@@ -65,7 +65,7 @@ def filter_eeg_data(eeg, sample_freq, params):
 
     # Convert to float64 in order to fit mne functions
     eeg = eeg.astype(np.float64)
-    eeg = eeg.T
+    eeg = eeg.T  # mne functions look for the channels as rows
 
     # Low-pass filter
     eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
@@ -75,7 +75,7 @@ def filter_eeg_data(eeg, sample_freq, params):
 
     # Notch filter wasn't added because I didn't understand the Matlab `pop_basicfilter` args
 
-    return eeg
+    return eeg.T
 
 
 def save_cleaned_eeg(eeg, channel_names, path):
