@@ -1,7 +1,5 @@
 from psychopy import visual, core, event
 import numpy as np
-import matplotlib.pyplot as plt
-import random as rnd
 import time
 import pylsl
 import os
@@ -20,7 +18,7 @@ visual_params = {
     'image_path': {'right': 'MI_images/arrow_right.jpeg',
                    'left': 'MI_images/arrow_left.jpeg',
                    'idle': 'MI_images/square.jpeg'},
-    'text_height': 32,
+    'text_height': 48,
     'text_color': 'white'
 }
 
@@ -37,10 +35,10 @@ experiment_params = {
 def init_stim_vector(trials_num, subject_folder):
 
     """
-    This function creates dict containing a binary sequence of sine waves
+    This function creates dict containing a stimulus vector
     :param trials_num: number of trials in the experiment
     :param subject_folder: the directory of the current subject
-    :return: dict with all frequencies binary sequence
+    :return: the stimulus in each trial (list)
     """
 
     # Create the stimulus vector
@@ -70,12 +68,15 @@ def window_init():
     return {'main_window': main_window, 'right': right_stim, 'left': left_stim, 'idle': idle_stim}
 
 
-def cue_ready_messages(main_window, current_trial, trial_index):
+def user_messages(main_window, current_trial, trial_index):
 
     """
-    Shows cue of the next trial and 'Ready' message on screen.
-    :param trial_index:
-    :param current_trial:
+    Show for the user messages in the following order:
+        1. Next message
+        2. Cue for the trial condition
+        3. Ready & state message
+    :param trial_index: the index of the current trial (int)
+    :param current_trial: the condition of the current trial (int)
     :param main_window: psychopy window
     :return:
     """
@@ -97,9 +98,9 @@ def cue_ready_messages(main_window, current_trial, trial_index):
     time.sleep(experiment_params['cue_length'])
 
     # Show ready & state message
-    state_text = 'Trial: #{} from {}'.format(trial_index, experiment_params['num_trials'])
+    state_text = 'Trial: #{} from {}'.format(trial_index + 1, experiment_params['num_trials'])
     state_message = visual.TextStim(main_window, state_text, pos=[0, -250], color=color, height=height)
-    ready_message = visual.TextStim(main_window, 'Ready', pos=[0, 0], color=color, height=height)
+    ready_message = visual.TextStim(main_window, 'Ready...', pos=[0, 0], color=color, height=height)
     ready_message.draw()
     state_message.draw()
     main_window.flip()
@@ -137,9 +138,10 @@ def shutdown_training(win, message):
 def show_stimulus(current_trial, psychopy_params):
 
     """
-    Show the stimulus on screen.
-    :param current_trial:
-    :param psychopy_params:
+    Show the current condition on screen and wait.
+    Additionally response to shutdown key.
+    :param current_trial: the current condition (int)
+    :param psychopy_params: main window and all the stimulus
     :return:
     """
 
@@ -203,7 +205,7 @@ def main():
     subject_folder = init_directory()
 
     # Init the LSL
-    # outlet_stream = init_lsl()
+    outlet_stream = init_lsl()
 
     # Init psychopy and screen params
     psychopy_params = window_init()
@@ -212,7 +214,7 @@ def main():
     stim_vector = init_stim_vector(experiment_params['num_trials'], subject_folder)
 
     # Push marker to mark the start of the experiment
-    # outlet_stream.push_sample([lsl_params['start_experiment']])
+    outlet_stream.push_sample([lsl_params['start_experiment']])
 
     # Run trials
     print('\nStart running trials...')
@@ -222,17 +224,17 @@ def main():
         current_trial = stim_vector[i]
 
         # Messages for user
-        cue_ready_messages(psychopy_params['main_window'], current_trial, i)
+        user_messages(psychopy_params['main_window'], current_trial, i)
 
         # Push LSL samples for trial's start and condition
-        # outlet_stream.push_sample([lsl_params['start_trial']])
-        # outlet_stream.push_sample([str(current_trial)])
+        outlet_stream.push_sample([lsl_params['start_trial']])
+        outlet_stream.push_sample([str(current_trial)])
 
         # Show the stimulus
         show_stimulus(current_trial, psychopy_params)
 
     # End experiment
-    # outlet_stream.push_sample([lsl_params['end_experiment']])
+    outlet_stream.push_sample([lsl_params['end_experiment']])
     shutdown_training(psychopy_params['main_window'], 'Stop the LabRecording recording')
 
 
