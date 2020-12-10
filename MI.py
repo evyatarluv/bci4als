@@ -19,15 +19,18 @@ lsl_params = {
 visual_params = {
     'image_path': {'right': 'MI_images/arrow_right.jpeg',
                    'left': 'MI_images/arrow_left.jpeg',
-                   'idle': 'MI_images/square.jpeg'}
+                   'idle': 'MI_images/square.jpeg'},
+    'text_height': 32,
+    'text_color': 'white'
 }
 
 experiment_params = {
     'enumerate_stim': {0: 'right', 1: 'left', 2: 'idle'},  # dict which translate from stim to num
     'num_trials': 30,  # set number of training trials
     'trial_length': 5,  # seconds of each trial
-    'cue_length': 0.5,  # seconds of cure before starting the next trial
-    'ready_length': 0.5,  # seconds of 'ready' message before starting the next trial
+    'cue_length': 0.25,  # seconds of cure before the 'Ready' message
+    'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
+    'next_length': 1,  # sconds of 'Next' message before the cue
 }
 
 
@@ -53,11 +56,11 @@ def window_init():
 
     """
     init the psychopy window
-    :return: dictionary with the window, white rect and green rect
+    :return: dictionary with the window, left arrow, right arrow and idle.
     """
 
     # create the main window
-    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black')
+    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=True)
 
     # Create right, left and idle stimulus
     right_stim = visual.ImageStim(main_window, image=visual_params['image_path']['right'])
@@ -77,21 +80,27 @@ def cue_ready_messages(main_window, current_trial, trial_index):
     :return:
     """
 
-    # Create state message
-    state_text = 'Trial: #{} from {}'.format(trial_index, experiment_params['num_trials'])
-    state_message = visual.TextStim(main_window, state_text, pos=[0, -250], color='white')
+    color = visual_params['text_color']
+    height = visual_params['text_height']
+    trial_image = visual_params['image_path'][experiment_params['enumerate_stim'][current_trial]]
 
-    # Show cue message
-    cue_text = 'The next trial is `{}`'.format(experiment_params['enumerate_stim'][current_trial].capitalize())
-    cue_message = visual.TextStim(main_window, cue_text, pos=[0, 0], color='white')
-    state_message.draw()
-    cue_message.draw()
+    # Show 'next' message
+    next_message = visual.TextStim(main_window, 'The next stimulus is...', color=color, height=height)
+    next_message.draw()
+    main_window.flip()
+    time.sleep(experiment_params['next_length'])
+
+    # Show cue
+    cue = visual.ImageStim(main_window, trial_image)
+    cue.draw()
     main_window.flip()
     time.sleep(experiment_params['cue_length'])
 
-    # Show the ready message
-    ready_text = visual.TextStim(main_window, 'Ready', pos=[0, 0], color='white')
-    ready_text.draw()
+    # Show ready & state message
+    state_text = 'Trial: #{} from {}'.format(trial_index, experiment_params['num_trials'])
+    state_message = visual.TextStim(main_window, state_text, pos=[0, -250], color=color, height=height)
+    ready_message = visual.TextStim(main_window, 'Ready', pos=[0, 0], color=color, height=height)
+    ready_message.draw()
     state_message.draw()
     main_window.flip()
     time.sleep(experiment_params['ready_length'])
@@ -158,7 +167,7 @@ def init_lsl():
     outlet_stream = pylsl.StreamOutlet(info)
 
     print('\nOpen Lab Recorder & check for MarkerStream and EEG stream')
-    input('Start recording and hit any key to continue')
+    input('Start recording and hit any enter to continue')
 
     return outlet_stream
 
