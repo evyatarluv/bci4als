@@ -60,7 +60,7 @@ def window_init():
     :return: dictionary with the window, left arrow, right arrow and idle.
     """
 
-    # create the main window
+    # Create the main window
     main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=False)
 
     # Create right, left and idle stimulus
