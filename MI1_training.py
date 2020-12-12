@@ -201,7 +201,7 @@ def init_directory():
             print('An {} exception occurred, insert subject ID again'.format(type(e).__name__))
 
 
-def main():
+def MI_training():
 
     # Update the directory for the current subject
     subject_folder = init_directory()
@@ -242,4 +242,5 @@ def main():
 
 if __name__ == '__main__':
 
-    main()
+    MI_training()
+
