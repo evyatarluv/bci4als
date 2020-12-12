@@ -1,3 +1,5 @@
+# todo: add description of the code
+
 from psychopy import visual, core, event
 import numpy as np
 import time
