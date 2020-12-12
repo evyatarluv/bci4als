@@ -1,3 +1,13 @@
+"""
+This script filter EEG raw data.
+
+The main function need to have a recording folder - the folder where all the subjects' folder locate.
+Then it run over each subject and:
+    1. Load the EEG data as ndarray
+    2. Filter the raw data
+    3. Save the cleaned data in the subject's folder.
+"""
+
 import os
 import pyxdf
 import numpy as np
@@ -19,6 +29,12 @@ filter_params = {
 
 
 def load_eeg_data(folder_path):
+
+    """
+    Load the raw EEG data from the xdf file.
+    :param folder_path: path to the folder where the xdf file was located
+    :return: ndarray, EEG data
+    """
 
     # Get the xdf file
     path = os.path.join(folder_path, 'EEG.xdf')
@@ -69,7 +85,7 @@ def save_clean_eeg(eeg, subject_path):
     """
     This function export the cleaned EEG data.
     The function add the channels' names and then save it as csv file with '_clean' ending.
-    :param eeg_data: ndarray of the cleaned EEG data
+    :param eeg: ndarray of the cleaned EEG data
     :param subject_path: the path to the current subject's folder
     :return:
     """
