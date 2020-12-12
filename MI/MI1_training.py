@@ -30,7 +30,7 @@ experiment_params = {
     'trial_length': 5,  # seconds of each trial
     'cue_length': 0.25,  # seconds of cure before the 'Ready' message
     'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
-    'next_length': 1,  # sconds of 'Next' message before the cue
+    'next_length': 1,  # seconds of 'Next' message before the cue
 }
 
 
@@ -47,7 +47,8 @@ def init_stim_vector(trials_num, subject_folder):
     stim_vector = np.random.choice([0, 1, 2], trials_num, replace=True)
 
     # Save the binary vector as csv file
-    pd.DataFrame.from_dict(stim_vector).to_csv(subject_folder + '\\stimulus_vectors.csv', index=False)
+    pd.DataFrame.from_dict(stim_vector).to_csv(subject_folder + '\\stimulus_vectors.csv',
+                                               index=False, header=False)
 
     return stim_vector
 
@@ -60,7 +61,7 @@ def window_init():
     """
 
     # create the main window
-    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=True)
+    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=False)
 
     # Create right, left and idle stimulus
     right_stim = visual.ImageStim(main_window, image=visual_params['image_path']['right'])
