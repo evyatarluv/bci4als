@@ -2,6 +2,7 @@ import os
 import pyxdf
 import numpy as np
 import mne
+import pandas as pd
 
 data_params = {
     'sample_freq': None,
@@ -63,19 +64,41 @@ def filter_eeg_data(eeg):
     return eeg.T
 
 
+def save_clean_eeg(eeg, subject_path):
+
+    """
+    This function export the cleaned EEG data.
+    The function add the channels' names and then save it as csv file with '_clean' ending.
+    :param eeg_data: ndarray of the cleaned EEG data
+    :param subject_path: the path to the current subject's folder
+    :return:
+    """
+
+    # Add channel names
+    cleaned_eeg = pd.DataFrame(data=eeg, columns=data_params['channel_names'])
+
+    # Output the cleaned EEG
+    output_path = os.path.join(subject_path, 'EEG_clean.csv')
+    cleaned_eeg.to_csv(output_path, index=False)
+
+
 def MI_preprocess():
+
     # Get all the subjects' folders
     subjects = os.listdir(data_params['record_folder'])
 
     # For each subject clean the EEG data
     for s in subjects:
 
-        eeg_data = load_eeg_data(os.path.join(data_params['record_folder'], s))
+        subject_path = os.path.join(data_params['record_folder'], s)
+
+        eeg_data = load_eeg_data(subject_path)
 
         eeg_data = filter_eeg_data(eeg_data)
 
-        save_clean_eeg(eeg_data)
+        save_clean_eeg(eeg_data, subject_path)
 
 
 if __name__ == '__main__':
+
     MI_preprocess()
