@@ -7,6 +7,7 @@ data_params = {
     'sample_freq': None,
     'record_folder': 'C:\\Users\\lenovo\\Documents\\CurrentStudy',  # path to the folder with all the subjects
     'channel_names': ['C03', 'C04', 'P07', 'P08', 'O01', 'O02', 'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
+    'remove_channels': [0, 1, 2],  # channels to remove from the EEG data
 }
 
 
@@ -17,18 +18,17 @@ filter_params = {
 
 
 def load_eeg_data(folder_path):
-    # Create the data path
-    path = os.path.join(folder_path, 'EEG.xdf')
 
     # Get the xdf file
+    path = os.path.join(folder_path, 'EEG.xdf')
     data, header = pyxdf.load_xdf(path, [{'type': 'EEG'}])
 
     # Get the EEG data & update sample rate param
     eeg_data = data[0]['time_series']
     data_params['sample_freq'] = int(data[0]['info']['nominal_srate'][0])  # update the sample rate
 
-    # Remove the first channel
-    eeg_data = np.delete(eeg_data, obj=0, axis=1)
+    # Remove channels
+    eeg_data = np.delete(eeg_data, obj=data_params['remove_channels'], axis=1)
 
     # Debug print
     print('EEG data loaded\nData shape: {}'.format(eeg_data.shape))
@@ -41,8 +41,8 @@ def filter_eeg_data(eeg):
     """
     Filter the raw EEG data.
     All the filtering part will be in this function
-    :param eeg:
-    :return:
+    :param eeg: ndarray, the raw EEG data of subject (channels as columns)
+    :return: ndarray, the filtered EEG data (channels as columns)
     """
 
     # Params
