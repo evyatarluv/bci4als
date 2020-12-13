@@ -20,7 +20,7 @@ def main():
     # next make an outlet
     outlet = StreamOutlet(info)
 
-    print("Now sending EEG data...")
+    input('Start recording via Lab Recorder and press enter...')
 
     while True:
 
