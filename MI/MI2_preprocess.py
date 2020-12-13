@@ -17,7 +17,7 @@ import pandas as pd
 data_params = {
     'sample_freq': None,
     'record_folder': 'C:\\Users\\lenovo\\Documents\\CurrentStudy',  # path to the folder with all the subjects
-    'channel_names': ['C03', 'C04', 'P07', 'P08', 'O01', 'O02', 'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
+    'channel_names': ['time', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02', 'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
     'remove_channels': [0, 1, 2],  # channels to remove from the EEG data
 }
 
@@ -42,6 +42,7 @@ def load_eeg_data(folder_path):
 
     # Get the EEG data & update sample rate param
     eeg_data = data[0]['time_series']
+    eeg_timestamp = data[0]['time_stamps']
     data_params['sample_freq'] = int(data[0]['info']['nominal_srate'][0])  # update the sample rate
 
     # Remove channels
@@ -50,7 +51,7 @@ def load_eeg_data(folder_path):
     # Debug print
     print('EEG data loaded\nData shape: {}'.format(eeg_data.shape))
 
-    return eeg_data
+    return eeg_data, eeg_timestamp
 
 
 def filter_eeg_data(eeg):
@@ -80,17 +81,19 @@ def filter_eeg_data(eeg):
     return eeg.T
 
 
-def save_clean_eeg(eeg, subject_path):
+def save_clean_eeg(eeg, time_stamps, subject_path):
 
     """
     This function export the cleaned EEG data.
     The function add the channels' names and then save it as csv file with '_clean' ending.
+    :param time_stamps:
     :param eeg: ndarray of the cleaned EEG data
     :param subject_path: the path to the current subject's folder
     :return:
     """
 
     # Add channel names
+    eeg = np.c_[time_stamps, eeg]
     cleaned_eeg = pd.DataFrame(data=eeg, columns=data_params['channel_names'])
 
     # Output the cleaned EEG
@@ -108,11 +111,11 @@ def MI_preprocess():
 
         subject_path = os.path.join(data_params['record_folder'], s)
 
-        eeg_data = load_eeg_data(subject_path)
+        eeg_data, eeg_timestamp = load_eeg_data(subject_path)
 
         eeg_data = filter_eeg_data(eeg_data)
 
-        save_clean_eeg(eeg_data, subject_path)
+        save_clean_eeg(eeg_data, eeg_timestamp, subject_path)
 
 
 if __name__ == '__main__':

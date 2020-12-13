@@ -22,7 +22,8 @@ recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'  # folder to loc
 lsl_params = {
     'start_experiment': '1111',
     'start_trial': '111',
-    'end_experiment': '99',
+    'end_trial': '999',
+    'end_experiment': '9999',
 }
 
 visual_params = {
@@ -70,7 +71,7 @@ def window_init():
     """
 
     # Create the main window
-    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=False)
+    main_window = visual.Window([1280, 720], monitor='testMonitor', units='pix', color='black', fullscr=True)
 
     # Create right, left and idle stimulus
     right_stim = visual.ImageStim(main_window, image=visual_params['image_path']['right'])
@@ -244,6 +245,9 @@ def MI_training():
 
         # Show the stimulus
         show_stimulus(current_trial, psychopy_params)
+
+        # Push LSL end trial
+        outlet_stream.push_sample([lsl_params['end_trial']])
 
     # End experiment
     outlet_stream.push_sample([lsl_params['end_experiment']])
