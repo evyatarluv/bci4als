@@ -1,4 +1,13 @@
-# todo: add description of the code
+"""
+
+Motor Imagery Training
+This script creates a training paradigm with 3 targets on screen for
+given num of trials. Before each trial, one of the targets is cued (and remains
+cued for the entire trial).This code assumes EEG is recorded and streamed
+through LSL for later offline preprocessing and model learning.
+
+"""
+
 
 from psychopy import visual, core, event
 import numpy as np
