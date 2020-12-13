@@ -14,11 +14,11 @@ def main():
 
         # Push start trial
         input('Press to push `Start` sample')
-        outlet_stream.push_sample('1')
+        outlet_stream.push_sample(['1'])
 
         # Push start trial
         input('Press to push `End` sample')
-        outlet_stream.push_sample('11')
+        outlet_stream.push_sample(['11'])
 
 
 if __name__ == '__main__':
