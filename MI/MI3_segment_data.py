@@ -42,18 +42,19 @@ def MI_segment_data():
 
         subject_path = os.path.join(data_params['record_folder'], s)
 
+        # Load EEG data and markers data
         eeg_data = pd.read_csv(os.path.join(subject_path, data_params['EEG_filename']))
-
         trial_times = load_markers(subject_path)
 
+        # Split the EEG data into trials according to markers
         eeg_trials = []
 
         for t in trial_times:
-
             start_time, stop_time = t
             trial = eeg_data[(start_time < eeg_data.time) & (eeg_data.time < stop_time)]
             eeg_trials.append(trial.drop(['time']))
 
+        # Dump pickle file of the subject trials
         pickle.dump(eeg_trials, open(os.path.join(subject_path, 'EEG_trials.pickle'), 'wb'))
 
 
