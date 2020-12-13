@@ -239,9 +239,8 @@ def MI_training():
         # Messages for user
         user_messages(psychopy_params['main_window'], current_trial, i)
 
-        # Push LSL samples for trial's start and condition
+        # Push LSL samples for trial's start
         outlet_stream.push_sample([lsl_params['start_trial']])
-        outlet_stream.push_sample([str(current_trial)])
 
         # Show the stimulus
         show_stimulus(current_trial, psychopy_params)
