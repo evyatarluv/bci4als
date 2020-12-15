@@ -38,7 +38,6 @@ def get_trials_times(subject_path):
         if markers[i] == start:
             trial_times.append((markers_timestamps[i], markers_timestamps[i + 1]))
 
-    # todo: check the function return list with make sense, i.e. len(trial_times) == trials_num
     return trial_times
 
 
@@ -65,7 +64,6 @@ def MI_segment_data():
             eeg_trials.append(trial.drop(['time'], axis=1))
 
         # Dump pickle file of the subject trials
-        # todo: check the eeg_trial data frame make sense
         pickle.dump(eeg_trials, open(os.path.join(subject_path, data_params['trials_filename']), 'wb'))
 
 
