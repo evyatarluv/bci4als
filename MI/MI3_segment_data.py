@@ -8,7 +8,7 @@ import pickle
 data_params = {
     'record_folder': 'C:\\Users\\lenovo\\Documents\\CurrentStudy',  # path to the folder with all the subjects
     'EEG_filename': 'EEG_clean.csv',
-    'trials_filename': 'EEG_trails.pickle'
+    'trials_filename': 'EEG_trails.pickle',
 }
 
 
