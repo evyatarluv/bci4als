@@ -143,8 +143,8 @@ def shutdown_training(win, message):
     :return:
     """
 
-    input(message)
     win.close()
+    input(message)
 
 
 def show_stimulus(current_trial, psychopy_params):
