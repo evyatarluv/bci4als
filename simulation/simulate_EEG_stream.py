@@ -6,6 +6,7 @@ I used this example in order to simulate EEG stream
 import time
 import numpy as np
 from pylsl import StreamInfo, StreamOutlet
+import random as rnd
 
 channels = 16
 sample_rate = 120
@@ -22,7 +23,7 @@ def main():
     while True:
 
         # Rand some EEG sample
-        eeg_sample = np.random.rand(channels)
+        eeg_sample = [rnd.random() for i in range(channels)]
 
         # Now send it and wait for a bit
         outlet.push_sample(eeg_sample)
