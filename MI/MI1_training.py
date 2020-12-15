@@ -145,7 +145,6 @@ def shutdown_training(win, message):
 
     print(message)
     win.close()
-    core.quit()
 
 
 def show_stimulus(current_trial, psychopy_params):

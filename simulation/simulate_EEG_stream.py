@@ -4,20 +4,16 @@ I used this example in order to simulate EEG stream
 """
 
 import time
-from random import random as rand
-
+import numpy as np
 from pylsl import StreamInfo, StreamOutlet
 
+channels = 16
+sample_rate = 120
 
 def main():
 
-    # first create a new stream info (here we set the name to OpenBCI,
-    # the content-type to EEG, 8 channels, 100 Hz, and float-valued data) The
-    # last value would be the serial number of the device or some other more or
-    # less locally unique identifier for the stream as far as available
-    info = StreamInfo('OpenBCI', 'EEG', 8, 100, 'float32', 'myuid34234')
-
-    # next make an outlet
+    # Simulation of OpenBCI streaming using 16 channels and 120 Hz as sample rate
+    info = StreamInfo('OpenBCI', 'EEG', channels, sample_rate, 'float32', 'myuid34234')
     outlet = StreamOutlet(info)
 
     input('Start recording via Lab Recorder and press enter...')
@@ -26,11 +22,11 @@ def main():
     while True:
 
         # Rand some EEG sample
-        eeg_sample = [rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()]
+        eeg_sample = np.random.rand(channels)
 
         # Now send it and wait for a bit
         outlet.push_sample(eeg_sample)
-        time.sleep(0.01)
+        time.sleep(1 / sample_rate)
 
 
 if __name__ == '__main__':
