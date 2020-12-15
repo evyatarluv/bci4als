@@ -143,7 +143,7 @@ def shutdown_training(win, message):
     :return:
     """
 
-    print(message)
+    input(message)
     win.close()
 
 
