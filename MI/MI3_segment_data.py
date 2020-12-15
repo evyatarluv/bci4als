@@ -61,8 +61,8 @@ def MI_segment_data():
 
         for t in trial_times:
             start_time, stop_time = t
-            trial = eeg_data[(start_time < eeg_data.time) & (eeg_data.time < stop_time)]
-            eeg_trials.append(trial.drop(['time']))
+            trial = eeg_data[(start_time < eeg_data.time) & (eeg_data.time < stop_time)].reset_index(drop=True)
+            eeg_trials.append(trial.drop(['time'], axis=1))
 
         # Dump pickle file of the subject trials
         # todo: check the eeg_trial data frame make sense
