@@ -36,7 +36,7 @@ visual_params = {
 
 experiment_params = {
     'enumerate_stim': {0: 'right', 1: 'left', 2: 'idle'},  # dict which translate from stim to num
-    'num_trials': 30,  # set number of training trials
+    'num_trials': 5,  # set number of training trials
     'trial_length': 5,  # seconds of each trial
     'cue_length': 0.25,  # seconds of cure before the 'Ready' message
     'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
