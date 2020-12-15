@@ -8,6 +8,7 @@ import pickle
 data_params = {
     'record_folder': 'C:\\Users\\lenovo\\Documents\\CurrentStudy',  # path to the folder with all the subjects
     'EEG_filename': 'EEG_clean.csv',
+    'trials_filename': 'EEG_trails.pickle'
 }
 
 
@@ -65,7 +66,7 @@ def MI_segment_data():
 
         # Dump pickle file of the subject trials
         # todo: check the eeg_trial data frame make sense
-        pickle.dump(eeg_trials, open(os.path.join(subject_path, 'EEG_trials.pickle'), 'wb'))
+        pickle.dump(eeg_trials, open(os.path.join(subject_path, data_params['trials_filename']), 'wb'))
 
 
 if __name__ == '__main__':
