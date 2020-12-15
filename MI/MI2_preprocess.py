@@ -44,7 +44,7 @@ def load_eeg_data(folder_path):
     # Get the EEG data & update sample rate param
     eeg_data = data[0]['time_series']
     eeg_timestamp = data[0]['time_stamps']
-    data_params['sample_freq'] = int(data[0]['info']['nominal_srate'][0])  # update the sample rate
+    data_params['sample_freq'] = float(data[0]['info']['nominal_srate'][0])  # update the sample rate
 
     # Remove channels
     eeg_data = np.delete(eeg_data, obj=data_params['remove_channels'], axis=1)
