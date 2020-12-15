@@ -11,7 +11,15 @@ data_params = {
 }
 
 
-def load_markers(subject_path):
+def get_trials_times(subject_path):
+
+    """
+    This function get subject path and return a list of the trials timestamps.
+    The list contains tuples while each tuple correspond to trial. The tuple
+    contains the trial's start & end timestamps.
+    :param subject_path: str, path to the current subject folder
+    :return: list with tuples correspond to the start & end of each trial
+    """
 
     # Load the markers from the xdf file
     path = os.path.join(subject_path, 'EEG.xdf')
@@ -22,13 +30,14 @@ def load_markers(subject_path):
     markers_timestamps = data[0]['time_stamps']
 
     start = lsl_params['start_trial']
-    end = lsl_params['end_trial']
     trial_times = []
 
     for i in range(len(markers)):
+
         if markers[i] == start:
             trial_times.append((markers_timestamps[i], markers_timestamps[i + 1]))
 
+    # todo: check the function return list with make sense, i.e. len(trial_times) == trials_num
     return trial_times
 
 
@@ -37,14 +46,14 @@ def MI_segment_data():
     # Get all the subjects' folders
     subjects = os.listdir(data_params['record_folder'])
 
-    # For each subject clean the EEG data
+    # For each subject segment the (clean) EEG data
     for s in subjects:
 
         subject_path = os.path.join(data_params['record_folder'], s)
 
         # Load EEG data and markers data
         eeg_data = pd.read_csv(os.path.join(subject_path, data_params['EEG_filename']))
-        trial_times = load_markers(subject_path)
+        trial_times = get_trials_times(subject_path)
 
         # Split the EEG data into trials according to markers
         eeg_trials = []
@@ -55,6 +64,7 @@ def MI_segment_data():
             eeg_trials.append(trial.drop(['time']))
 
         # Dump pickle file of the subject trials
+        # todo: check the eeg_trial data frame make sense
         pickle.dump(eeg_trials, open(os.path.join(subject_path, 'EEG_trials.pickle'), 'wb'))
 
 
