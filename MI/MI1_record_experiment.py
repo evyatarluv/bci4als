@@ -25,7 +25,7 @@ Tk().withdraw()  # we don't want a full GUI, so keep the root window from appear
 recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'  # folder to locate the subject folder
 
 gui_params = {
-    'title': "PyB4A" #Acronym: Python BCI-4-ALS
+    'title': "PyB4A"  # Acronym: Python BCI-4-ALS
 }
 
 lsl_params = {
@@ -45,7 +45,7 @@ visual_params = {
 
 experiment_params = {
     'enumerate_stim': {0: 'right', 1: 'left', 2: 'idle'},  # dict which translate from stim to num
-    'num_trials': 120,  # set number of training trials
+    'num_trials': 2,  # set number of training trials
     'trial_length': 5,  # seconds of each trial
     'cue_length': 0.25,  # seconds of cure before the 'Ready' message
     'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
@@ -117,7 +117,7 @@ def user_messages(main_window, current_trial, trial_index):
     time.sleep(experiment_params['cue_length'])
 
     # Show ready & state message
-    state_text = 'Trial: #{} from {}'.format(trial_index + 1, experiment_params['num_trials'])
+    state_text = 'Trial: {} / {}'.format(trial_index + 1, experiment_params['num_trials'])
     state_message = visual.TextStim(main_window, state_text, pos=[0, -250], color=color, height=height)
     ready_message = visual.TextStim(main_window, 'Ready...', pos=[0, 0], color=color, height=height)
     ready_message.draw()
@@ -148,7 +148,10 @@ def shutdown_training(win, message):
     """
 
     win.close()
-    input(message)
+    messagebox.showinfo(title=gui_params['title'],
+                        message='Stop Lab Recorder!\nClick okay to exit experiment.')
+
+
 
 
 def show_stimulus(current_trial, psychopy_params):
@@ -170,7 +173,7 @@ def show_stimulus(current_trial, psychopy_params):
 
     # Halt if escape was pressed
     if 'escape' == get_keypress():
-        shutdown_training(main_window, 'User pressed `escape`, shutdown immediately')
+        sys.exit(-1)
 
 
 def init_lsl():
@@ -183,7 +186,7 @@ def init_lsl():
     outlet_stream = pylsl.StreamOutlet(info)
 
     messagebox.showinfo(title=gui_params['title'],
-                        message='Open Lab Recorder and adjust the settings correctly.\n\nClick okay to begin experiment.')
+                        message='Start Lab Recorder!\nBe sure to check your settings.\nClick okay to begin experiment.')
 
     return outlet_stream
 
@@ -197,7 +200,8 @@ def init_directory():
     # get the recording directory
 
     if not messagebox.askokcancel(title=gui_params['title'],
-                        message="Welcome to the motor imagery EEG recorder.\n\nPlease select the CurrentStudy directory:"):
+                                  message="Welcome to the motor imagery EEG recorder.\n\nNumber of trials: {}\n\nPlease select the CurrentStudy directory:".format(
+                                      experiment_params['num_trials'])):
         sys.exit(-1)
 
     recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
@@ -205,7 +209,7 @@ def init_directory():
         sys.exit(-1)
 
     while True:
-         # Get the subject id
+        # Get the subject id
         subject_id = simpledialog.askstring(gui_params['title'], "Please enter a new Subject ID:")
 
         # Update the recording folder directory
@@ -220,13 +224,12 @@ def init_directory():
 
         except Exception as e:
             if not messagebox.askretrycancel(title=gui_params['title'],
-                                message='Exception Raised: {}. Please insert a new subject ID:'.format(type(e).__name__)):
+                                             message='Exception Raised: {}. Please insert a new subject ID:'.format(
+                                                 type(e).__name__)):
                 sys.exit(-1)
 
 
-def MI_training():
-
-
+def MI_record():
     # Update the directory for the current subject
     subject_folder = init_directory()
 
@@ -243,7 +246,10 @@ def MI_training():
     outlet_stream.push_sample([lsl_params['start_experiment']])
 
     # Run trials
-    print('\nStart running trials...')
+
+    messagebox.showinfo(title=gui_params['title'],
+                        message='Start running trials...')
+
     for i in range(experiment_params['num_trials']):
         # Get the current trial
         current_trial = stim_vector[i]
@@ -265,5 +271,17 @@ def MI_training():
     shutdown_training(psychopy_params['main_window'], 'Stop the LabRecording recording')
 
 
+
+def record_experiment(paradigm='MI'):
+    if paradigm.lower() in ['mi', 'motor imagery']:
+        MI_record()
+
+    elif paradigm.lower() in ['SSVEP']:
+        raise NotImplementedError()
+
+    else:
+        raise ValueError("Unrecognized paradigm.")
+
+
 if __name__ == '__main__':
-    MI_training()
+    record_experiment('Motor Imagery')

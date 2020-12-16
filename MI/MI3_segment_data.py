@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import pyxdf
-from MI.MI1_training import lsl_params
+from MI.MI1_record_experiment import lsl_params
 import pickle
 
 data_params = {
