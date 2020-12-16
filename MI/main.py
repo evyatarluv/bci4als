@@ -11,9 +11,9 @@ from MI.MI4_extract_features import MI_extract_features
 
 if __name__ == '__main__':
 
-    MI_training()
+    # MI_training()
 
-    # MI_preprocess()
+    MI_preprocess()
 
-    # MI_segment_data()
+    MI_segment_data()
 
