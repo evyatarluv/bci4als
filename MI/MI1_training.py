@@ -8,16 +8,25 @@ through LSL for later offline preprocessing and model learning.
 
 """
 
-
-from psychopy import visual, core, event
-import numpy as np
-import time
-import pylsl
 import os
+import time
+from tkinter import *
+from tkinter import messagebox, simpledialog
+from tkinter.filedialog import askdirectory
+
+import numpy as np
 import pandas as pd
+import pylsl
+from psychopy import visual, event
+
+Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
 # Params
 recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'  # folder to locate the subject folder
+
+gui_params = {
+    'title': "PyB4A" #Acronym: Python BCI-4-ALS
+}
 
 lsl_params = {
     'start_experiment': '1111',
@@ -45,7 +54,6 @@ experiment_params = {
 
 
 def init_stim_vector(trials_num, subject_folder):
-
     """
     This function creates dict containing a stimulus vector
     :param trials_num: number of trials in the experiment
@@ -64,7 +72,6 @@ def init_stim_vector(trials_num, subject_folder):
 
 
 def window_init():
-
     """
     init the psychopy window
     :return: dictionary with the window, left arrow, right arrow and idle.
@@ -82,7 +89,6 @@ def window_init():
 
 
 def user_messages(main_window, current_trial, trial_index):
-
     """
     Show for the user messages in the following order:
         1. Next message
@@ -121,7 +127,6 @@ def user_messages(main_window, current_trial, trial_index):
 
 
 def get_keypress():
-
     """
     Get keypress of the user
     :return: string of the key
@@ -135,7 +140,6 @@ def get_keypress():
 
 
 def shutdown_training(win, message):
-
     """
     Shutdown the psychopy window after printing a message
     :param win: psychopy window
@@ -148,7 +152,6 @@ def shutdown_training(win, message):
 
 
 def show_stimulus(current_trial, psychopy_params):
-
     """
     Show the current condition on screen and wait.
     Additionally response to shutdown key.
@@ -171,7 +174,6 @@ def show_stimulus(current_trial, psychopy_params):
 
 
 def init_lsl():
-
     """
     Define the stream parameters and create outlet stream.
     :return: outlet stream object
@@ -180,38 +182,50 @@ def init_lsl():
     info = pylsl.StreamInfo('MarkerStream', 'Markers', 1, 0, 'string', 'myuniquesourceid23443')
     outlet_stream = pylsl.StreamOutlet(info)
 
-    print('\nOpen Lab Recorder & check for MarkerStream and EEG stream')
-    input('Start recording and hit any enter to continue')
+    messagebox.showinfo(title=gui_params['title'],
+                        message='Open Lab Recorder and adjust the settings correctly.\n\nClick okay to begin experiment.')
 
     return outlet_stream
 
 
 def init_directory():
-
     """
     init the current subject directory
     :return: the subject directory
     """
 
-    while True:
+    # get the recording directory
 
-        # Get the subject id
-        subject_id = input('Please enter subject ID: ')
+    if not messagebox.askokcancel(title=gui_params['title'],
+                        message="Welcome to the motor imagery EEG recorder.\n\nPlease select the CurrentStudy directory:"):
+        sys.exit(-1)
+
+    recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
+    if not recording_folder:
+        sys.exit(-1)
+
+    while True:
+         # Get the subject id
+        subject_id = simpledialog.askstring(gui_params['title'], "Please enter a new Subject ID:")
 
         # Update the recording folder directory
-        subject_folder = recording_folder + '\\' + subject_id
+        subject_folder = os.path.join(recording_folder, subject_id)
 
         try:
             # Create new folder for the current subject
             os.mkdir(subject_folder)
-            print('The subject folder was created successfully')
+            messagebox.showinfo(title=gui_params['title'],
+                                message='The subject folder was created successfully.')
             return subject_folder
 
         except Exception as e:
-            print('An {} exception occurred, insert subject ID again'.format(type(e).__name__))
+            if not messagebox.askretrycancel(title=gui_params['title'],
+                                message='Exception Raised: {}. Please insert a new subject ID:'.format(type(e).__name__)):
+                sys.exit(-1)
 
 
 def MI_training():
+
 
     # Update the directory for the current subject
     subject_folder = init_directory()
@@ -231,7 +245,6 @@ def MI_training():
     # Run trials
     print('\nStart running trials...')
     for i in range(experiment_params['num_trials']):
-
         # Get the current trial
         current_trial = stim_vector[i]
 
@@ -253,6 +266,4 @@ def MI_training():
 
 
 if __name__ == '__main__':
-
     MI_training()
-

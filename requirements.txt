@@ -1,0 +1,8 @@
+numpy~=1.18.5
+pandas~=1.0.5
+pylsl~=1.13.6
+future~=0.18.2
+psychopy~=2020.2.10
+pyxdf~=1.16.3
+mne~=0.21.1
+matplotlib~=3.2.2
