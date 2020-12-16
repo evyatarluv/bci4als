@@ -246,7 +246,7 @@ def MI_record():
     outlet_stream.push_sample([lsl_params['start_experiment']])
 
     # Run trials
-
+    # todo: fix this showing up behind psychopy fullscreen. Blocking.
     messagebox.showinfo(title=gui_params['title'],
                         message='Start running trials...')
 
