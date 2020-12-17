@@ -14,11 +14,11 @@ import time
 from tkinter import *
 from tkinter import messagebox, simpledialog
 from tkinter.filedialog import askdirectory
-
+from psychopy import visual, event
 import numpy as np
 import pandas as pd
 import pylsl
-from psychopy import visual, event
+
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
@@ -46,7 +46,7 @@ visual_params = {
 
 experiment_params = {
     'enumerate_stim': {0: 'right', 1: 'left', 2: 'idle'},  # dict which translate from stim to num
-    'num_trials': 2,  # set number of training trials
+    'num_trials': 120,  # set number of training trials
     'trial_length': 5,  # seconds of each trial
     'cue_length': 0.25,  # seconds of cure before the 'Ready' message
     'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
@@ -201,9 +201,11 @@ def init_directory():
                                   message="Welcome to the motor imagery EEG recorder.\n\nNumber of trials: {}\n\nPlease select the CurrentStudy directory:".format(
                                       experiment_params['num_trials'])):
         sys.exit(-1)
+
     print("hello")
+
     # fixme: my running get stuck here
-    recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
+    # recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
     if not recording_folder:
         sys.exit(-1)
 
@@ -248,7 +250,6 @@ def MI_record():
     # Push marker to mark the start of the experiment
     outlet_stream.push_sample([lsl_params['start_experiment']])
 
-
     for i in range(experiment_params['num_trials']):
         # Get the current trial
         current_trial = stim_vector[i]
@@ -283,5 +284,4 @@ def record_experiment(paradigm='MI'):
 
 
 if __name__ == '__main__':
-
     record_experiment('Motor Imagery')
