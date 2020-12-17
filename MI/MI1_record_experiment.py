@@ -9,6 +9,7 @@ through LSL for later offline preprocessing and model learning.
 """
 
 import os
+import sys
 import time
 from tkinter import *
 from tkinter import messagebox, simpledialog
