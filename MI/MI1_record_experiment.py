@@ -152,8 +152,6 @@ def shutdown_training(win, message):
                         message='Stop Lab Recorder!\nClick okay to exit experiment.')
 
 
-
-
 def show_stimulus(current_trial, psychopy_params):
     """
     Show the current condition on screen and wait.
@@ -198,12 +196,12 @@ def init_directory():
     """
 
     # get the recording directory
-
     if not messagebox.askokcancel(title=gui_params['title'],
                                   message="Welcome to the motor imagery EEG recorder.\n\nNumber of trials: {}\n\nPlease select the CurrentStudy directory:".format(
                                       experiment_params['num_trials'])):
         sys.exit(-1)
 
+    # fixme: my running get stuck here
     recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
     if not recording_folder:
         sys.exit(-1)
@@ -271,8 +269,8 @@ def MI_record():
     shutdown_training(psychopy_params['main_window'], 'Stop the LabRecording recording')
 
 
-
 def record_experiment(paradigm='MI'):
+
     if paradigm.lower() in ['mi', 'motor imagery']:
         MI_record()
 
@@ -284,4 +282,5 @@ def record_experiment(paradigm='MI'):
 
 
 if __name__ == '__main__':
+
     record_experiment('Motor Imagery')
