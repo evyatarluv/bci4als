@@ -200,7 +200,7 @@ def init_directory():
                                   message="Welcome to the motor imagery EEG recorder.\n\nNumber of trials: {}\n\nPlease select the CurrentStudy directory:".format(
                                       experiment_params['num_trials'])):
         sys.exit(-1)
-
+    print("hello")
     # fixme: my running get stuck here
     recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
     if not recording_folder:
@@ -234,6 +234,10 @@ def MI_record():
     # Init the LSL
     outlet_stream = init_lsl()
 
+    # Run trials
+    messagebox.showinfo(title=gui_params['title'],
+                        message='Start running trials...')
+
     # Init psychopy and screen params
     psychopy_params = window_init()
 
@@ -243,10 +247,6 @@ def MI_record():
     # Push marker to mark the start of the experiment
     outlet_stream.push_sample([lsl_params['start_experiment']])
 
-    # Run trials
-    # todo: fix this showing up behind psychopy fullscreen. Blocking.
-    messagebox.showinfo(title=gui_params['title'],
-                        message='Start running trials...')
 
     for i in range(experiment_params['num_trials']):
         # Get the current trial
