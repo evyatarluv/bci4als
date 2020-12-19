@@ -16,8 +16,7 @@ def get_trials_times(subject_path):
 
     """
     This function get subject path and return a list of the trials timestamps.
-    The list contains tuples while each tuple correspond to trial. The tuple
-    contains the trial's start & end timestamps.
+😊    contains the trial'start & end timestamps.
     :param subject_path: str, path to the current subject folder
     :return: list with tuples correspond to the start & end of each trial
     """

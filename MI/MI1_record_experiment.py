@@ -205,7 +205,7 @@ def init_directory():
     print("hello")
 
     # fixme: my running get stuck here
-    # recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
+    recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
     if not recording_folder:
         sys.exit(-1)
 
