@@ -16,7 +16,7 @@ import pandas as pd
 
 data_params = {
     'sample_freq': None,
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\noam',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
     'channel_names': ['time', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
     'remove_channels': [0, 1, 2],  # channels to remove from the EEG data

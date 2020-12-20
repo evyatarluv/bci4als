@@ -6,7 +6,7 @@ from MI.MI1_record_experiment import lsl_params
 import pickle
 
 data_params = {
-    'record_folder': 'C:\\Users\\lenovo\\Documents\\CurrentStudy',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\noam',  # path to the folder with all the subjects
     'EEG_filename': 'EEG_clean.csv',
     'trials_filename': 'EEG_trials.pickle',
 }
