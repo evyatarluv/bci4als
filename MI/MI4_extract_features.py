@@ -6,7 +6,7 @@ from scipy.signal import welch
 from MI.MI3_segment_data import data_params as MI3_params
 
 data_params = {
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\lenovo\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
     'features_filename': 'features.csv'
 }
 
@@ -65,8 +65,7 @@ def MI_extract_features():
         print("Extracting Features for subject: {}".format(subject_path))
         features = extract_features(trials)
 
-        # Dump the features
-        # todo: treat the output of extract_features function as ndarray
+        # Save the features
         features_path = os.path.join(subject_path, data_params['features_filename'])
         print("Saving features to: {}".format(features_path))
         np.savetxt(features_path, features, delimiter=',')

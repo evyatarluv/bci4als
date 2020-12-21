@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 data_params = {
@@ -172,10 +173,12 @@ def MI5_learn_model(subject_folder, mode, model_name):
 
         X_train, X_test, y_train, y_test = data.values()
 
-        # todo: scale?
+        scaler_x = StandardScaler()
+        X_train = scaler_x.fit_transform(X_train)
+
         model = train_model(X_train, y_train, model_name)
 
-        results[day] = model.score(X_test, y_test)
+        results[day] = model.score(scaler_x.transform(X_test), y_test)
 
     print('Accuracy for each day using `{}` mode:'.format(mode))
     print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))

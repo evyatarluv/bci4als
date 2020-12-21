@@ -15,5 +15,7 @@ if __name__ == '__main__':
 
     # MI_preprocess()
 
-    MI_segment_data()
+    # MI_segment_data()
+
+    MI_extract_features()
 
