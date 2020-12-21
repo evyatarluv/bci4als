@@ -1,5 +1,6 @@
 import os
 import pickle
+import mne_features
 from MI.MI3_segment_data import data_params as MI3_params
 
 data_params = {
