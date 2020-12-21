@@ -166,7 +166,7 @@ def MI5_learn_model(subject_folder, mode, model_name):
     except KeyError:
         raise NotImplementedError('Not implemented mode, please choose different mode')
 
-    # Train model and test
+    # Train model and test it
     results = {}
     for day, data in training_data.items():
 
@@ -176,3 +176,6 @@ def MI5_learn_model(subject_folder, mode, model_name):
         model = train_model(X_train, y_train, model_name)
 
         results[day] = model.score(X_test, y_test)
+
+    print('Accuracy for each day using `{}` mode:'.format(mode))
+    print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))
