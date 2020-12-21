@@ -10,7 +10,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
 
 data_params = {
     'filename': {'y': 'stimulus_vector.csv', 'X': 'noam_name.csv'}
@@ -84,10 +84,11 @@ def first_day_data(subject_folder):
 
             train_test[d] = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
 
-        # Otherwise use all data for test
+        # Otherwise train using the first day and test on the current day
         else:
 
-            train_test[d] = {'X_test': X, 'y_test': y}
+            train_test[d] = {'X_train': train_test['1']['X_train'], 'X_test': X,
+                             'y_train': train_test['1']['y_train'], 'y_test': y}
 
     return train_test
 
@@ -120,7 +121,7 @@ def adjust_data(subject_folder):
 
             train_test[d] = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
 
-        # Otherwise use all data for test
+        # Otherwise split differently
         else:
 
             X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -144,45 +145,34 @@ def train_model(X_train, y_train, model_name):
     :return: trained model
     """
 
-    pass
+    if model_name.lower() == 'svm':
+
+        model = SVC()
+        model.fit(X_train, y_train)
+
+    # todo: raise NotImplementedError at the end
+
+    return model
 
 
-def same_day_training(subject_folder):
+def MI5_learn_model(subject_folder, mode, model_name):
 
-    # Get the data
-    d = same_day_data(subject_folder)
+    switcher = {'same day': same_day_data, 'first day': first_day_data, 'adjust': adjust_data}
 
-    # Train model
+    # Get the data for the model
+    try:
+        training_data = switcher[mode.lower()](subject_folder)
+
+    except KeyError:
+        raise NotImplementedError('Not implemented mode, please choose different mode')
+
+    # Train model and test
     results = {}
-    for day, data in d.items():
+    for day, data in training_data.items():
 
         X_train, X_test, y_train, y_test = data.values()
 
-        # todo: Scale?
+        # todo: scale?
+        model = train_model(X_train, y_train, model_name)
 
-        model = train_model(X_train, y_train, 'SVM')
-
-        y_pred = model.predict(X_test)
-
-        results[day] = accuracy_score(y_test, y_pred)
-
-
-
-
-def MI5_learn_model(subject_folder, mode):
-
-    if mode.lower() == 'same day':
-
-        same_day_training(subject_folder)
-
-    elif mode.lower() == 'first day':
-
-        first_day_training(subject_folder)
-
-    elif mode.lower() == 'adjust':
-
-        adjust_training(subject_folder)
-
-    else:
-        raise NotImplementedError('Not implemented training mode')
-
+        results[day] = model.score(X_test, y_test)
