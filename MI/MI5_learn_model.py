@@ -44,8 +44,8 @@ def same_day_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']))
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']))
+        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
 
         # Split
         X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -74,8 +74,8 @@ def first_day_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']))
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']))
+        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
 
         # If this is day 1 split to train and test
         if d == '1':
@@ -111,8 +111,8 @@ def adjust_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']))
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']))
+        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
 
         # If this is day 1 split to train and test
         if d == '1':
