@@ -6,8 +6,8 @@ from scipy.signal import welch
 from MI.MI3_segment_data import data_params as MI3_params
 
 data_params = {
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\noam',  # path to the folder with all the subjects
-    'features_filename': 'features.pickle'
+    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
+    'features_filename': 'features.csv'
 }
 
 features_params = {
@@ -69,7 +69,7 @@ def MI_extract_features():
         # todo: treat the output of extract_features function as ndarray
         features_path = os.path.join(subject_path, data_params['features_filename'])
         print("Saving features to: {}".format(features_path))
-        pickle.dump(features, open(features_path, 'wb'))
+        np.savetxt(features_path, features, delimiter=',')
 
 
 if __name__ == '__main__':
