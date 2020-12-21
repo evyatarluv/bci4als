@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 data_params = {
-    'filename': {'y': 'stimulus_vector.csv', 'X': 'noam_name.csv'}
+    'filename': {'y': 'stimulus_vectors.csv', 'X': 'features.csv'}
 }
 
 same_day_params = {
