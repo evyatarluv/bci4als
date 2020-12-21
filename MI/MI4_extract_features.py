@@ -40,6 +40,7 @@ def MI_extract_features():
         features = extract_features(trials)
 
         # Dump the features
+        # todo: treat the output of extract_features function as ndarray
         features_path = os.path.join(subject_path, data_params['features_filename'])
         pickle.dump(features, open(features_path, 'wb'))
 
