@@ -6,7 +6,7 @@ from MI.MI1_record_experiment import lsl_params
 import pickle
 
 data_params = {
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\noam',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\noam',  # path to the folder with all the subjects
     'EEG_filename': 'EEG_clean.csv',
     'trials_filename': 'EEG_trials.pickle',
 }
@@ -60,7 +60,8 @@ def MI_segment_data():
         for t in trial_times:
             start_time, stop_time = t
             trial = eeg_data[(start_time < eeg_data.time) & (eeg_data.time < stop_time)].reset_index(drop=True)
-            eeg_trials.append(trial.drop(['time'], axis=1))
+            if len(trial.index) >= 10:
+                eeg_trials.append(trial.drop(['time'], axis=1))
 
         # Dump pickle file of the subject trials
         pickle.dump(eeg_trials, open(os.path.join(subject_path, data_params['trials_filename']), 'wb'))

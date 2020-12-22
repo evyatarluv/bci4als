@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from MI.MI3_segment_data import data_params as MI3_params
 
 data_params = {
-    'record_folder': r'C:\Users\lenovo\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\noam',  # path to the subject folder with all the recording folders
     'features_filename': 'features.csv'
 }
 
@@ -36,19 +36,23 @@ def extract_features(trials):
         trial_features_lst = []
 
         # 1) extract power spectrum density (via welch method)
-        sample_rate = len(trial) / features_params['trial_time']  # Units: 1/s
+        sample_rate = len(trial.index) / features_params['trial_time']  # Units: 1/s
         nfft = features_params['nfft']
         welch_window = features_params['welch_window']
         channel = features_params['selected_channel']  # todo: tweak this hyper-parameter
         trial_features_lst.append(welch(trial[channel], window=welch_window, fs=sample_rate, nfft=nfft)[1])
 
+
+
         # 2) Use ResNet to extract some features
-        resized_trial = cv2.resize(trial, features_params['image_size'])
-        plt.imshow(resized_trial)
-        plt.show()
-        input('IMAGE')
-        resized_trial = cv2.merge((resized_trial, resized_trial, resized_trial))
-        resnet = resnet_v2.ResNet50V2(include_top=False)
+        if False:
+            resized_trial = cv2.resize(trial, features_params['image_size'])
+            plt.imshow(resized_trial)
+            plt.show()
+            input('IMAGE')
+            resized_trial = cv2.merge((resized_trial, resized_trial, resized_trial))
+            resnet = resnet_v2.ResNet50V2(include_top=False)
+
         # todo: add more feature extraction methods
 
         # concatenate all features to one array
