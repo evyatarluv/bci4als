@@ -18,41 +18,19 @@ from psychopy import visual, event
 import numpy as np
 import pandas as pd
 import pylsl
+import yaml
 
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
-# Params
+# Configurations
+config = yaml.full_load(open('config.yaml', 'r'))
+gui_params = config['gui']
+lsl_params = config['lsl']
+visual_params = config['visual']
+experiment_params = config['experiment']
+
 recording_folder = 'C:\\Users\\lenovo\\Documents\\CurrentStudy'  # folder to locate the subject folder
-
-gui_params = {
-    'title': "PyB4A"  # Acronym: Python BCI-4-ALS
-}
-
-lsl_params = {
-    'start_experiment': '1111',
-    'start_trial': '111',
-    'end_trial': '999',
-    'end_experiment': '9999',
-}
-
-visual_params = {
-    'image_path': {'right': 'MI_images/arrow_right.jpeg',
-                   'left': 'MI_images/arrow_left.jpeg',
-                   'idle': 'MI_images/square.jpeg'},
-    'text_height': 48,
-    'text_color': 'white'
-}
-
-# todo: replace randomized trials with fixed order
-experiment_params = {
-    'enumerate_stim': {0: 'right', 1: 'left', 2: 'idle'},  # dict which translate from stim to num
-    'num_trials': 36,  # set number of training trials
-    'trial_length': 5,  # seconds of each trial
-    'cue_length': 0.25,  # seconds of cure before the 'Ready' message
-    'ready_length': 1,  # seconds of 'Ready' message before starting the next trial
-    'next_length': 1,  # seconds of 'Next' message before the cue
-}
 
 
 def init_stim_vector(trials_num, subject_folder):
@@ -206,7 +184,7 @@ def init_directory():
     print("hello")
 
     # fixme: my running get stuck here
-    recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
+    # recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
     if not recording_folder:
         sys.exit(-1)
 

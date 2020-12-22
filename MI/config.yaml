@@ -1,0 +1,29 @@
+
+# -------------------- MI1 params -------------------
+gui:
+  'title': 'PyB4A'  # Acronym: Python BCI-4-ALS
+
+lsl:
+  start_experiment: '1111'
+  start_trial: '111'
+  end_trial: '999'
+  end_experiment: '9999'
+
+visual:
+    image_path:
+      right: MI_images/arrow_right.jpeg
+      left: MI_images/arrow_left.jpeg
+      idle: MI_images/square.jpeg
+    text_height: 48
+    text_color: white
+
+experiment:
+  enumerate_stim:
+    0: right
+    1: left
+    2: idle
+  num_trials: 120
+  trial_length: 5
+  cue_length: 0.25
+  ready_length: 1
+  next_length: 1

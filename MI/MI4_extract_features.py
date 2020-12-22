@@ -49,7 +49,7 @@ def extract_features(trials, s_freq):
     return features_array
 
 
-def extract_features_resnet(trials, cnn):
+def extract_features_cnn(trials, cnn):
 
     """
     The function get a list of n trials and CNN,
@@ -103,7 +103,7 @@ def MI_extract_features(mode='classic'):
         print("Extracting Features for subject: {}".format(day_path))
 
         if mode == 'cnn':
-            features = extract_features_resnet(trials, cnn)
+            features = extract_features_cnn(trials, cnn)
         else:
             features = extract_features(trials, s_freq)
 
