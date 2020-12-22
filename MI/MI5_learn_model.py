@@ -23,7 +23,7 @@ same_day_params = {
 }
 
 adjust_params = {
-    'train_ratio': {'first': 0.8, 'others': 0.1},
+    'train_ratio': {'first': 0.8, 'others': 0.2},
     'random_state': 42,
 }
 
@@ -156,7 +156,7 @@ def train_model(X_train, y_train, model_name):
     return model
 
 
-def MI5_learn_model(subject_folder, mode, model_name):
+def MI5_learn_model(subject_folder, mode='same day', model_name='svm'):
 
     switcher = {'same day': same_day_data, 'first day': first_day_data, 'adjust': adjust_data}
 
@@ -178,7 +178,7 @@ def MI5_learn_model(subject_folder, mode, model_name):
 
         model = train_model(X_train, y_train, model_name)
 
-        results[day] = model.score(scaler_x.transform(X_test), y_test)
+        results[day] = round(model.score(scaler_x.transform(X_test), y_test), 3)
 
     print('Accuracy for each day using `{}` mode:'.format(mode))
     print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))

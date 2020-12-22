@@ -104,19 +104,19 @@ def save_clean_eeg(eeg, time_stamps, subject_path):
 
 def MI_preprocess():
 
-    # Get all the subjects' folders
-    subjects = os.listdir(data_params['record_folder'])
+    # Get all the days in the subject folder
+    days = os.listdir(data_params['record_folder'])
 
     # For each subject clean the EEG data
-    for s in subjects:
+    for day in days:
 
-        subject_path = os.path.join(data_params['record_folder'], s)
+        day_path = os.path.join(data_params['record_folder'], day)
 
-        eeg_data, eeg_timestamp = load_eeg_data(subject_path)
+        eeg_data, eeg_timestamp = load_eeg_data(day_path)
 
         eeg_data = filter_eeg_data(eeg_data)
 
-        save_clean_eeg(eeg_data, eeg_timestamp, subject_path)
+        save_clean_eeg(eeg_data, eeg_timestamp, day_path)
 
 
 if __name__ == '__main__':
