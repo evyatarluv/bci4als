@@ -16,9 +16,9 @@ if __name__ == '__main__':
 
     MI_preprocess()
 
-    MI_segment_data()
+    # MI_segment_data()
 
     MI_extract_features()
 
-    MI5_learn_model(r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\noam', 'same day', 'svm')
+    MI5_learn_model(r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar', 'same day', 'svm')
 
