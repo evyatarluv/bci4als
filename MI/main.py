@@ -14,11 +14,11 @@ if __name__ == '__main__':
 
     # MI_record()
 
-    MI_preprocess()
+    # MI_preprocess()
 
     # MI_segment_data()
 
-    MI_extract_features()
+    MI_extract_features(mode='cnn')
 
     MI5_learn_model(r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar', 'same day', 'svm')
 
