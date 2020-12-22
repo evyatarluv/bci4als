@@ -48,36 +48,6 @@ def extract_features(trials, s_freq):
 
     return features_array
 
-    # per-trial feature extraction
-    for trial in trials:
-        trial_features_lst = []
-
-        # 1) extract power spectrum density (via welch method)
-        sample_rate = len(trial.index) / features_params['trial_time']  # Units: 1/s
-        nfft = features_params['nfft']
-        welch_window = features_params['welch_window']
-        channel = features_params['selected_channel']  # todo: tweak this hyper-parameter
-        trial_features_lst.append(welch(trial[channel], window=welch_window, fs=sample_rate, nfft=nfft)[1])
-
-        # 2) Use ResNet to extract some features
-        if False:
-            resized_trial = cv2.resize(trial, features_params['image_size'])
-            plt.imshow(resized_trial)
-            plt.show()
-            input('IMAGE')
-            resized_trial = cv2.merge((resized_trial, resized_trial, resized_trial))
-            resnet = resnet_v2.ResNet50V2(include_top=False)
-
-        # todo: add more feature extraction methods
-
-        # concatenate all features to one array
-        trial_features_vector = np.concatenate(trial_features_lst)
-
-        # add features to list
-        features.append(trial_features_vector)
-
-    features_array = np.vstack(features)
-    return features_array
 
 def extract_features_resnet(trials, cnn):
 
@@ -119,10 +89,10 @@ def MI_extract_features(mode='classic'):
         cnn = resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='avg',
                                    input_shape=features_params['image_size'][::-1] + (3,))
 
-    # For each subject extract features
+    # For each day extract features
     for day in days:
 
-        # Get the current subject trials
+        # Get the current day trials
         day_path = os.path.join(data_params['record_folder'], day)
         trials_path = os.path.join(day_path, MI3_params['trials_filename'])
         info_path = os.path.join(day_path, '.info')
