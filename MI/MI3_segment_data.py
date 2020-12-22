@@ -16,7 +16,7 @@ def get_trials_times(subject_path):
 
     """
     This function get subject path and return a list of the trials timestamps.
-😊    contains the trial'start & end timestamps.
+    contains the trial'start & end timestamps.
     :param subject_path: str, path to the current subject folder
     :return: list with tuples correspond to the start & end of each trial
     """
@@ -60,6 +60,8 @@ def MI_segment_data():
         for t in trial_times:
             start_time, stop_time = t
             trial = eeg_data[(start_time < eeg_data.time) & (eeg_data.time < stop_time)].reset_index(drop=True)
+
+            # Drop weird trials
             if len(trial.index) >= 10:
                 eeg_trials.append(trial.drop(['time'], axis=1))
 
