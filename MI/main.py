@@ -14,11 +14,11 @@ if __name__ == '__main__':
 
     # MI_record()
 
-    # MI_preprocess()
+    MI_preprocess()
 
     # MI_segment_data()
 
     # MI_extract_features()
 
-    MI5_learn_model('..\\data\\evyatar', 'same day', 'svm')
+    # MI5_learn_model('..\\data\\evyatar', 'same day', 'svm')
 

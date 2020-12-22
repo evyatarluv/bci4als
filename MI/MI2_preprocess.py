@@ -7,7 +7,7 @@ Then it run over each subject and:
     2. Filter the raw data
     3. Save the cleaned data in the subject's folder.
 """
-
+import json
 import os
 import pyxdf
 import numpy as np
@@ -16,7 +16,7 @@ import pandas as pd
 
 data_params = {
     'sample_freq': None,
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS\data\noam',  # path to the folder with all the subjects
+    'record_folder': r'C:\Users\lenovo\PycharmProjects\BCI-4-ALS\data\evyatar',  # path to the folder with all the subjects
     'channel_names': ['time', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
                       'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
     'remove_channels': [0, 1, 2],  # channels to remove from the EEG data
@@ -44,13 +44,16 @@ def load_eeg_data(folder_path):
     # Get the EEG data & update sample rate param
     eeg_data = data[0]['time_series']
     eeg_timestamp = data[0]['time_stamps']
-    data_params['sample_freq'] = float(data[0]['info']['effective_srate'][0])  # update the sample rate
+    data_params['sample_freq'] = float(data[0]['info']['effective_srate'])  # update the sample rate
 
     # Remove channels
     eeg_data = np.delete(eeg_data, obj=data_params['remove_channels'], axis=1)
 
     # Debug print
     print('EEG data loaded\nData shape: {}'.format(eeg_data.shape))
+
+    # Dump the info as JSON
+    json.dump(data[0]['info'], open(os.path.join(folder_path, '.info'), 'w'))
 
     return eeg_data, eeg_timestamp
 
@@ -72,6 +75,10 @@ def filter_eeg_data(eeg):
     # Convert to float64 in order to fit mne functions
     eeg = eeg.astype(np.float64)
     eeg = eeg.T  # mne functions look for the channels as rows
+
+    # Lie about the sample rate
+    if sample_freq < 100:
+        sample_freq = 125
 
     # Low-pass filter
     eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
