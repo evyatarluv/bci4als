@@ -20,7 +20,6 @@ data_params = {
     'EEG_filename': 'EEG_clean.csv',
     'trials_filename': 'EEG_trials.pickle',
 }
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
 
 
 def get_trials_times(subject_path):
@@ -54,26 +53,20 @@ def get_trials_times(subject_path):
 def MI_segment_data():
 
     # Get all the days folder for the current subject
-<<<<<<< HEAD
     days = os.listdir(data_params['subject_folder'])
-=======
     days = os.listdir(data_params['record_folder'])
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
 
     # For each subject segment the (clean) EEG data
     for day in days:
 
-<<<<<<< HEAD
         day_path = os.path.join(data_params['subject_folder'], day)
 
         # Load EEG data and markers data
         eeg_data = pd.read_csv(os.path.join(day_path, data_params['filenames']['EEG_clean']))
-=======
         day_path = os.path.join(data_params['record_folder'], day)
 
         # Load EEG data and markers data
         eeg_data = pd.read_csv(os.path.join(day_path, data_params['EEG_filename']))
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
         trial_times = get_trials_times(day_path)
 
         # Split the EEG data into trials according to markers
@@ -88,11 +81,8 @@ def MI_segment_data():
                 eeg_trials.append(trial.drop(['time'], axis=1))
 
         # Dump pickle file of the subject trials
-<<<<<<< HEAD
         pickle.dump(eeg_trials, open(os.path.join(day_path, data_params['filenames']['trials']), 'wb'))
-=======
         pickle.dump(eeg_trials, open(os.path.join(day_path, data_params['trials_filename']), 'wb'))
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
 
 
 if __name__ == '__main__':
