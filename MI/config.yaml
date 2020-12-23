@@ -1,10 +1,6 @@
 
-<<<<<<< HEAD
 # -------------------- MI1 params - Recording Experiment -------------------
 
-=======
-# -------------------- MI1 params -------------------
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
 gui:
   'title': 'PyB4A'  # Acronym: Python BCI-4-ALS
 
@@ -31,7 +27,6 @@ experiment:
   trial_length: 5
   cue_length: 0.25
   ready_length: 1
-<<<<<<< HEAD
   next_length: 1
 
 # -------------------- MI2 params - Preprocess Data -------------------
@@ -66,6 +61,3 @@ data:
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
-=======
-  next_length: 1
->>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652

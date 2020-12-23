@@ -9,12 +9,6 @@ import yaml
 # Configuration
 data_params = yaml.full_load(open('config.yaml', 'r'))['data']
 
-data_params = {
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\noam',  # path to the folder with all the subjects
-    'EEG_filename': 'EEG_clean.csv',
-    'trials_filename': 'EEG_trials.pickle',
-}
-
 
 def get_trials_times(subject_path):
 
@@ -48,7 +42,6 @@ def MI_segment_data():
 
     # Get all the days folder for the current subject
     days = os.listdir(data_params['subject_folder'])
-    days = os.listdir(data_params['record_folder'])
 
     # For each subject segment the (clean) EEG data
     for day in days:
@@ -57,10 +50,6 @@ def MI_segment_data():
 
         # Load EEG data and markers data
         eeg_data = pd.read_csv(os.path.join(day_path, data_params['filenames']['EEG_clean']))
-        day_path = os.path.join(data_params['record_folder'], day)
-
-        # Load EEG data and markers data
-        eeg_data = pd.read_csv(os.path.join(day_path, data_params['EEG_filename']))
         trial_times = get_trials_times(day_path)
 
         # Split the EEG data into trials according to markers
@@ -76,7 +65,6 @@ def MI_segment_data():
 
         # Dump pickle file of the subject trials
         pickle.dump(eeg_trials, open(os.path.join(day_path, data_params['filenames']['trials']), 'wb'))
-        pickle.dump(eeg_trials, open(os.path.join(day_path, data_params['trials_filename']), 'wb'))
 
 
 if __name__ == '__main__':
