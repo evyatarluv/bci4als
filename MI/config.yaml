@@ -58,13 +58,13 @@ preprocess:
 # -------------------- MI3/MI4/MI5 params -------------------
 
 data:
-  s_freq: 0
   subject_folder: C:\Users\lenovo\PycharmProjects\BCI-4-ALS\data\evyatar
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
     features: features.csv
     info: .info
+    y: stimulus_vectors.csv
 
 features:
   selected_channels:
@@ -76,4 +76,13 @@ features:
     - std
     - pow_freq_bands
   image_size: !!python/tuple [100, 600]
+
+split:
+  random_state: 42
+  same_day:
+    train_ratio: 0.8
+  adjust:
+    train_ratio:
+      first: 0.8
+      others: 0.2
 

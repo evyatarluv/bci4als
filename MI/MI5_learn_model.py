@@ -9,23 +9,31 @@ The dict for each day include train & test ndarray.
 import os
 import pandas as pd
 import numpy as np
+import yaml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-data_params = {
-    'filename': {'y': 'stimulus_vectors.csv', 'X': 'features.csv'}
-}
+# data_params = {
+#     'filename': {'y': 'stimulus_vectors.csv', 'X': 'features.csv'}
+# }
+#
+# same_day_params = {
+#     'train_ratio': 0.8,
+#     'random_state': 42,
+# }
+#
+# adjust_params = {
+#     'train_ratio': {'first': 0.8, 'others': 0.2},
+#     'random_state': 42,
+# }
 
-same_day_params = {
-    'train_ratio': 0.8,
-    'random_state': 42,
-}
-
-adjust_params = {
-    'train_ratio': {'first': 0.8, 'others': 0.2},
-    'random_state': 42,
-}
+# Configurations
+config = yaml.full_load(open('config.yaml', 'r'))
+data_params = config['data']
+same_day_params = config['split']['same_day']
+adjust_params = config['split']['adjust']
+random_state = config['split']['random_state']
 
 
 def same_day_data(subject_folder):
@@ -44,13 +52,13 @@ def same_day_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
+        y = np.genfromtxt(os.path.join(day_path, data_params['filenames']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filenames']['features']), delimiter=',')
 
         # Split
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             train_size=same_day_params['train_ratio'],
-                                                            random_state=same_day_params['random_state'])
+                                                            random_state=random_state)
 
         # Update the dict
         train_test[d] = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
@@ -74,14 +82,14 @@ def first_day_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
+        y = np.genfromtxt(os.path.join(day_path, data_params['filenames']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filenames']['features']), delimiter=',')
 
         # If this is day 1 split to train and test
         if d == '1':
             X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                                 train_size=same_day_params['train_ratio'],
-                                                                random_state=same_day_params['random_state'])
+                                                                random_state=random_state)
 
             train_test[d] = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
 
@@ -111,14 +119,14 @@ def adjust_data(subject_folder):
         day_path = os.path.join(subject_folder, d)
 
         # Load X & y
-        y = np.genfromtxt(os.path.join(day_path, data_params['filename']['y']), delimiter=',')
-        X = np.genfromtxt(os.path.join(day_path, data_params['filename']['X']), delimiter=',')
+        y = np.genfromtxt(os.path.join(day_path, data_params['filenames']['y']), delimiter=',')
+        X = np.genfromtxt(os.path.join(day_path, data_params['filenames']['features']), delimiter=',')
 
         # If this is day 1 split to train and test
         if d == '1':
             X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                                 train_size=adjust_params['train_ratio']['first'],
-                                                                random_state=same_day_params['random_state'])
+                                                                random_state=random_state)
 
             train_test[d] = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
 
@@ -127,7 +135,7 @@ def adjust_data(subject_folder):
 
             X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                                 train_size=adjust_params['train_ratio']['others'],
-                                                                random_state=adjust_params['random_state'])
+                                                                random_state=random_state)
 
             train_test[d] = {'X_train': np.concatenate((train_test['1']['X_train'], X_train)),
                              'X_test': X_test,
@@ -156,8 +164,9 @@ def train_model(X_train, y_train, model_name):
     return model
 
 
-def MI5_learn_model(subject_folder, mode='same day', model_name='svm'):
+def MI5_learn_model(mode='same day', model_name='svm'):
 
+    subject_folder = data_params['subject_folder']
     switcher = {'same day': same_day_data, 'first day': first_day_data, 'adjust': adjust_data}
 
     # Get the data for the model
@@ -180,5 +189,5 @@ def MI5_learn_model(subject_folder, mode='same day', model_name='svm'):
 
         results[day] = round(model.score(scaler_x.transform(X_test), y_test), 3)
 
-    print('Accuracy for each day using `{}` mode:'.format(mode))
+    print('Accuracy for each day using `{}` mode and {} model:'.format(mode, model_name))
     print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))
