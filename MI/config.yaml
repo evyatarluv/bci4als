@@ -2,7 +2,7 @@
 # -------------------- MI1 params - Recording Experiment -------------------
 
 gui:
-  'title': 'PyB4A'  # Acronym: Python BCI-4-ALS
+  'title': PyB4A  # Acronym: Python BCI-4-ALS
 
 lsl:
   start_experiment: '1111'
@@ -58,7 +58,7 @@ preprocess:
 # -------------------- MI3/MI4/MI5 params -------------------
 
 data:
-  subject_folder: ..\data\evyatar
+  subject_folder: ..\data\noam
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
@@ -75,6 +75,8 @@ features:
     - ptp_amp
     - std
     - pow_freq_bands
+    - app_entropy
+    - max_cross_corr
   image_size: !!python/tuple [100, 600]
 
 split:

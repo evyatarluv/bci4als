@@ -166,6 +166,8 @@ def train_model(X_train, y_train, model_name):
 
 def MI5_learn_model(mode='same day', model_name='svm'):
 
+    print('---------- Start MI5 - Training Model ----------')
+
     subject_folder = data_params['subject_folder']
     switcher = {'same day': same_day_data, 'first day': first_day_data, 'adjust': adjust_data}
 

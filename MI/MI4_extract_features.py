@@ -87,6 +87,9 @@ def extract_features_cnn(trials, cnn):
 
 
 def MI_extract_features(mode='classic'):
+
+    print('---------- Start MI4 - Feature Extraction ----------')
+
     # Get all the subjects' folders
     days = os.listdir(data_params['subject_folder'])
 

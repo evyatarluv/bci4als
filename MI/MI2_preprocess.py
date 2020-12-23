@@ -103,6 +103,8 @@ def save_clean_eeg(eeg, time_stamps, subject_path):
 
 def MI_preprocess():
 
+    print('---------- Start MI2 - Data Pre-Processing  ----------')
+
     # Get all the days in the subject folder
     days = os.listdir(data_params['subject_folder'])
 

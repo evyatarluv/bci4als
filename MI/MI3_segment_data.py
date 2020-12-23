@@ -40,6 +40,9 @@ def get_trials_times(subject_path):
 
 def MI_segment_data():
 
+    # Debug
+    print('---------- Start MI3 - Data Segmentation  ----------')
+
     # Get all the days folder for the current subject
     days = os.listdir(data_params['subject_folder'])
 
