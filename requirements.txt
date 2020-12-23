@@ -7,8 +7,12 @@ pandas~=1.1.4
 sklearn>=0.0
 scikit-learn~=0.23.2
 future~=0.18.2
+<<<<<<< HEAD
 matplotlib~=3.3.2
 pyyaml>=5.3.1
 opencv-python>=4.4.0.46
 keras>=2.4.3
 scipy>=1.5.3
+=======
+matplotlib~=3.3.2
+>>>>>>> 895d0d0b933d59c8280f9813b5125f92a90e9652
