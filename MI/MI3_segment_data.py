@@ -6,12 +6,6 @@ from MI.MI1_record_experiment import lsl_params
 import pickle
 import yaml
 
-# data_params = {
-#     'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\noam',  # path to the folder with all the subjects
-#     'EEG_filename': 'EEG_clean.csv',
-#     'trials_filename': 'EEG_trials.pickle',
-# }
-
 # Configuration
 data_params = yaml.full_load(open('config.yaml', 'r'))['data']
 
