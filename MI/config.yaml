@@ -71,14 +71,9 @@ features:
     - C03
     - C04
   features:
-    - mean
-    - ptp_amp
-    - std
     - pow_freq_bands
-    - app_entropy
-    - max_cross_corr
   image_size: !!python/tuple [32, 600]
-  pca: 120
+  pca: 50  # n_components, must be between 0 and min(n_sample, n_features)
 
 split:
   random_state: 42

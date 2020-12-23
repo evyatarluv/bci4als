@@ -13,6 +13,8 @@ import yaml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 # data_params = {
 #     'filename': {'y': 'stimulus_vectors.csv', 'X': 'features.csv'}
@@ -154,12 +156,22 @@ def train_model(X_train, y_train, model_name):
     :return: trained model
     """
 
+    # SVM
     if model_name.lower() == 'svm':
+        model = SVC(C=2, gamma='auto')
 
-        model = SVC()
-        model.fit(X_train, y_train)
+    # KNN
+    elif model_name.lower() == 'knn':
+        model = KNeighborsClassifier(n_neighbors=10)
 
-    # todo: raise NotImplementedError at the end
+    # Random Forest
+    elif model_name.lower() in ['rf', 'random_forest']:
+        model = RandomForestClassifier(n_estimators=250)
+
+    else:
+        raise NotImplementedError('The chosen model is not implemented yet')
+
+    model.fit(X_train, y_train)
 
     return model
 
@@ -189,6 +201,7 @@ def MI5_learn_model(mode='same day', model_name='svm'):
 
         model = train_model(X_train, y_train, model_name)
 
+        print('Day {} predictions: {}'.format(day, model.predict(scaler_x.transform(X_test))))
         results[day] = round(model.score(scaler_x.transform(X_test), y_test), 3)
 
     print('Accuracy for each day using `{}` mode and {} model:'.format(mode, model_name))

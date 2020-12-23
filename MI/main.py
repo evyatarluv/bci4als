@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     # MI_segment_data()
 
-    MI_extract_features(mode='cnn')
+    MI_extract_features()
 
-    MI5_learn_model('same day', 'svm')
+    MI5_learn_model('same day', 'rf')
 
