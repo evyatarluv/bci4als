@@ -9,8 +9,6 @@ from keras.applications import resnet_v2
 from sklearn.decomposition import PCA
 import yaml
 
-from MI.MI3_segment_data import data_params as MI3_params
-
 # data_params = {
 #     'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar',
 #     # path to the subject folder with all the recording folders
@@ -26,7 +24,7 @@ from MI.MI3_segment_data import data_params as MI3_params
 # Configuration
 config = yaml.full_load(open('config.yaml', 'r'))
 data_params = config['data']
-features_params = config['data']
+features_params = config['features']
 
 
 def extract_features(trials, s_freq):
@@ -38,7 +36,7 @@ def extract_features(trials, s_freq):
     # initialize
 
     # transform list of trials into X: ndarray, shape (n_trials, n_channels, n_times)
-    trials = [trial[features_params['selected_channel']].to_numpy() for trial in trials]  # convert to numpy
+    trials = [trial[features_params['selected_channels']].to_numpy() for trial in trials]  # convert to numpy
     n_times = min(trials, key=lambda x: x.shape[0]).shape[0]  # get minimum trial length
     trials = [trial[:n_times].T for trial in trials]  # trim trials to minimum length
     X = np.stack(trials)
@@ -99,10 +97,12 @@ def MI_extract_features(mode='classic'):
     # For each day extract features
     for day in days:
 
-        # Get the current day trials
+        # Create paths for files
         day_path = os.path.join(data_params['subject_folder'], day)
-        trials_path = os.path.join(day_path, MI3_params['trials_filename'])
-        info_path = os.path.join(day_path, '.info')
+        trials_path = os.path.join(day_path, data_params['filenames']['trials'])
+        info_path = os.path.join(day_path, data_params['filenames']['info'])
+
+        # Get the current day trials & sample freq
         trials = pickle.load(open(trials_path, 'rb'))
         s_freq = json.load(open(info_path, 'r'))['effective_srate']
 

@@ -64,6 +64,7 @@ data:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
     features: features.csv
+    info: .info
 
 features:
   selected_channels:
