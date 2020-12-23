@@ -1,30 +1,32 @@
 import json
 import os
 import pickle
-
 import cv2
 import matplotlib.pyplot as plt
 import mne_features
 import numpy as np
 from keras.applications import resnet_v2
-from scipy.signal import welch
 from sklearn.decomposition import PCA
+import yaml
 
 from MI.MI3_segment_data import data_params as MI3_params
 
-data_params = {
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar',
-    # path to the subject folder with all the recording folders
-    'features_filename': 'features.csv'
-}
+# data_params = {
+#     'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar',
+#     # path to the subject folder with all the recording folders
+#     'features_filename': 'features.csv'
+# }
+#
+# features_params = {
+#     'selected_channel': ['C03', 'C04'],
+#     'features': ['mean', 'ptp_amp', 'std', 'pow_freq_bands'],
+#     'image_size': (100, 600),
+# }
 
-features_params = {
-    'selected_channel': ['C03', 'C04'],
-    'nfft': 512,
-    'welch_window': 'hamm',
-    'trial_time': 5,  # seconds
-    'image_size': (100, 600),
-}
+# Configuration
+config = yaml.full_load(open('config.yaml', 'r'))
+data_params = config['data']
+features_params = config['data']
 
 
 def extract_features(trials, s_freq):
@@ -40,11 +42,16 @@ def extract_features(trials, s_freq):
     n_times = min(trials, key=lambda x: x.shape[0]).shape[0]  # get minimum trial length
     trials = [trial[:n_times].T for trial in trials]  # trim trials to minimum length
     X = np.stack(trials)
+
+    # Features params
     params = {
         'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
     }
-    selected_funcs = {'mean', 'ptp_amp', 'std', 'pow_freq_bands'}
-    features_array = mne_features.feature_extraction.extract_features(X, s_freq, selected_funcs, params)
+
+    # Extract features
+    features_array = mne_features.feature_extraction.extract_features(X, s_freq,
+                                                                      features_params['features'],
+                                                                      params)
 
     return features_array
 
@@ -83,7 +90,7 @@ def extract_features_cnn(trials, cnn):
 
 def MI_extract_features(mode='classic'):
     # Get all the subjects' folders
-    days = os.listdir(data_params['record_folder'])
+    days = os.listdir(data_params['subject_folder'])
 
     if mode == 'cnn':
         cnn = resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='avg',
@@ -93,7 +100,7 @@ def MI_extract_features(mode='classic'):
     for day in days:
 
         # Get the current day trials
-        day_path = os.path.join(data_params['record_folder'], day)
+        day_path = os.path.join(data_params['subject_folder'], day)
         trials_path = os.path.join(day_path, MI3_params['trials_filename'])
         info_path = os.path.join(day_path, '.info')
         trials = pickle.load(open(trials_path, 'rb'))
@@ -108,7 +115,7 @@ def MI_extract_features(mode='classic'):
             features = extract_features(trials, s_freq)
 
         # Save the features
-        features_path = os.path.join(day_path, data_params['features_filename'])
+        features_path = os.path.join(day_path, data_params['filenames']['features'])
         print("Saving features to: {}".format(features_path))
         np.savetxt(features_path, features, delimiter=',')
 

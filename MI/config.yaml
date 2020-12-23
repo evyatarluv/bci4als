@@ -55,9 +55,24 @@ preprocess:
     - 1
     - 2
 
+# -------------------- MI3/MI4/MI5 params -------------------
+
 data:
   s_freq: 0
   subject_folder: C:\Users\lenovo\PycharmProjects\BCI-4-ALS\data\evyatar
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
+    features: features.csv
+
+features:
+  selected_channels:
+    - C03
+    - C04
+  features:
+    - mean
+    - ptp_amp
+    - std
+    - pow_freq_bands
+  image_size: !!python/tuple [100, 600]
+
