@@ -223,7 +223,7 @@ def MI_record():
     # Init psychopy and screen params
     psychopy_params = window_init()
 
-    # Built the stimulus vector
+    # Build the stimulus vector
     stim_vector = init_stim_vector(experiment_params['num_trials'], subject_folder)
 
     # Push marker to mark the start of the experiment

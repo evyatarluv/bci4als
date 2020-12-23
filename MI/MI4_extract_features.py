@@ -9,17 +9,7 @@ from keras.applications import resnet_v2
 from sklearn.decomposition import PCA
 import yaml
 
-# data_params = {
-#     'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar',
-#     # path to the subject folder with all the recording folders
-#     'features_filename': 'features.csv'
-# }
-#
-# features_params = {
-#     'selected_channel': ['C03', 'C04'],
-#     'features': ['mean', 'ptp_amp', 'std', 'pow_freq_bands'],
-#     'image_size': (100, 600),
-# }
+
 
 # Configuration
 config = yaml.full_load(open('config.yaml', 'r'))
@@ -30,12 +20,12 @@ features_params = config['features']
 def extract_features(trials, s_freq):
     """
     The function gets list of m trials, and extracts k features (scalar values) per trial.
-    :param s_freq: float, sample frequency of the trials
     :param trials: list of trials while each trial is a pandas dataframe
     :return: ndarray of extracted features [shape = (m_trials, k_features)].
     """
+    # initialize
 
-    # Transform list of trials into X: ndarray, shape (n_trials, n_channels, n_times)
+    # transform list of trials into X: ndarray, shape (n_trials, n_channels, n_times)
     trials = [trial[features_params['selected_channels']].to_numpy() for trial in trials]  # convert to numpy
     n_times = min(trials, key=lambda x: x.shape[0]).shape[0]  # get minimum trial length
     trials = [trial[:n_times].T for trial in trials]  # trim trials to minimum length
