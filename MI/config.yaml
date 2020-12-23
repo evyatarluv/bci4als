@@ -1,0 +1,90 @@
+
+# -------------------- MI1 params - Recording Experiment -------------------
+
+gui:
+  'title': PyB4A  # Acronym: Python BCI-4-ALS
+
+lsl:
+  start_experiment: '1111'
+  start_trial: '111'
+  end_trial: '999'
+  end_experiment: '9999'
+
+visual:
+    image_path:
+      right: MI_images/arrow_right.jpeg
+      left: MI_images/arrow_left.jpeg
+      idle: MI_images/square.jpeg
+    text_height: 48
+    text_color: white
+
+experiment:
+  enumerate_stim:
+    0: right
+    1: left
+    2: idle
+  num_trials: 120
+  trial_length: 5
+  cue_length: 0.25
+  ready_length: 1
+  next_length: 1
+
+# -------------------- MI2 params - Preprocess Data -------------------
+
+preprocess:
+  filter:
+    high_pass: 0.5
+    low_pass: 30
+  channel_names:
+    - time
+    - C03
+    - C04
+    - P07
+    - P08
+    - O01
+    - O02
+    - F07
+    - F08
+    - F03
+    - F04
+    - T07
+    - T08
+    - P03
+  remove_channels:
+    - 0
+    - 1
+    - 2
+
+# -------------------- MI3/MI4/MI5 params -------------------
+
+data:
+  subject_folder: ..\data\noam
+  filenames:
+    EEG_clean: EEG_clean.csv
+    trials: EEG_trials.pickle
+    features: features.csv
+    info: .info
+    y: stimulus_vectors.csv
+
+features:
+  selected_channels:
+    - C03
+    - C04
+  features:
+    - mean
+    - ptp_amp
+    - std
+    - pow_freq_bands
+    - app_entropy
+    - max_cross_corr
+  image_size: !!python/tuple [100, 600]
+
+split:
+  random_state: 42
+  same_day:
+    train_ratio: 0.8
+  adjust:
+    train_ratio:
+      first: 0.8
+      others: 0.2
+

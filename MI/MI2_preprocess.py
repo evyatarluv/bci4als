@@ -13,20 +13,12 @@ import pyxdf
 import numpy as np
 import mne
 import pandas as pd
+import yaml
 
-data_params = {
-    'sample_freq': None,
-    'record_folder': r'C:\Users\noam\PycharmProjects\BCI-4-ALS2\data\evyatar',  # path to the folder with all the subjects
-    'channel_names': ['time', 'C03', 'C04', 'P07', 'P08', 'O01', 'O02',
-                      'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03'],
-    'remove_channels': [0, 1, 2],  # channels to remove from the EEG data
-}
-
-
-filter_params = {
-    'low_pass': 30,  # upper limit for low-pass filter
-    'high_pass': 0.5,  # lower limit for high-pass filter
-}
+# Configurations
+config = yaml.full_load(open('config.yaml', 'r'))
+data_params = config['data']
+preprocess_params = config['preprocess']
 
 
 def load_eeg_data(folder_path):
@@ -47,7 +39,7 @@ def load_eeg_data(folder_path):
     data_params['sample_freq'] = float(data[0]['info']['effective_srate'])  # update the sample rate
 
     # Remove channels
-    eeg_data = np.delete(eeg_data, obj=data_params['remove_channels'], axis=1)
+    eeg_data = np.delete(eeg_data, obj=preprocess_params['remove_channels'], axis=1)
 
     # Debug print
     print('EEG data loaded\nData shape: {}'.format(eeg_data.shape))
@@ -68,8 +60,8 @@ def filter_eeg_data(eeg):
     """
 
     # Params
-    low_pass = filter_params['low_pass']
-    high_pass = filter_params['high_pass']
+    low_pass = preprocess_params['filter']['low_pass']
+    high_pass = preprocess_params['filter']['high_pass']
     sample_freq = data_params['sample_freq']
 
     # Convert to float64 in order to fit mne functions
@@ -102,22 +94,24 @@ def save_clean_eeg(eeg, time_stamps, subject_path):
 
     # Add channel names
     eeg = np.c_[time_stamps, eeg]
-    cleaned_eeg = pd.DataFrame(data=eeg, columns=data_params['channel_names'])
+    cleaned_eeg = pd.DataFrame(data=eeg, columns=preprocess_params['channel_names'])
 
     # Output the cleaned EEG
-    output_path = os.path.join(subject_path, 'EEG_clean.csv')
+    output_path = os.path.join(subject_path, data_params['filenames']['EEG_clean'])
     cleaned_eeg.to_csv(output_path, index=False)
 
 
 def MI_preprocess():
 
+    print('---------- Start MI2 - Data Pre-Processing  ----------')
+
     # Get all the days in the subject folder
-    days = os.listdir(data_params['record_folder'])
+    days = os.listdir(data_params['subject_folder'])
 
     # For each subject clean the EEG data
     for day in days:
 
-        day_path = os.path.join(data_params['record_folder'], day)
+        day_path = os.path.join(data_params['subject_folder'], day)
 
         eeg_data, eeg_timestamp = load_eeg_data(day_path)
 
