@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import mne_features
 import numpy as np
 from keras.applications import resnet_v2
+from pandas import DataFrame
 from scipy.signal import welch
 from sklearn.decomposition import PCA
 
@@ -29,7 +30,7 @@ features_params = {
 
 def extract_features(trials, s_freq):
     """
-    The function gets list of m trials, and extracts k features (scalar values) per trial.
+    The function gets list of trials, and extracts features (scalar values) per trial.
     :param trials: list of trials while each trial is a pandas dataframe
     :return: ndarray of extracted features [shape = (m_trials, k_features)].
     """
@@ -40,6 +41,7 @@ def extract_features(trials, s_freq):
     n_times = min(trials, key=lambda x: x.shape[0]).shape[0]  # get minimum trial length
     trials = [trial[:n_times].T for trial in trials]  # trim trials to minimum length
     X = np.stack(trials)
+
     params = {
         'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
     }
