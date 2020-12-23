@@ -80,7 +80,7 @@ def extract_features_cnn(trials, cnn):
     features = cnn.predict(resized_trials)
 
     # Use PCA for dimensionality reduction
-    pca = PCA(n_components=100)
+    pca = PCA(n_components=features_params['pca'])
     features = pca.fit_transform(features)
 
     return features

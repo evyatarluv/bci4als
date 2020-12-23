@@ -77,7 +77,8 @@ features:
     - pow_freq_bands
     - app_entropy
     - max_cross_corr
-  image_size: !!python/tuple [100, 600]
+  image_size: !!python/tuple [32, 600]
+  pca: 120
 
 split:
   random_state: 42
