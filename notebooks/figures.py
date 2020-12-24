@@ -27,6 +27,4 @@ raw_clean_data = mne.io.RawArray(clean_data.T, info)
 # raw_trial.plot(n_channels=2)
 # raw_trial.plot_psd(picks=ch_names)
 fig_1 = raw_full_data.plot_psd(picks=ch_names)
-fig_2 = raw_clean_data.plot_psd(picks=ch_names)
-
-fig_1.add_axes(title='Full')
+# fig_2 = raw_clean_data.plot_psd(picks=ch_names)

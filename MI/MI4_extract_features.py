@@ -20,6 +20,7 @@ features_params = config['features']
 def extract_features(trials, s_freq):
     """
     The function gets list of m trials, and extracts k features (scalar values) per trial.
+    :param s_freq: float, sample frequency of the EEG data
     :param trials: list of trials while each trial is a pandas dataframe
     :return: ndarray of extracted features [shape = (m_trials, k_features)].
     """
