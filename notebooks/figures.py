@@ -19,12 +19,12 @@ full_data = pyxdf.load_xdf(eeg_path, [{'type': 'EEG'}])[0][0]['time_series'][:, 
 clean_data = np.genfromtxt(clean_path, delimiter=',', skip_header=1)[:, 1:]
 
 info = mne.create_info(ch_names, s_rate, verbose=False)
-raw_trial = mne.io.RawArray(trial_data.T, info)
-raw_full_data = mne.io.RawArray(full_data.T, info)
-raw_clean_data = mne.io.RawArray(clean_data.T, info)
+raw_trial = mne.io.RawArray(trial_data.T, info, verbose=False)
+raw_full_data = mne.io.RawArray(full_data.T, info, verbose=False)
+raw_clean_data = mne.io.RawArray(clean_data.T, info, verbose=False)
 
 
-# raw_trial.plot(n_channels=2)
+raw_trial.plot()
 # raw_trial.plot_psd(picks=ch_names)
-fig_1 = raw_full_data.plot_psd(picks=ch_names)
+# fig_1 = raw_full_data.plot_psd(picks=ch_names)
 # fig_2 = raw_clean_data.plot_psd(picks=ch_names)
