@@ -18,7 +18,7 @@ trial_data = trials[trial].to_numpy()
 full_data = pyxdf.load_xdf(eeg_path, [{'type': 'EEG'}])[0][0]['time_series'][:, 3:]
 clean_data = np.genfromtxt(clean_path, delimiter=',', skip_header=1)[:, 1:]
 
-info = mne.create_info(ch_names, s_rate)
+info = mne.create_info(ch_names, s_rate, verbose=False)
 raw_trial = mne.io.RawArray(trial_data.T, info)
 raw_full_data = mne.io.RawArray(full_data.T, info)
 raw_clean_data = mne.io.RawArray(clean_data.T, info)
