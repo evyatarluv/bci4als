@@ -62,6 +62,7 @@ def filter_eeg_data(eeg):
     # Params
     low_pass = preprocess_params['filter']['low_pass']
     high_pass = preprocess_params['filter']['high_pass']
+    notch = preprocess_params['filter']['notch']
     sample_freq = data_params['sample_freq']
 
     # Convert to float64 in order to fit mne functions
@@ -77,6 +78,9 @@ def filter_eeg_data(eeg):
 
     # High-pass filter
     eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
+
+    # Notch filter
+    eeg = mne.filter.notch_filter(eeg, Fs=sample_freq, freqs=[])
 
     return eeg.T
 

@@ -35,6 +35,7 @@ preprocess:
   filter:
     high_pass: 0.5
     low_pass: 30
+    notch: 50
   channel_names:
     - time
     - C03
