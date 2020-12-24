@@ -80,7 +80,7 @@ def filter_eeg_data(eeg):
     eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
 
     # Notch filter
-    eeg = mne.filter.notch_filter(eeg, Fs=sample_freq, freqs=[])
+    eeg = mne.filter.notch_filter(eeg, Fs=sample_freq, freqs=notch)
 
     return eeg.T
 
