@@ -123,7 +123,7 @@ To get a local copy up and running follow these simple example steps.
    ```
 2. Install python modules
    ```sh
-   pip install -r requirements.txt
+   pip install BCI4ALS
    ```
 
 
