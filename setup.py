@@ -1,38 +1,53 @@
+#!/usr/bin/env python
+
+"""The setup script."""
+
 from setuptools import setup, find_packages
 
+with open('README.md') as readme_file:
+    readme = readme_file.read()
 
-# read the contents of your README file
-from os import path
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
+requirements = ['Click>=7.0', ]
+
+setup_requirements = ['pytest-runner', ]
+
+test_requirements = ['pytest>=3', ]
 
 setup(
-    name='BCI4ALS',
-    version='0.1.0',
-    description='Setting up a python package',
-    author='Evyatar Luvaton, Noam Siegel',
-    author_email='luvaton@post.bgu.ac.il',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    packages=find_packages(include=['MI, SSVEP']),
-    install_requires=[
-        'PyYAML',
-        'opencv-python',
-        'keras',
-        'scipy',
-        'pyxdf',
-        'numpy>=1.14.5',
-        'mne',
-        'pandas',
-        'sklearn',
-        'pylsl'
+    author="Evyatar Luvaton, Noam Siegel",
+    author_email='noamsi@post.bgu.ac.il',
+    python_requires='>=3.5',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
-    extras_require={'plotting': ['matplotlib>=2.2.0', 'jupyter']},
-    tests_require=['pytest'],
+    description="Python Boilerplate contains all the boilerplate you need to create a Python package.",
     entry_points={
-        'console_scripts': ['record=MI.record_experiment:main']},
-    setup_requires=['flake8']
-
+        'console_scripts': [
+            'bci_4_als=bci_4_als.cli:main',
+        ],
+    },
+    install_requires=requirements,
+    license="MIT license",
+    long_description=readme + '\n\n' + history,
+    include_package_data=True,
+    keywords='bci_4_als',
+    name='bci_4_als',
+    packages=find_packages(include=['bci_4_als', 'bci_4_als.*']),
+    setup_requires=setup_requirements,
+    test_suite='tests',
+    tests_require=test_requirements,
+    url='https://github.com/evyatarluv/bci_4_als',
+    version='0.1.0',
+    zip_safe=False,
 )
-

@@ -1,12 +1,3 @@
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -28,13 +19,13 @@
 <br />
 <p align="center">
   <a href="https://github.com/evyatarluv/BCI-4-ALS">
-    <img src="images/logo.png" alt="Logo" width="360" height="360">
+    <img src="bci_4_als/images/logo.png" alt="Logo" width="360" height="360">
   </a>
 
   <h3 align="center">BCI - 4 - ALS</h3>
 
   <p align="center">
-    A complete EEG Motor Imagery Classification pipeline 
+    A complete EEG Motor Imagery Classification pipeline
     <br />
     <a href="https://github.com/evyatarluv/BCI-4-ALS"><strong>Explore the docs »</strong></a>
     <br />
@@ -89,7 +80,7 @@ ongoing brain signals that are associated with specific tasks or events.
 A common mental strategy is called motor imagery. In our implementation,
 we aim to tell if the users are thinking of moving your left hand, right hand, or not moving (idle).
 
-<img src="images/arrows.png" alt="Label Space = {Left, Right, Idle}">
+<img src="bci_4_als/images/arrows.png" alt="Label Space = {Left, Right, Idle}">
 
 
 
@@ -123,7 +114,8 @@ To get a local copy up and running follow these simple example steps.
    ```
 2. Install python modules
    ```sh
-   pip install BCI4ALS
+   python -m pip install --index-url https://test.pypi.org/simple/ --no-deps BCI4ALS-noamsgl
+
    ```
 
 
@@ -198,7 +190,7 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [license-url]: https://github.com/evyatarluv/BCI-4-ALS/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: bci_4_als/images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
 [notebooks-url]: examples
 

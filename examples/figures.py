@@ -5,7 +5,7 @@ import mne
 import os
 import matplotlib.pyplot as plt
 
-data_path = '../data/noam/2'
+data_path = '../bci_4_als/data/noam/2'
 trial = 50
 eeg_path = os.path.join(data_path, 'EEG.xdf')
 trials_path = os.path.join(data_path, 'EEG_trials.pickle')
