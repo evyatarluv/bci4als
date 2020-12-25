@@ -33,7 +33,7 @@ experiment:
 preprocess:
   filter:
     high_pass: 0.5
-    low_pass: 30
+    low_pass: 70 #todo: preprocess again after change from 30 to 70
     notch: 50
   channel_names:
     - time
