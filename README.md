@@ -132,8 +132,6 @@ To get a local copy up and running follow these simple example steps.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
 For more examples, please refer to the [Jupyter Notebooks][notebooks-url]
 
 
@@ -202,5 +200,5 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
-[notebooks-url]: notebooks
+[notebooks-url]: examples
 

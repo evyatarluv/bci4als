@@ -1,4 +1,3 @@
-
 # -------------------- MI1 params - Recording Experiment -------------------
 
 gui:
@@ -11,12 +10,12 @@ lsl:
   end_experiment: '9999'
 
 visual:
-    image_path:
-      right: MI_images/arrow_right.jpeg
-      left: MI_images/arrow_left.jpeg
-      idle: MI_images/square.jpeg
-    text_height: 48
-    text_color: white
+  images:
+    right: images/arrow_right.jpeg
+    left: images/arrow_left.jpeg
+    idle: images/square.jpeg
+  text_height: 48
+  text_color: white
 
 experiment:
   enumerate_stim:
@@ -73,7 +72,34 @@ features:
     - C04
   features:
     - pow_freq_bands
-  image_size: !!python/tuple [32, 600]
+    - app_entropy
+    - decorr_time
+    - energy_freq_bands
+    - higuchi_fd
+    - hjorth_complexity
+    - hjorth_complexity_spect
+    - hjorth_mobility
+    - hjorth_mobility_spect
+    - hurst_exp
+    - katz_fd
+    - kurtosis
+    - line_length
+    - mean
+    - pow_freq_bands
+    - ptp_amp
+    - samp_entropy
+    - skewness
+    - spect_edge_freq
+    - spect_entropy
+    - spect_slope
+    - std
+    - svd_entropy
+    - svd_fisher_info
+    - teager_kaiser_energy
+    - variance
+    - wavelet_coef_energy
+    - zero_crossings
+  image_size: !!python/tuple [ 32, 600 ]
   pca: 50  # n_components, must be between 0 and min(n_sample, n_features)
 
 split:
