@@ -28,7 +28,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/evyatarluv/BCI-4-ALS">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width="120" height="120">
   </a>
 
   <h3 align="center">BCI - 4 - ALS</h3>
@@ -134,14 +134,14 @@ To get a local copy up and running follow these simple example steps.
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+For more examples, please refer to the [Documentation](https://example.com)_
 
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/evyatarluv/BCI-4-ALS/issues) for a list of proposed features (and known issues).
 
 
 
