@@ -82,16 +82,15 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-There are many great README templates available on GitHub, however, I didn't find one that really suit my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+BCI's measure brain activity, process it, and produce control signals that reflect
+the user's intent. We aim to detect and classify patterns of activity in the
+ongoing brain signals that are associated with specific tasks or events.
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should element DRY principles to the rest of your life :smile:
+A common mental strategy is called motor imagery . In our implementation,
+we aim to tell if the users are thinking of moving your left hand, right hand, or not moving (idle).
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have have contributed to expanding this template!
+<img src="images/logo.png" alt="Label Space = {Left, Right, Idle}" width="360" height="360">
 
-A list of commonly used resources that I find helpful are listed in the acknowledgements.
 
 ### Built With
 
