@@ -1,15 +1,20 @@
 pyyaml>=5.1.2
-opencv-python>=4.4.0.46
-keras>=2.4.3
-scipy>=1.5.3
+keras>=2.3.1
+scipy>=1.5.2
 matplotlib>=3.1.1
 
 pyxdf>=1.16.3
 numpy>=1.16.5
-mne>=0.22.0
+mne>=0.21.1
 pandas>=0.25.1
-yaml>=0.1.7
 sklearn>=0.0
 scikit-learn>=0.21.3
-pylsl>=1.14.0
+pylsl>=1.13.6
 future>=0.17.1
+psychopy>=2020.2.10
+pyriemann>=0.2.6
+coloredlogs>=15.0
+h5py>=2.10.0
+datetime>=4.3
+seaborn>=0.11.1
+setuptools>=51.0.0
