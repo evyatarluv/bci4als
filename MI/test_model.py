@@ -1,4 +1,4 @@
-from MI.train import MI_train_model
+from MI.train_model import MI_train_model
 
 
 def MI_test():

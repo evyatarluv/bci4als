@@ -7,8 +7,8 @@ from MI.record_experiment import MI_record
 from MI.preprocess import MI_preprocess
 from MI.segment_data import MI_segment_data
 # from MI.MI4_extract_features import MI_extract_features
-from MI.train import MI_train_model
-from MI.test import MI_test
+from MI.train_model import MI_train_model
+from MI.test_model import MI_test
 
 if __name__ == '__main__':
 
