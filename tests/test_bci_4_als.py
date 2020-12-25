@@ -6,7 +6,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from bci_4_als import bci_4_als
+from bci_4_als import main
 from bci_4_als import cli
 
 
@@ -22,8 +22,7 @@ def response():
 
 def test_content(response):
     """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+    assert 1 == 1
 
 
 def test_command_line_interface():

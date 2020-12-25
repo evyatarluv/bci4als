@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pyxdf
 
-from MI.config import params
+from config import params
 
 
 def load_eeg_data(folder_path):

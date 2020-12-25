@@ -8,7 +8,7 @@ import numpy as np
 from keras.applications import resnet_v2
 from sklearn.decomposition import PCA
 
-from MI.config import params
+from config import params
 
 
 def extract_features_classic(trials, s_freq):

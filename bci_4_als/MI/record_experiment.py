@@ -18,7 +18,8 @@ import numpy as np
 import pandas as pd
 import pylsl
 from psychopy import visual, event
-from MI.config import params
+from .config import params
+
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
@@ -199,7 +200,7 @@ def init_directory():
                 sys.exit(-1)
 
 
-def MI_record():
+def record():
     # Update the directory for the current subject
     subject_folder = init_directory()
 
@@ -239,17 +240,3 @@ def MI_record():
     outlet_stream.push_sample([params['lsl']['end_experiment']])
     shutdown_training(psychopy_params['main_window'], 'Stop the LabRecording recording')
 
-
-def record_experiment(paradigm='MI'):
-    if paradigm.lower() in ['mi', 'motor imagery']:
-        MI_record()
-
-    elif paradigm.lower() in ['SSVEP']:
-        raise NotImplementedError()
-
-    else:
-        raise ValueError("Unrecognized paradigm.")
-
-
-if __name__ == '__main__':
-    record_experiment('Motor Imagery')

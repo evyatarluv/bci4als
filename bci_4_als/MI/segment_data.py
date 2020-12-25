@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 import pyxdf
 
-from MI.config import params
+from config import params
 
 
 def get_trials_times(subject_path):
