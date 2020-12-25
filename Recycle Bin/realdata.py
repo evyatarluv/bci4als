@@ -1,21 +1,8 @@
-import mne_features
-from mne_features.feature_extraction import extract_features
-
-from moabb.datasets import BNCI2014001, physionet_mi
-from moabb.paradigms import LeftRightImagery
-from moabb.evaluations import CrossSessionEvaluation
-from moabb.datasets import utils
-
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import make_pipeline
-from sklearn.svm import SVC
-from sklearn.model_selection import GridSearchCV
-from moabb.pipelines.features import LogVariance
-import numpy as np
-
 import mne
-import moabb
-import pandas as pd
+import mne_features
+import numpy as np
+from mne_features.feature_extraction import extract_features
+from moabb.datasets import physionet_mi
 
 if __name__ == '__main__':
     # get dataset
@@ -36,8 +23,8 @@ if __name__ == '__main__':
     features_array = mne_features.feature_extraction.extract_features(X, s_freq, selected_funcs, params)
 
     # save features to file
-
+    np.savetxt('../data/mne/1/features.csv', features_array, delimiter=',')
 
     # get y and save to file
     y = np.asarray([e[2] for e in events[0]])
-    np.savetxt("realdata/stimulus_vectors.csv", y)
+    np.savetxt('../data/mne/1/stimulus_vectors.csv', y)
