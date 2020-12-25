@@ -28,7 +28,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/evyatarluv/BCI-4-ALS">
-    <img src="images/logo.png" alt="Logo" width="120" height="120">
+    <img src="images/logo.png" alt="Logo" width="360" height="360">
   </a>
 
   <h3 align="center">BCI - 4 - ALS</h3>
