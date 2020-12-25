@@ -86,10 +86,11 @@ BCI's measure brain activity, process it, and produce control signals that refle
 the user's intent. We aim to detect and classify patterns of activity in the
 ongoing brain signals that are associated with specific tasks or events.
 
-A common mental strategy is called motor imagery . In our implementation,
+A common mental strategy is called motor imagery. In our implementation,
 we aim to tell if the users are thinking of moving your left hand, right hand, or not moving (idle).
 
 <img src="images/arrows.png" alt="Label Space = {Left, Right, Idle}">
+
 
 
 ### Built With
@@ -133,7 +134,7 @@ To get a local copy up and running follow these simple example steps.
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-For more examples, please refer to the [Documentation][docs-url]
+For more examples, please refer to the [Jupyter Notebooks][notebooks-url]
 
 
 
@@ -201,4 +202,5 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
+[notebooks-url]: notebooks
 
