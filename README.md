@@ -89,7 +89,7 @@ ongoing brain signals that are associated with specific tasks or events.
 A common mental strategy is called motor imagery . In our implementation,
 we aim to tell if the users are thinking of moving your left hand, right hand, or not moving (idle).
 
-<img src="images/arrows.png" alt="Label Space = {Left, Right, Idle}" width="360" height="360">
+<img src="images/arrows.png" alt="Label Space = {Left, Right, Idle}">
 
 
 ### Built With
