@@ -168,7 +168,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Evyatar Luvaton - [email@example.com](mailto:email@example.com)
+Evyatar Luvaton - [luvaton@post.bgu.ac.il ](mailto:luvaton@post.bgu.ac.il )
 
 Noam Siegel - [noamsi@post.bgu.ac.il](mailto:noamsi@post.bgu.ac.il)
 
