@@ -80,7 +80,7 @@ ongoing brain signals that are associated with specific tasks or events.
 A common mental strategy is called motor imagery. In our implementation,
 we aim to tell if the users are thinking of moving your left hand, right hand, or not moving (idle).
 
-<img src="images/arrows.png" alt="Label Space = {Left, Right, Idle}">
+<img src="images/arrows.png" alt="Possible Labels = {Left, Right, Idle}">
 
 
 
@@ -102,19 +102,15 @@ To get a local copy up and running follow these simple example steps.
 ### Prerequisites
 
 * [LabRecorder](https://github.com/labstreaminglayer/App-LabRecorder)
-* [OpenBCI GUI](https://openbci.com/index.php/downloads)
-* [python modules](requirements.txt)
+* [OpenBCI GUI (recommended)](https://openbci.com/index.php/downloads)
 
 
 ### Installation
 
-1. Clone the repo
+
+1. Install python modules
    ```sh
-   git clone https://github.com/evyatarluv/BCI-4-ALS
-   ```
-2. Install python modules
-   ```sh
-   python -m pip install --index-url https://test.pypi.org/simple/ --no-deps BCI4ALS-noamsgl
+   pip install -i https://test.pypi.org/simple/ bci4als==0.1
 
    ```
 
