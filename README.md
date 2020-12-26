@@ -110,7 +110,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Install python modules
    ```sh
-   pip install -i https://test.pypi.org/simple/ bci4als==0.1
+   pip install -i https://test.pypi.org/simple/ bci4als
 
    ```
 
@@ -120,7 +120,7 @@ To get a local copy up and running follow these simple example steps.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-For more examples, please refer to the [Jupyter Notebooks][notebooks-url]
+For more examples, please refer to the [examples][examples-url]
 
 
 
@@ -188,5 +188,5 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
-[notebooks-url]: examples
+[examples-url]: examples/pipeline.ipynb
 
