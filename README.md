@@ -188,5 +188,5 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
-[examples-url]: examples/pipeline.ipynb
+[examples-url]: examples/Report.ipynb
 
