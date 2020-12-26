@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for `bci_4_als` package."""
+"""Tests for `bci4als` package."""
 
 import pytest
 
 from click.testing import CliRunner
 
-from bci_4_als import main
-from bci_4_als import cli
+from bci4als import main
+from bci4als import cli
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'bci_4_als.cli.main' in result.output
+    assert 'bci4als.cli.main' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output

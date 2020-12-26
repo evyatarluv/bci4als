@@ -1,1 +1,1 @@
-"""Unit test package for bci_4_als."""
+"""Unit test package for bci4als."""

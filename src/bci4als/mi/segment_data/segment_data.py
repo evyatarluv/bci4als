@@ -3,8 +3,8 @@ import pickle
 
 import pandas as pd
 import pyxdf
+from .. import params
 
-from config import params
 
 
 def get_trials_times(subject_path):
@@ -34,7 +34,7 @@ def get_trials_times(subject_path):
     return trial_times
 
 
-def MI_segment_data():
+def segment_data():
     # Debug
     print('---------- Start MI3 - Data Segmentation  ----------')
 
@@ -66,4 +66,4 @@ def MI_segment_data():
 
 
 if __name__ == '__main__':
-    MI_segment_data()
+    segment_data()

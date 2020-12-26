@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pyxdf
 
-from config import params
+from .. import params
 
 
 def load_eeg_data(folder_path):
@@ -99,7 +99,7 @@ def save_clean_eeg(eeg, time_stamps, subject_path):
     cleaned_eeg.to_csv(output_path, index=False)
 
 
-def MI_preprocess():
+def preprocess():
     print('---------- Start MI2 - Data Pre-Processing  ----------')
 
     # Get all the days in the subject folder
@@ -117,4 +117,4 @@ def MI_preprocess():
 
 
 if __name__ == '__main__':
-    MI_preprocess()
+    preprocess()

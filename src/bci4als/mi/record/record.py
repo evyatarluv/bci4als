@@ -18,8 +18,7 @@ import numpy as np
 import pandas as pd
 import pylsl
 from psychopy import visual, event
-from .config import params
-
+from ..config import params
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
@@ -73,7 +72,7 @@ def user_messages(main_window, current_trial, trial_index):
 
     color = params['visual']['text_color']
     height = params['visual']['text_height']
-    trial_image = params['visual']['image_path'][params['experiment']['enumerate_stim'][current_trial]]
+    trial_image = params['visual']['images'][params['experiment']['enumerate_stim'][current_trial]]
 
     # Show 'next' message
     next_message = visual.TextStim(main_window, 'The next stimulus is...', color=color, height=height)
@@ -166,13 +165,12 @@ def init_directory():
     :return: the subject directory
     """
 
-    # get the recording directory
+    # get the CurrentStudy recording directory
     if not messagebox.askokcancel(title=params['gui']['title'],
                                   message="Welcome to the motor imagery EEG recorder.\n\nNumber of trials: {}\n\nPlease select the CurrentStudy directory:".format(
                                       params['experiment']['num_trials'])):
         sys.exit(-1)
 
-    print("hello")
 
     # fixme: my running get stuck here
     recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
@@ -180,18 +178,18 @@ def init_directory():
         sys.exit(-1)
 
     while True:
-        # Get the subject id
-        subject_id = simpledialog.askstring(params['gui']['title'], "Please enter a new Subject ID:")
+        # Get the session id
+        session_id = simpledialog.askstring(params['gui']['title'], "Please enter a new Session ID:")
 
         # Update the recording folder directory
-        subject_folder = os.path.join(recording_folder, subject_id)
+        session_folder = os.path.join(recording_folder, session_id)
 
         try:
             # Create new folder for the current subject
-            os.mkdir(subject_folder)
+            os.mkdir(session_folder)
             messagebox.showinfo(title=params['gui']['title'],
-                                message='The subject folder was created successfully.')
-            return subject_folder
+                                message='The session folder was created successfully.')
+            return session_folder
 
         except Exception as e:
             if not messagebox.askretrycancel(title=params['gui']['title'],
@@ -200,7 +198,7 @@ def init_directory():
                 sys.exit(-1)
 
 
-def record():
+def start():
     # Update the directory for the current subject
     subject_folder = init_directory()
 

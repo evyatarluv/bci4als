@@ -26,3 +26,5 @@ while True:
     # now send it and wait for a bit
     outlet.push_sample(mysample)
     time.sleep(0.01)
+
+

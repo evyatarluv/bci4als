@@ -2,6 +2,7 @@ import mne
 import mne_features
 import numpy as np
 from mne_features.feature_extraction import extract_features
+
 from moabb.datasets import physionet_mi
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ image_size = (100, 600)
 resnet = resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='avg',
                               input_shape=image_size[::-1] + (3,))
 # Get the current subject trials
-subject_path = os.path.join('../bci_4_als/data\\evyatar', '1')
+subject_path = os.path.join('../bci4als/data\\evyatar', '1')
 trials_path = os.path.join(subject_path, 'EEG_trials.pickle')
 trials = pickle.load(open(trials_path, 'rb'))
 

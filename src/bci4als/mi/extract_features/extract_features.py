@@ -8,7 +8,7 @@ import numpy as np
 from keras.applications import resnet_v2
 from sklearn.decomposition import PCA
 
-from config import params
+from .. import params
 
 
 def extract_features_classic(trials, s_freq):
@@ -70,7 +70,7 @@ def extract_features_cnn(trials, cnn):
     return features
 
 
-def MI_extract_features(mode='classic'):
+def extract_features(mode='classic'):
     print('---------- Start MI4 - Feature Extraction ----------')
 
     # Get all the subjects' folders
@@ -109,4 +109,4 @@ def MI_extract_features(mode='classic'):
 
 
 if __name__ == '__main__':
-    MI_extract_features()
+    extract_features()

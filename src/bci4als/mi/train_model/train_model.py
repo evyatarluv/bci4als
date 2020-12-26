@@ -11,8 +11,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from config import params
 import numpy as np
+from .. import params
 
 
 def same_day_data(subject_folder):
@@ -155,7 +155,8 @@ def train_model(X_train, y_train, model_name):
     return model
 
 
-def MI_train_model(mode='same day', model_name='svm'):
+def train(mode='same day', model_name='svm'):
+    from ..config import params
     print('---------- Start MI5 - Training Model ----------')
 
     subject_folder = params['data']['subject_folder']
@@ -183,3 +184,7 @@ def MI_train_model(mode='same day', model_name='svm'):
 
     print('Accuracy for each day using `{}` mode and {} model:'.format(mode, model_name))
     print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))
+
+
+if __name__ == '__main__':
+    train()
