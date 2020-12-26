@@ -1,7 +1,6 @@
 =========
 BCI-4-ALS
 =========
-This README is not in use
 
 .. image:: https://img.shields.io/pypi/v/bci_4_als.svg
         :target: https://pypi.python.org/pypi/bci_4_als

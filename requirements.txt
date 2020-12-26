@@ -17,3 +17,6 @@ h5py
 datetime
 seaborn
 setuptools
+tox
+black
+-e .
