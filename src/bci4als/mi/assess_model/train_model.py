@@ -156,7 +156,7 @@ def train_model(X_train, y_train, model_name):
 
 
 def train(mode='same day', model_name='svm'):
-    from ..config import params
+
     print('---------- Start MI5 - Training Model ----------')
 
     subject_folder = params['data']['subject_folder']
