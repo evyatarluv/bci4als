@@ -71,33 +71,33 @@ features:
     - C03
     - C04
   features:
-    app_entropy
-    decorr_time
-    energy_freq_bands
-    higuchi_fd
-    hjorth_complexity
-    hjorth_complexity_spect
-    hjorth_mobility
-    hjorth_mobility_spect
-    hurst_exp
-    katz_fd
-    kurtosis
-    line_length
-    mean
+#    app_entropy
+#    decorr_time
+#    energy_freq_bands
+#    higuchi_fd
+#    hjorth_complexity
+#    hjorth_complexity_spect
+#    hjorth_mobility
+#    hjorth_mobility_spect
+#    hurst_exp
+#    katz_fd
+#    kurtosis
+#    line_length
+#    mean
     pow_freq_bands
-    ptp_amp
-    samp_entropy
-    skewness
-    spect_edge_freq
-    spect_entropy
-    spect_slope
-    std
-    svd_entropy
-    svd_fisher_info
-    teager_kaiser_energy
-    variance
-    wavelet_coef_energy
-    zero_crossings
+#    ptp_amp
+#    samp_entropy
+#    skewness
+#    spect_edge_freq
+#    spect_entropy
+#    spect_slope
+#    std
+#    svd_entropy
+#    svd_fisher_info
+#    teager_kaiser_energy
+#    variance
+#    wavelet_coef_energy
+#    zero_crossings
   image_size: !!python/tuple [ 32, 600 ]
   pca: 50  # n_components, must be between 0 and min(n_sample, n_features)
 
