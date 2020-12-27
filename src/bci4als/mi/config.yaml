@@ -71,7 +71,6 @@ features:
     - C03
     - C04
   features:
-    - pow_freq_bands
     - app_entropy
     - decorr_time
     - energy_freq_bands

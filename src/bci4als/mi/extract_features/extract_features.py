@@ -31,6 +31,7 @@ def extract_features_classic(trials, s_freq):
 
     mne_params = {
         'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
+        # 'compute_energy__freq_bands': np.arange(1, int(s_freq / 2), 1),
     }
 
     # Get features from mne_features
@@ -70,7 +71,7 @@ def extract_features_cnn(trials, cnn):
     return features
 
 
-def extract_features(mode='classic'):
+def extract(mode='classic'):
     print('---------- Start MI4 - Feature Extraction ----------')
 
     # Get all the subjects' folders
@@ -109,4 +110,4 @@ def extract_features(mode='classic'):
 
 
 if __name__ == '__main__':
-    extract_features()
+    extract()
