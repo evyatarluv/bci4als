@@ -31,7 +31,7 @@ def extract_features_classic(trials, s_freq):
 
     mne_params = {
         'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
-        # 'compute_energy__freq_bands': np.arange(1, int(s_freq / 2), 1),
+        # 'energy_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
     }
 
     # Get features from mne_features
