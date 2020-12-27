@@ -5,12 +5,19 @@ import seaborn as sns
 
 # mi.preprocess.preprocess()
 # mi.segment_data.segment_data()
-# mi.extract_features.extract()
-# mi.assess_model.train('same day', 'rf')
+# mi.extract_features.extract(mode='cnn')
+# mi.assess_model.train('same day', 'svm')
 
-results = pd.read_csv('../data/results.csv')
-sns.set_theme(style='whitegrid')
-sns.catplot(x='day', y='accuracy', hue='model', col='subject', data=results, kind='bar')
+# Results
+# results = pd.read_csv('results.csv')
+# sns.set_style(style='whitegrid')
+# sns.catplot(x='Day', y='Accuracy', hue='Model', col='Subject', data=results, kind='bar')
+# plt.show()
+
+# CNN results
+results = pd.read_csv('results_cnn.csv')
+sns.set_style(style='whitegrid')
+sns.catplot(x='Day', y='Accuracy', hue='Model', col='Subject', data=results, kind='bar', legend=False)
+plt.legend(bbox_to_anchor=(1, 1))
 plt.show()
-
 

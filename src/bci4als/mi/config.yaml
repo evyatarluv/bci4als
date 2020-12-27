@@ -33,7 +33,7 @@ experiment:
 preprocess:
   filter:
     high_pass: 0.5
-    low_pass: 70 # todo: preprocess again after change from 30 to 70
+    low_pass: 30
     notch: 50
   channel_names:
     - time
@@ -58,7 +58,7 @@ preprocess:
 # -------------------- MI3/MI4/MI5 params -------------------
 
 data:
-  subject_folder: ..\data\noam
+  subject_folder: ..\data\evyatar
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
