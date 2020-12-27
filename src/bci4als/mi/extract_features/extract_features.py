@@ -30,14 +30,16 @@ def extract_features_classic(trials, s_freq):
     # https://mne.tools/mne-features/generated/mne_features.feature_extraction.FeatureExtractor.html
 
     mne_params = {
-        'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
-        # 'energy_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
+        # 'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
+        'energy_freq_bands__freq_bands': {'low_alpha': [8, 10],
+                                          'high_alpha': [10, 12.5],
+                                          'beta': [12.5, 29]}
     }
 
     # Get features from mne_features
     features = mne_features.feature_extraction.extract_features(X, s_freq,
-                                                                params['features']['features'],
-                                                                mne_params)
+                                                                params['features']['selected_features'],
+                                                                mne_params, return_as_df=True)
     return features
 
 

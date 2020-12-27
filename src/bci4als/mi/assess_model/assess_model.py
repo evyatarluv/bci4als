@@ -6,11 +6,15 @@ The dict for each day include train & test ndarray.
 
 """
 import os
+
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+import matplotlib.pyplot as plt
 import numpy as np
 from .. import params
 
@@ -143,6 +147,8 @@ def train_model(X_train, y_train, model_name):
     elif model_name.lower() == 'knn':
         model = KNeighborsClassifier(n_neighbors=10)
 
+    elif model_name.lower() == 'lda':
+        model = LinearDiscriminantAnalysis()
     # Random Forest
     elif model_name.lower() in ['rf', 'random_forest']:
         model = RandomForestClassifier(n_estimators=250)
@@ -181,6 +187,9 @@ def train(mode='same day', model_name='svm'):
 
         print('Day {} predictions: {}'.format(day, model.predict(scaler_x.transform(X_test))))
         results[day] = round(model.score(scaler_x.transform(X_test), y_test), 3)
+
+        plot_confusion_matrix(model, X_train, y_train)
+        plt.show()
 
     print('Accuracy for each day using `{}` mode and {} model:'.format(mode, model_name))
     print('\n'.join('Day {}, Accuracy: {}'.format(k, v) for k, v in results.items()))
