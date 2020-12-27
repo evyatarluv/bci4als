@@ -36,7 +36,7 @@ def same_day_data(subject_folder):
 
         # Split
         X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            train_size=params['split']['adjust']['train_ratio'],
+                                                            train_size=params['split']['same_day']['train_ratio'],
                                                             random_state=params['split']['random_state'])
 
         # Update the dict

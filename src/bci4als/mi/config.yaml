@@ -58,7 +58,7 @@ preprocess:
 # -------------------- MI3/MI4/MI5 params -------------------
 
 data:
-  subject_folder: ..\data\evyatar
+  subject_folder: ..\data\noam
   filenames:
     EEG_clean: EEG_clean.csv
     trials: EEG_trials.pickle
