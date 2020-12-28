@@ -27,7 +27,7 @@
   <p align="center">
     A complete EEG Motor Imagery Classification pipeline
     <br />
-    <a href="https://github.com/evyatarluv/BCI-4-ALS"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/evyatarluv/BCI-4-ALS/blob/master/Project%20Report.pdf"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/evyatarluv/BCI-4-ALS">View Demo</a>
