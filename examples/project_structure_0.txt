@@ -1,0 +1,5 @@
+project_name
+├── data
+│   ├── subject1
+│   └── subject2
+└── main.py
