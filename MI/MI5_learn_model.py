@@ -15,20 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
-
-# data_params = {
-#     'filename': {'y': 'stimulus_vectors.csv', 'X': 'features.csv'}
-# }
-#
-# same_day_params = {
-#     'train_ratio': 0.8,
-#     'random_state': 42,
-# }
-#
-# adjust_params = {
-#     'train_ratio': {'first': 0.8, 'others': 0.2},
-#     'random_state': 42,
-# }
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 # Configurations
 config = yaml.full_load(open('config.yaml', 'r'))
@@ -167,6 +154,10 @@ def train_model(X_train, y_train, model_name):
     # Random Forest
     elif model_name.lower() in ['rf', 'random_forest']:
         model = RandomForestClassifier(n_estimators=250)
+
+    # LDA
+    elif model_name.lower() == 'lda':
+        model = LinearDiscriminantAnalysis()
 
     else:
         raise NotImplementedError('The chosen model is not implemented yet')
