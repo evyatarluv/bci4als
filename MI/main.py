@@ -8,7 +8,7 @@ from MI.MI2_preprocess import MI_preprocess
 from MI.MI3_segment_data import MI_segment_data
 # from MI.MI4_extract_features import MI_extract_features
 from MI.MI5_learn_model import MI5_learn_model
-
+print('old')
 
 if __name__ == '__main__':
 
