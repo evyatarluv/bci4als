@@ -33,7 +33,7 @@ experiment:
 
 preprocess:
   filter:
-    high_pass: 0.5
+    high_pass: 8
     low_pass: 30
     notch: 50
   channel_names:

@@ -20,5 +20,5 @@ if __name__ == '__main__':
 
     MI_extract_features()
 
-    MI5_learn_model('same day', 'lda')
+    MI5_learn_model('same day', 'svm')
 

@@ -64,25 +64,40 @@ def filter_eeg_data(eeg):
     high_pass = preprocess_params['filter']['high_pass']
     notch = preprocess_params['filter']['notch']
     sample_freq = data_params['sample_freq']
+    ch_names = preprocess_params['channel_names'][1:]
 
     # Convert to float64 in order to fit mne functions
-    eeg = eeg.astype(np.float64)
-    eeg = eeg.T  # mne functions look for the channels as rows
+    # eeg = eeg.astype(np.float64)
+    # eeg = eeg.T  # mne functions look for the channels as rows
 
     # Lie about the sample rate
     if sample_freq < 100:
         sample_freq = 125
 
-    # Low-pass filter
-    eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
+    # Convert EEG to mne-python raw data
+    info = mne.create_info(ch_names, sample_freq, ch_types='eeg')
+    eeg_raw = mne.io.RawArray(eeg.T, info)
 
-    # High-pass filter
-    eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
+    # Filter
+    eeg_raw.notch_filter(freqs=notch, picks=ch_names)
+    eeg_raw.filter(l_freq=low_pass, h_freq=None, picks=ch_names)
+    eeg_raw.filter(l_freq=None, h_freq=high_pass, picks=ch_names)
 
-    # Notch filter
-    eeg = mne.filter.notch_filter(eeg, Fs=sample_freq, freqs=notch)
+    # # Low-pass filter
+    # eeg = mne.filter.filter_data(eeg, l_freq=None, h_freq=low_pass, sfreq=sample_freq)
+    #
+    # # High-pass filter
+    # eeg = mne.filter.filter_data(eeg, l_freq=high_pass, h_freq=None, sfreq=sample_freq)
+    #
+    # # Notch filter
+    # eeg = mne.filter.notch_filter(eeg, Fs=sample_freq, freqs=notch)
 
-    return eeg.T
+    # ICA
+    ica = mne.preprocessing.ICA(n_components=10, random_state=97)
+    ica.fit(eeg_raw, picks=ch_names)
+    ica.apply(eeg_raw)
+
+    return eeg_raw.get_data().T
 
 
 def save_clean_eeg(eeg, time_stamps, subject_path):
