@@ -4,10 +4,11 @@ import time
 from tkinter import messagebox, simpledialog
 from tkinter.filedialog import askdirectory
 from typing import Dict, List, Any
+
 import numpy as np
 import pandas as pd
-from psychopy import visual, event
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+from psychopy import visual, event
 
 
 def get_keypress():
@@ -191,13 +192,12 @@ class OfflineExperiment:
         self.board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
 
         for i in range(self.num_trials):
-
             # Messages for user
             self._user_messages(i)
 
             # Show the stimulus
             # todo: Stopped here
-            self.board.insert_marker(self._encode_marker())
+            self.board.insert_marker(self._encode_marker("start", self.labels[i], i))
             self._show_stimulus(i)
 
     def _init_board(self, ip_port, serial_port):
@@ -209,5 +209,32 @@ class OfflineExperiment:
         self.board.prepare_session()
 
     def _encode_marker(self, status, label, index):
-        raise NotImplementedError
-        # todo: Stopped here
+        markerValue = 0
+        if status == "start":
+            markerValue += 1
+        elif status == "stop":
+            markerValue += 2
+        else:
+            raise ValueError("incorrect status value")
+
+        markerValue += 10 * label
+
+        markerValue += 100 * index
+
+        return markerValue
+
+    def _decode_marker(self, markerValue):
+        if markerValue % 10 == 1:
+            status = "start"
+            markerValue -= 1
+        elif markerValue % 10 == 2:
+            status = "stop"
+            markerValue -= 2
+        else:
+            raise ValueError("incorrect status value")
+
+        label = ((markerValue % 100) - (markerValue % 10)) / 10
+
+        index = (markerValue - (markerValue % 100)) / 100
+
+        return (status, label, index)
