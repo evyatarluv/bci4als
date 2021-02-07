@@ -5,7 +5,7 @@ def main():
 
     exp = OfflineExperiment(num_trials=5, trial_length=3)
 
-    eeg = exp.run()
+    eeg = exp.run(ip_port=6677, serial_port=1234)
 
     # eeg.preprocess()
     #

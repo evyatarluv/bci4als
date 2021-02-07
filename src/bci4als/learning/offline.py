@@ -174,8 +174,6 @@ class OfflineExperiment:
 
         # Update the directory for the current subject
         self._init_directory()
-
-        # Run trials
         messagebox.showinfo(title='bci4als', message='Start running trials...')
 
         # Init Board
@@ -190,6 +188,7 @@ class OfflineExperiment:
         # Start stream
         self.board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
 
+        # Run trials
         for i in range(self.num_trials):
 
             # Messages for user
@@ -197,7 +196,7 @@ class OfflineExperiment:
 
             # Show the stimulus
             # todo: Stopped here
-            self.board.insert_marker(self._encode_marker())
+            # self.board.insert_marker(self._encode_marker())
             self._show_stimulus(i)
 
     def _init_board(self, ip_port, serial_port):
