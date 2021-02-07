@@ -1,9 +1,9 @@
-from bci4als.learning.experiment import Experiment
+from bci4als.learning.offline import OfflineExperiment
 
 
 def main():
 
-    exp = Experiment(num_trials=5, next_length=1, cue_length=0.25, ready_length=1, trial_length=3)
+    exp = OfflineExperiment(num_trials=5, trial_length=3)
 
     eeg = exp.run()
 
