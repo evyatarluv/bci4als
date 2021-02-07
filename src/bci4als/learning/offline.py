@@ -108,7 +108,7 @@ class OfflineExperiment:
         labels = (np.random.choice([0, 1, 2], self.num_trials, replace=True))
 
         # Save the labels as csv file
-        pd.DataFrame.from_dict(labels).to_csv(os.path.join(self.subject_directory + 'labels.csv'),
+        pd.DataFrame.from_dict(labels).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
                                               index=False, header=False)
 
         self.labels = list(labels)
