@@ -7,6 +7,7 @@ from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
 from psychopy import visual, event
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 def get_keypress():
@@ -41,6 +42,7 @@ class OfflineExperiment:
             'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
+        self.board: BoardShim = None
 
     def _init_directory(self):
         """
@@ -168,7 +170,7 @@ class OfflineExperiment:
         if 'escape' == get_keypress():
             sys.exit(-1)
 
-    def run(self):
+    def run(self, ip_port, serial_port):
 
         # Update the directory for the current subject
         self._init_directory()
@@ -176,7 +178,8 @@ class OfflineExperiment:
         # Run trials
         messagebox.showinfo(title='bci4als', message='Start running trials...')
 
-        # todo: init Board
+        # Init Board
+        self._init_board(ip_port, serial_port)
 
         # Init psychopy and screen params
         self._init_window()
@@ -184,9 +187,27 @@ class OfflineExperiment:
         # Init label vector
         self._init_labels()
 
+        # Start stream
+        self.board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
+
         for i in range(self.num_trials):
+
             # Messages for user
             self._user_messages(i)
 
             # Show the stimulus
+            # todo: Stopped here
+            self.board.insert_marker(self._encode_marker())
             self._show_stimulus(i)
+
+    def _init_board(self, ip_port, serial_port):
+
+        params = BrainFlowInputParams()
+        params.ip_port = ip_port
+        params.serial_port = serial_port
+        self.board = BoardShim(BoardIds.CYTON_DAISY_BOARD.value, params)
+        self.board.prepare_session()
+
+    def _encode_marker(self, status, label, index):
+        raise NotImplementedError
+        # todo: Stopped here
