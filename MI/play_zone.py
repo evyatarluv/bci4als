@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 
-path = '../data/noam/2'
+path = '../data/evyatar/3'
 
 # ----------------------------------------- EEG.xdf -------------------------------------
 # import XDF
@@ -30,8 +30,7 @@ ica = mne.preprocessing.ICA(n_components=15, random_state=97)
 ica.fit(eeg_raw, picks=ch_names)
 ica.apply(eeg_raw)
 
-eeg_raw.set_channel_types({i: 'eeg' for i in ch_names})
-eeg_raw.plot()
+eeg_raw.plot_psd(picks=ch_names)
 
 # --------------------------------------- Clean EEG --------------------------------------------
 # eeg = pd.read_csv(os.path.join(path, 'EEG_clean.csv')).drop('time', axis=1)
