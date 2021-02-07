@@ -199,6 +199,7 @@ def init_directory():
 
 
 def start():
+
     # Update the directory for the current subject
     subject_folder = init_directory()
 
