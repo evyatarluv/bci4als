@@ -109,7 +109,7 @@ class OfflineExperiment:
         labels = (np.random.choice([0, 1, 2], self.num_trials, replace=True))
 
         # Save the labels as csv file
-        pd.DataFrame.from_dict(labels).to_csv(os.path.join(self.subject_directory + 'labels.csv'),
+        pd.DataFrame.from_dict(labels).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
                                               index=False, header=False)
 
         self.labels = list(labels)
@@ -175,8 +175,6 @@ class OfflineExperiment:
 
         # Update the directory for the current subject
         self._init_directory()
-
-        # Run trials
         messagebox.showinfo(title='bci4als', message='Start running trials...')
 
         # Init Board
@@ -191,6 +189,7 @@ class OfflineExperiment:
         # Start stream
         self.board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
 
+        # Run trials
         for i in range(self.num_trials):
             # Messages for user
             self._user_messages(i)
