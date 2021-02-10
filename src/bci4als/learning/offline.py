@@ -208,6 +208,7 @@ class OfflineExperiment:
         self.board.prepare_session()
 
     def _encode_marker(self, status, label, index):
+
         markerValue = 0
         if status == "start":
             markerValue += 1
