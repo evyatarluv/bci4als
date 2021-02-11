@@ -40,7 +40,7 @@ class Feedback:
             The psychopy window of the experiment.
 
     """
-    def __init__(self, win, stim, threshold=3):
+    def __init__(self, win: visual.Window, stim: int, threshold: int = 3):
 
         self.stim: int = stim
         self.threshold: int = threshold
@@ -111,9 +111,6 @@ class Feedback:
         bar_frame.draw()
         self.win.flip()
 
-        # Debug
-        event.waitKeys()
-
     def _compute_progress_display(self):
 
         # Direction of the progress (1 -> right, -1 -> left)
@@ -127,7 +124,7 @@ class Feedback:
 
         # Pack width and x as size and pos
         size = (width, self.bar.frame_size[1])
-        pos = (x, self.bar.pos[1])
+        pos = (direction * x, self.bar.pos[1])
 
         return pos, size
 
