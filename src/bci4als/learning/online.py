@@ -1,8 +1,9 @@
 import os
 from typing import Dict
-
+from collections import namedtuple
 from psychopy import visual, event
 
+Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
 class Feedback:
 
@@ -11,7 +12,7 @@ class Feedback:
         self.stim: int = stim
         self.threshold: int = threshold
         self.confident: bool = False
-        self.progress = 0
+        self.progress: float = 0
 
         # Images params
         self.images_path: Dict[str, str] = {
@@ -20,28 +21,72 @@ class Feedback:
             'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
 
+        # Progress bar params
+        self.bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
+                       frame_color='white', fill_color='green')
+
+        # Psychopy window
+        self.win = visual.Window(monitor='testMonitor', fullscr=False)
+
+        # Start display
+        self._display()
+
+    def update(self, predict_stim):
+
+        # If the model predicted right
+        if predict_stim == self.stim:
+
+            self.progress += 1 / self.threshold
+
+            if self.progress == 1:
+
+                self.confident = True
+
+            self._display()
+
     def _display(self):
+        """
+        Display the current state of the progress bar aside to the current stim
+        :return:
+        """
 
-        # Params
-        bar_y = -0.5
-
-        # Main window
-        win = visual.Window(monitor='testMonitor', fullscr=True)
+        # Compute current progress size
+        progress_pos, progress_size = self._compute_progress_display()
 
         # Stim
-        img_stim = visual.ImageStim(win, image=self.images_path[self.enum_image[self.stim]])
+        img_stim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
 
         # Progress bar
-        progress_bar = visual.Rect(win, width=0, height=0.2, pos=(0, bar_y), lineColor='white', fillColor='green')
-        center_line = visual.Rect(win, pos=(0, bar_y), lineColor=None, fillColor='white', width=0.01, height=0.4)
-        bar_frame = visual.Rect(win, pos=(0, bar_y), lineColor='white', fillColor=None, width=1.9, height=0.2)
+        progress_bar = visual.Rect(self.win, pos=progress_pos, size=progress_size,
+                                   lineColor=self.bar.frame_color, fillColor=self.bar.fill_color)
+        center_line = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
+                                  lineColor=None, fillColor=self.bar.frame_color)
+        bar_frame = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
+                                lineColor=self.bar.frame_color, fillColor=None)
 
         # Display all
         img_stim.draw()
         progress_bar.draw()
         center_line.draw()
         bar_frame.draw()
-        win.flip()
+        self.win.flip()
 
         # Debug
         event.waitKeys()
+
+    def _compute_progress_display(self):
+
+        # Direction of the progress (1 -> right, -1 -> left)
+        direction = 1 if self.stim == 0 else -1
+
+        # Compute the current width
+        width = self.progress * self.bar.frame_size[0] / 2
+
+        # Compute the current x location
+        x = self.bar.pos[0] + width / 2
+
+        # Pack width and x as size and pos
+        size = (width, self.bar.frame_size[1])
+        pos = (x, self.bar.pos[1])
+
+        return pos, size

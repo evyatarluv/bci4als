@@ -31,4 +31,6 @@ RISE_END = 1.45   # end animation at this unit width
 #     event.waitKeys()
 
 f = Feedback(0)
-f._display()
+f.update(0)
+f.update(0)
+f.update(0)
