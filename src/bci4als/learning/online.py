@@ -3,10 +3,41 @@ from typing import Dict
 from collections import namedtuple
 from psychopy import visual, event
 
+# name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
-class Feedback:
 
+class Feedback:
+    """
+    Class for presenting the feedback on the screen.
+
+    Attributes:
+
+        stim (int):
+            The current stim the user see and need to imagine.
+
+        threshold (int):
+            How many time the model need to predict the stim in order to fill the progress bar.
+
+        confident (bool):
+            Is the model predict the correct stim the needed amount of times.
+
+        progress (float):
+            The current amount of times the model predict the correct stim.
+
+        images_path (Dict[str, str])
+            Dict with stim name as key and path as value.
+
+        enum_image (Dict[int, str])
+            Dict for explaining what is number of each image.
+
+        bar (Bar):
+            Contain the visual params of the progress bar.
+
+        win (visual.Window)
+            The psychopy window of the experiment.
+
+    """
     def __init__(self, stim, threshold=3):
 
         self.stim: int = stim
@@ -22,17 +53,24 @@ class Feedback:
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
 
         # Progress bar params
-        self.bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
-                       frame_color='white', fill_color='green')
+        self.bar: Bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
+                            frame_color='white', fill_color='green')
 
         # Psychopy window
+        # Maybe get it as argument
         self.win = visual.Window(monitor='testMonitor', fullscr=False)
 
         # Start display
         self._display()
 
-    def update(self, predict_stim):
-
+    def update(self, predict_stim: int):
+        """
+        Update the feedback on screen.
+        The update occur according to the model prediction. If the model was right
+        the progress bar get wider, otherwise it stay the same size.
+        :param predict_stim: prediction of the model.
+        :return:
+        """
         # If the model predicted right
         if predict_stim == self.stim:
 
@@ -90,3 +128,8 @@ class Feedback:
         pos = (x, self.bar.pos[1])
 
         return pos, size
+
+
+class OnlineExperiment:
+
+    def run_experiment(self):
