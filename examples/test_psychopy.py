@@ -1,11 +1,45 @@
+import pickle
+from typing import List, Tuple
+
+import numpy as np
 from psychopy import visual, event
 from bci4als.learning.online import Feedback
+from bci4als.learning.eeg import EEG
 
-win = visual.Window(fullscr=False)
+# Check the feedback
+# win = visual.Window(fullscr=False)
+#
+# f = Feedback(win, 1)
+# f.update(1)
+# event.waitKeys()
+# f.update(1)
+# event.waitKeys()
 
-f = Feedback(win, 1)
+# Extract data from board data
 
-f.update(1)
-event.waitKeys()
-f.update(1)
-event.waitKeys()
+# Load
+data = pickle.load(open('board_data/data.pickle', 'rb'))
+marker_row = 31
+
+# Get markers
+markers_idx = np.where(data[marker_row, :] != 0)[0]
+
+# Get labels and durations list from the markers
+labels: List[int] = []
+durations: List[Tuple] = []
+for time in markers_idx:
+
+    status, label, index = EEG.decode_marker(data[marker_row, time])
+
+    if status == 'start':
+
+        labels.append(label)
+        durations.append((time, ))
+
+    elif status == 'stop':
+
+        durations[-1] = durations[-1] + (time, )
+
+print(labels)
+print(durations)
+

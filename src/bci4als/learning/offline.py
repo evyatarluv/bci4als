@@ -7,6 +7,7 @@ from typing import Dict, List, Any
 
 import numpy as np
 import pandas as pd
+from bci4als.learning.eeg import EEG
 from bci4als.learning.experiment import Experiment
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from psychopy import visual, event
@@ -185,37 +186,5 @@ class OfflineExperiment(Experiment):
 
             # Show the stimulus
             # todo: Stopped here
-            board.insert_marker(self._encode_marker("start", self.labels[i], i))
+            board.insert_marker(EEG.encode_marker("start", self.labels[i], i))
             self._show_stimulus(i)
-
-    def _encode_marker(self, status, label, index):
-
-        markerValue = 0
-        if status == "start":
-            markerValue += 1
-        elif status == "stop":
-            markerValue += 2
-        else:
-            raise ValueError("incorrect status value")
-
-        markerValue += 10 * label
-
-        markerValue += 100 * index
-
-        return markerValue
-
-    def _decode_marker(self, markerValue):
-        if markerValue % 10 == 1:
-            status = "start"
-            markerValue -= 1
-        elif markerValue % 10 == 2:
-            status = "stop"
-            markerValue -= 2
-        else:
-            raise ValueError("incorrect status value")
-
-        label = ((markerValue % 100) - (markerValue % 10)) / 10
-
-        index = (markerValue - (markerValue % 100)) / 100
-
-        return (status, label, index)
