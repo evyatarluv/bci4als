@@ -7,31 +7,21 @@ from typing import Dict, List, Any
 
 import numpy as np
 import pandas as pd
+from bci4als.learning.experiment import Experiment
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from psychopy import visual, event
 
 
-def get_keypress():
-    """
-    Get keypress of the user
-    :return: string of the key
-    """
-
-    keys = event.getKeys()
-    if keys:
-        return keys[0]
-    else:
-        return None
-
-
-class OfflineExperiment:
+class OfflineExperiment(Experiment):
 
     def __init__(self, num_trials, trial_length, next_length=1, cue_length=0.25, ready_length=1):
 
+        super().__init__(num_trials)
         self.subject_directory: str = ''
-        self.num_trials: int = num_trials
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
+
+        # todo: make all the lengths as name tuple 'Lengths'
         self.cue_length: float = cue_length
         self.next_length: float = next_length
         self.ready_length: float = ready_length
@@ -43,7 +33,6 @@ class OfflineExperiment:
             'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
-        self.board: BoardShim = None
 
     def _init_directory(self):
         """
@@ -168,7 +157,7 @@ class OfflineExperiment:
         time.sleep(self.trial_length)
 
         # Halt if escape was pressed
-        if 'escape' == get_keypress():
+        if 'escape' == self.get_keypress():
             sys.exit(-1)
 
     def run(self, ip_port, serial_port):
@@ -178,7 +167,7 @@ class OfflineExperiment:
         messagebox.showinfo(title='bci4als', message='Start running trials...')
 
         # Init Board
-        self._init_board(ip_port, serial_port)
+        board = self._init_board(ip_port, serial_port)
 
         # Init psychopy and screen params
         self._init_window()
@@ -187,7 +176,7 @@ class OfflineExperiment:
         self._init_labels()
 
         # Start stream
-        self.board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
+        board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
 
         # Run trials
         for i in range(self.num_trials):
@@ -196,16 +185,8 @@ class OfflineExperiment:
 
             # Show the stimulus
             # todo: Stopped here
-            self.board.insert_marker(self._encode_marker("start", self.labels[i], i))
+            board.insert_marker(self._encode_marker("start", self.labels[i], i))
             self._show_stimulus(i)
-
-    def _init_board(self, ip_port, serial_port):
-
-        params = BrainFlowInputParams()
-        params.ip_port = ip_port
-        params.serial_port = serial_port
-        self.board = BoardShim(BoardIds.CYTON_DAISY_BOARD.value, params)
-        self.board.prepare_session()
 
     def _encode_marker(self, status, label, index):
 

@@ -1,6 +1,8 @@
 import os
 from typing import Dict
 from collections import namedtuple
+
+from bci4als.learning.experiment import Experiment
 from psychopy import visual, event
 
 # name tuple object for the progress bar params
@@ -38,7 +40,7 @@ class Feedback:
             The psychopy window of the experiment.
 
     """
-    def __init__(self, stim, threshold=3):
+    def __init__(self, win, stim, threshold=3):
 
         self.stim: int = stim
         self.threshold: int = threshold
@@ -58,7 +60,7 @@ class Feedback:
 
         # Psychopy window
         # Maybe get it as argument
-        self.win = visual.Window(monitor='testMonitor', fullscr=False)
+        self.win = win
 
         # Start display
         self._display()
@@ -130,6 +132,37 @@ class Feedback:
         return pos, size
 
 
-class OnlineExperiment:
+class OnlineExperiment(Experiment):
 
-    def run_experiment(self):
+    def __init__(self, num_trials, buffer_time, threshold):
+
+        super().__init__(num_trials)
+        self.threshold = threshold
+        self.buffer_time = buffer_time
+
+        # self.model = model
+
+    def run(self, ip_port, serial_port):
+
+        trials = self._init_trials()
+
+        board = self._init_board(ip_port, serial_port)
+
+        win = visual.Window(monitor='testMonitor', fullscr=False)
+
+        for stim in trials:
+
+            feedback = Feedback(win, stim, self.threshold)
+
+            while not feedback.confident:
+
+                buffer = self.get_buffer(board)
+
+                predict = self.model_predict(buffer)
+
+                feedback.update(predict)
+
+                self.model_update(predict)
+
+
+
