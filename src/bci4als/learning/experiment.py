@@ -8,6 +8,9 @@ class Experiment:
 
         self.num_trials = num_trials
 
+    def run(self, ip_port, serial_port):
+        pass
+
     @staticmethod
     def _init_board(ip_port: int, serial_port: int) -> BoardShim:
 

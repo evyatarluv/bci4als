@@ -59,7 +59,6 @@ class Feedback:
                             frame_color='white', fill_color='green')
 
         # Psychopy window
-        # Maybe get it as argument
         self.win = win
 
         # Start display
@@ -139,6 +138,26 @@ class OnlineExperiment(Experiment):
 
         # self.model = model
 
+    def _init_trials(self):
+        """
+        Create list with trials as num_trials attributes.
+        The trials consist only from right and left (0, 1). Additionally, half of the
+        trials be right and half left.
+        :return:
+        """
+
+        # Calc the amount of right and left
+        right_amount = self.num_trials // 2
+        left_amount = self.num_trials - right_amount
+
+        # Create the trials list according to the above amounts
+        trials = [0] * right_amount + [1] * left_amount
+
+        # Shuffle it
+        random.shuffle(trials)
+
+        return trials
+
     def run(self, ip_port, serial_port):
 
         # Init list of trials
@@ -164,25 +183,5 @@ class OnlineExperiment(Experiment):
                 feedback.update(predict)
 
                 self.model_update(predict)
-
-    def _init_trials(self):
-        """
-        Create list with trials as num_trials attributes.
-        The trials consist only from right and left (0, 1). Additionally, half of the
-        trials be right and half left.
-        :return:
-        """
-
-        # Calc the amount of right and left
-        right_amount = self.num_trials // 2
-        left_amount = self.num_trials - right_amount
-
-        # Create the trials list according to the above amounts
-        trials = [0] * right_amount + [1] * left_amount
-
-        # Shuffle it
-        random.shuffle(trials)
-
-        return trials
 
 

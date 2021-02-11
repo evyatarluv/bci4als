@@ -1,6 +1,6 @@
-# todo: fill that class
-from typing import List
 import numpy as np
+from nptyping import ndarray
+from typing import List, Tuple
 
 
 class EEG:
@@ -8,7 +8,37 @@ class EEG:
     def __init__(self):
 
         # todo: what about the channels names? input argument?
-        pass
+        self.markers_row = 31  # Get it as arg
+        self.labels: List[int] = []
+        self.durations: List[Tuple] = []
+
+        # Construct the labels & durations lists
+        # self._extract_trials()
+
+    def _extract_trials(self, data: ndarray):
+        """
+        The method get ndarray and extract the labels and durations from the data.
+        :param data: the data from the board.
+        :return:
+        """
+
+        # Get marker indices
+        markers_idx = np.where(data[self.markers_row, :] != 0)[0]
+
+        # For each marker
+        for idx in markers_idx:
+
+            # Decode the marker
+            status, label, _ = self.decode_marker(data[self.markers_row, idx])
+
+            if status == 'start':
+
+                self.labels.append(label)
+                self.durations.append((idx,))
+
+            elif status == 'stop':
+
+                self.durations[-1] = self.durations[-1] + (idx,)
 
     @staticmethod
     def encode_marker(status: str, label: int, index: int):
