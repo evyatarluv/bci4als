@@ -144,12 +144,16 @@ class OnlineExperiment(Experiment):
 
     def run(self, ip_port, serial_port):
 
+        # Init list of trials
         trials = self._init_trials()
 
+        # Init board for streaming
         board = self._init_board(ip_port, serial_port)
 
+        # Init psychopy window
         win = visual.Window(monitor='testMonitor', fullscr=False)
 
+        # For each stim in the trials list
         for stim in trials:
 
             feedback = Feedback(win, stim, self.threshold)
