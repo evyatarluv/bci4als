@@ -208,11 +208,11 @@ class OnlineExperiment(Experiment):
 
                 start_time = time.time()
 
-                # predict = self.model_predict(data)
+                predict = self.model_predict(data)
 
-                feedback.update(stim)
+                feedback.update(predict)
 
-                # self.model_update(data)
+                self.model_update(data)
 
             # Start the next trial
             event.waitKeys()
