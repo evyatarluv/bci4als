@@ -1,9 +1,12 @@
 import os
+import time
 from typing import Dict
 from collections import namedtuple
 import random
 from bci4als.learning.experiment import Experiment
 from psychopy import visual, event
+from brainflow import BoardShim
+import numpy as np
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -103,11 +106,17 @@ class Feedback:
         bar_frame = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
                                 lineColor=self.bar.frame_color, fillColor=None)
 
-        # Display all
+        # Draw elemnts
         img_stim.draw()
         progress_bar.draw()
         center_line.draw()
         bar_frame.draw()
+
+        # If confident is True display message
+        if self.confident:
+
+            visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
+
         self.win.flip()
 
     def _compute_progress_display(self):
@@ -130,11 +139,12 @@ class Feedback:
 
 class OnlineExperiment(Experiment):
 
-    def __init__(self, num_trials, buffer_time, threshold):
+    def __init__(self, num_trials, buffer_time, threshold, rest_time=2):
 
         super().__init__(num_trials)
         self.threshold = threshold
         self.buffer_time = buffer_time
+        self.rest_time = rest_time
 
         # self.model = model
 
@@ -158,30 +168,59 @@ class OnlineExperiment(Experiment):
 
         return trials
 
+    def _get_data(self, board: BoardShim, start_time: float) -> np.ndarray:
+        """
+        The method return data from the board according to the buffer_time param.
+
+        :param board: board object we get the data from
+        :param start_time: the start time of the recording
+        :return:
+        """
+        wait_time = max(0, self.buffer_time - (time.time() - start_time))
+
+        time.sleep(wait_time)
+
+        return board.get_board_data()
+
     def run(self, ip_port, serial_port):
 
         # Init list of trials
         trials = self._init_trials()
 
-        # Init board for streaming
-        board = self._init_board(ip_port, serial_port)
-
         # Init psychopy window
         win = visual.Window(monitor='testMonitor', fullscr=False)
+
+        # Init board for streaming
+        board = self._init_board(ip_port, serial_port)
+        board.start_stream()  # init exact num_samples?
+
 
         # For each stim in the trials list
         for stim in trials:
 
             feedback = Feedback(win, stim, self.threshold)
 
+            start_time = time.time()
+
             while not feedback.confident:
 
-                buffer = self.get_buffer(board)
+                data = self._get_data(board, start_time)
 
-                predict = self.model_predict(buffer)
+                start_time = time.time()
 
-                feedback.update(predict)
+                # predict = self.model_predict(data)
 
-                self.model_update(predict)
+                feedback.update(stim)
+
+                # self.model_update(data)
+
+            # Start the next trial
+            event.waitKeys()
+            board.get_board_data()
+
+
+
+
+
 
 
