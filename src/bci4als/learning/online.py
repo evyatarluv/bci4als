@@ -4,9 +4,10 @@ from typing import Dict
 from collections import namedtuple
 import random
 from bci4als.learning.experiment import Experiment
-from psychopy import visual, event
+from psychopy import visual, event, core
 from brainflow import BoardShim
 import numpy as np
+import threading
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -39,16 +40,21 @@ class Feedback:
         bar (Bar):
             Contain the visual params of the progress bar.
 
+        refresh_rate (float):
+            The refresh rate of the feedback in seconds.
+
         win (visual.Window)
             The psychopy window of the experiment.
 
     """
-    def __init__(self, win: visual.Window, stim: int, threshold: int = 3):
+    def __init__(self, win: visual.Window, stim: int, buffer_time: float, threshold: int = 3, refresh_rate: float = 0.1):
 
         self.stim: int = stim
         self.threshold: int = threshold
         self.confident: bool = False
         self.progress: float = 0
+        self.refresh_rate: float = refresh_rate
+        self.buffer_time: float = buffer_time
 
         # Images params
         self.images_path: Dict[str, str] = {
@@ -57,15 +63,19 @@ class Feedback:
             'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
 
-        # Progress bar params
+        # Progress bars params
         self.bar: Bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
                             frame_color='white', fill_color='green')
+        self.time_bar: Bar = Bar(pos=(0, -0.8), line_size=None, frame_size=(1, 0.2),
+                                 frame_color='white', fill_color='white')
 
         # Psychopy window
         self.win = win
 
-        # Start display
-        self._display()
+        self.display()
+        # Display the feedback with new thread
+        # th = threading.Thread(target=self.display)
+        # th.start()
 
     def update(self, predict_stim: int):
         """
@@ -84,57 +94,80 @@ class Feedback:
 
                 self.confident = True
 
-            self._display()
+        self.display()
 
-    def _display(self):
+    def display(self):
         """
         Display the current state of the progress bar aside to the current stim
         :return:
         """
 
-        # Compute current progress size
-        progress_pos, progress_size = self._compute_progress_display()
-
-        # Stim
-        img_stim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
-
-        # Progress bar
-        progress_bar = visual.Rect(self.win, pos=progress_pos, size=progress_size,
-                                   lineColor=self.bar.frame_color, fillColor=self.bar.fill_color)
+        # Create the objects
+        # Feedback objects
         center_line = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
-                                  lineColor=None, fillColor=self.bar.frame_color)
-        bar_frame = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
-                                lineColor=self.bar.frame_color, fillColor=None)
+                                  lineColor=None, fillColor=self.bar.frame_color, autoDraw=True)
+        feedback_frame = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
+                                     lineColor=self.bar.frame_color, fillColor=None, autoDraw=True)
+        img_stim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
+        feedback_bar = visual.Rect(self.win, pos=(0, feedback_frame.pos[1]), size=(0, feedback_frame.size[1]),
+                                   lineColor=self.bar.frame_color, fillColor=self.bar.fill_color, autoDraw=True)
 
-        # Draw elemnts
-        img_stim.draw()
-        progress_bar.draw()
-        center_line.draw()
-        bar_frame.draw()
+        # Time bar object
+        # time_bar_frame = visual.Rect(win=self.win, pos=self.time_bar.pos, size=self.time_bar.frame_size,
+        #                              lineColor=self.time_bar.frame_color, autoDraw=True)
+        # time_bar = visual.Rect(win=self.win, pos=(0, time_bar_frame.pos[1]), size=(0, time_bar_frame.size[1]),
+        #                        fillColor=self.time_bar.fill_color, autoDraw=True)
+
+        timer = core.Clock()
+
+        # If working simultaneously use here while loop
+
+        if timer.getTime() > self.buffer_time:
+            timer.reset()
+
+        self._draw_feedback(feedback_bar, img_stim)
+
+        # self._draw_time_bar(time_bar, time_bar_frame, timer.getTime())
 
         # If confident is True display message
         if self.confident:
 
             visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
+            # If working simultaneously use here break from the while
 
+        # Display window & wait
         self.win.flip()
 
-    def _compute_progress_display(self):
+        # If working simultaneously use here sleep
+        # time.sleep(self.refresh_rate)
 
-        # Direction of the progress (1 -> right, -1 -> left)
+    def _draw_feedback(self, feedback_bar, img_stim):
+        """
+        Draw feedback on win according to the current state.
+        :return:
+        """
+
         direction = 1 if self.stim == 0 else -1
 
-        # Compute the current width
-        width = self.progress * self.bar.frame_size[0] / 2
+        # Update feedback size & pos
+        feedback_bar.width = self.progress * self.bar.frame_size[0] / 2
+        feedback_bar.pos[0] = direction * (self.bar.pos[0] + feedback_bar.width / 2)
 
-        # Compute the current x location
-        x = self.bar.pos[0] + width / 2
+        # Draw elements
+        img_stim.draw()
 
-        # Pack width and x as size and pos
-        size = (width, self.bar.frame_size[1])
-        pos = (direction * x, self.bar.pos[1])
+    def _draw_time_bar(self, time_bar, time_bar_frame, current_time):
+        """
+        Draw time bar on win according to the current time
+        :param time_bar:
+        :param time_bar_frame:
+        :param current_time:
+        :return:
+        """
 
-        return pos, size
+        # Update size & pos
+        time_bar.width = current_time / self.buffer_time
+        time_bar.pos[0] = time_bar_frame.pos[0] - time_bar_frame.width / 2 + time_bar.width / 2
 
 
 class OnlineExperiment(Experiment):
@@ -180,7 +213,8 @@ class OnlineExperiment(Experiment):
 
         time.sleep(wait_time)
 
-        return board.get_board_data()
+        # return board.get_board_data()
+        return None
 
     def run(self, ip_port, serial_port):
 
@@ -191,14 +225,14 @@ class OnlineExperiment(Experiment):
         win = visual.Window(monitor='testMonitor', fullscr=False)
 
         # Init board for streaming
-        board = self._init_board(ip_port, serial_port)
-        board.start_stream()  # init exact num_samples?
-
+        # board = self._init_board(ip_port, serial_port)
+        # board.start_stream()  # init exact num_samples?
+        board = None
 
         # For each stim in the trials list
         for stim in trials:
 
-            feedback = Feedback(win, stim, self.threshold)
+            feedback = Feedback(win, stim, self.buffer_time, self.threshold)
 
             start_time = time.time()
 
@@ -208,11 +242,11 @@ class OnlineExperiment(Experiment):
 
                 start_time = time.time()
 
-                predict = self.model_predict(data)
+                # predict = self.model_predict(data)
 
-                feedback.update(predict)
+                feedback.update(stim)
 
-                self.model_update(data)
+                # self.model_update(data)
 
             # Start the next trial
             event.waitKeys()
