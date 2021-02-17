@@ -8,10 +8,14 @@ from psychopy import visual, event, core
 from brainflow import BoardShim
 import numpy as np
 import threading
+import multiprocessing
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
+
+def foo():
+    print('g')
 
 class Feedback:
     """
@@ -47,7 +51,9 @@ class Feedback:
             The psychopy window of the experiment.
 
     """
-    def __init__(self, win: visual.Window, stim: int, buffer_time: float, threshold: int = 3, refresh_rate: float = 0.1):
+
+    def __init__(self, win: visual.Window, stim: int, buffer_time: float, threshold: int = 3,
+                 refresh_rate: float = 0.1):
 
         self.stim: int = stim
         self.threshold: int = threshold
@@ -69,10 +75,27 @@ class Feedback:
         self.time_bar: Bar = Bar(pos=(0, -0.8), line_size=None, frame_size=(1, 0.2),
                                  frame_color='white', fill_color='white')
 
-        # Psychopy window
-        self.win = win
+        # Psychopy objects
+        self.win: visual.Window = win
+        self.center_line: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
+                                                    lineColor=None, fillColor=self.bar.frame_color, autoDraw=True)
+        self.feedback_frame: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
+                                                       lineColor=self.bar.frame_color, fillColor=None, autoDraw=True)
+        self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
+        self.feedback_bar: visual.Rect = visual.Rect(self.win, pos=(0, self.feedback_frame.pos[1]),
+                                                     size=(0, self.feedback_frame.size[1]),
+                                                     lineColor=self.bar.frame_color, fillColor=self.bar.fill_color,
+                                                     autoDraw=True)
 
-        self.display()
+        # Time bar object
+        self.time_bar_frame: visual.Rect = visual.Rect(win=self.win, pos=self.time_bar.pos,
+                                                       size=self.time_bar.frame_size,
+                                                       lineColor=self.time_bar.frame_color, autoDraw=True)
+        self.time_bar: visual.Rect = visual.Rect(win=self.win, pos=(0, self.time_bar_frame.pos[1]),
+                                                 size=(0, self.time_bar_frame.size[1]),
+                                                 fillColor=self.time_bar.fill_color, autoDraw=True)
+
+        # self.display()
         # Display the feedback with new thread
         # th = threading.Thread(target=self.display)
         # th.start()
@@ -91,7 +114,6 @@ class Feedback:
             self.progress += 1 / self.threshold
 
             if self.progress == 1:
-
                 self.confident = True
 
         self.display()
@@ -102,16 +124,6 @@ class Feedback:
         :return:
         """
 
-        # Create the objects
-        # Feedback objects
-        center_line = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
-                                  lineColor=None, fillColor=self.bar.frame_color, autoDraw=True)
-        feedback_frame = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
-                                     lineColor=self.bar.frame_color, fillColor=None, autoDraw=True)
-        img_stim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
-        feedback_bar = visual.Rect(self.win, pos=(0, feedback_frame.pos[1]), size=(0, feedback_frame.size[1]),
-                                   lineColor=self.bar.frame_color, fillColor=self.bar.fill_color, autoDraw=True)
-
         # Time bar object
         # time_bar_frame = visual.Rect(win=self.win, pos=self.time_bar.pos, size=self.time_bar.frame_size,
         #                              lineColor=self.time_bar.frame_color, autoDraw=True)
@@ -120,28 +132,26 @@ class Feedback:
 
         timer = core.Clock()
 
-        # If working simultaneously use here while loop
+        while True:
+            if timer.getTime() > self.buffer_time:
+                timer.reset()
 
-        if timer.getTime() > self.buffer_time:
-            timer.reset()
+            self._draw_feedback()
 
-        self._draw_feedback(feedback_bar, img_stim)
+            self._draw_time_bar(timer.getTime())
 
-        # self._draw_time_bar(time_bar, time_bar_frame, timer.getTime())
+            # If confident is True display message
+            if self.confident:
+                visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
+                break
 
-        # If confident is True display message
-        if self.confident:
+            # Display window & wait
+            self.win.flip()
+            time.sleep(self.refresh_rate)
 
-            visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
-            # If working simultaneously use here break from the while
+        # todo: Set auto draw to false
 
-        # Display window & wait
-        self.win.flip()
-
-        # If working simultaneously use here sleep
-        # time.sleep(self.refresh_rate)
-
-    def _draw_feedback(self, feedback_bar, img_stim):
+    def _draw_feedback(self):
         """
         Draw feedback on win according to the current state.
         :return:
@@ -150,24 +160,22 @@ class Feedback:
         direction = 1 if self.stim == 0 else -1
 
         # Update feedback size & pos
-        feedback_bar.width = self.progress * self.bar.frame_size[0] / 2
-        feedback_bar.pos[0] = direction * (self.bar.pos[0] + feedback_bar.width / 2)
+        self.feedback_bar.width = self.progress * self.bar.frame_size[0] / 2
+        self.feedback_bar.pos[0] = direction * (self.bar.pos[0] + self.feedback_bar.width / 2)
 
         # Draw elements
-        img_stim.draw()
+        self.img_stim.draw()
 
-    def _draw_time_bar(self, time_bar, time_bar_frame, current_time):
+    def _draw_time_bar(self, current_time):
         """
         Draw time bar on win according to the current time
-        :param time_bar:
-        :param time_bar_frame:
         :param current_time:
         :return:
         """
 
         # Update size & pos
-        time_bar.width = current_time / self.buffer_time
-        time_bar.pos[0] = time_bar_frame.pos[0] - time_bar_frame.width / 2 + time_bar.width / 2
+        self.time_bar.width = current_time / self.buffer_time
+        self.time_bar.pos[0] = self.time_bar_frame.pos[0] - self.time_bar_frame.width / 2 + self.time_bar.width / 2
 
 
 class OnlineExperiment(Experiment):
@@ -251,10 +259,3 @@ class OnlineExperiment(Experiment):
             # Start the next trial
             event.waitKeys()
             board.get_board_data()
-
-
-
-
-
-
-
