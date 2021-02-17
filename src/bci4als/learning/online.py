@@ -97,8 +97,8 @@ class Feedback:
 
         # self.display()
         # Display the feedback with new thread
-        # th = threading.Thread(target=self.display)
-        # th.start()
+        th = threading.Thread(target=self.display)
+        th.start()
 
     def update(self, predict_stim: int):
         """
@@ -116,7 +116,7 @@ class Feedback:
             if self.progress == 1:
                 self.confident = True
 
-        self.display()
+        # self.display()
 
     def display(self):
         """
@@ -164,7 +164,7 @@ class Feedback:
         self.feedback_bar.pos[0] = direction * (self.bar.pos[0] + self.feedback_bar.width / 2)
 
         # Draw elements
-        self.img_stim.draw()
+        # self.img_stim.draw()
 
     def _draw_time_bar(self, current_time):
         """
@@ -248,7 +248,7 @@ class OnlineExperiment(Experiment):
 
                 data = self._get_data(board, start_time)
 
-                start_time = time.time()
+                start_time = time.time()  # reset the clock
 
                 # predict = self.model_predict(data)
 
@@ -259,3 +259,4 @@ class OnlineExperiment(Experiment):
             # Start the next trial
             event.waitKeys()
             board.get_board_data()
+
