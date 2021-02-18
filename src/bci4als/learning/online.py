@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from typing import Dict
@@ -8,7 +9,6 @@ from psychopy import visual, event, core
 from brainflow import BoardShim
 import numpy as np
 import threading
-import multiprocessing
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -72,20 +72,19 @@ class Feedback:
         # Progress bars params
         self.bar: Bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
                             frame_color='white', fill_color='green')
-        self.time_bar: Bar = Bar(pos=(0, -0.8), line_size=None, frame_size=(1, 0.2),
+        self.time_bar: Bar = Bar(pos=(0, -0.8), line_size=None, frame_size=(1, 0.1),
                                  frame_color='white', fill_color='white')
 
         # Psychopy objects
         self.win: visual.Window = win
+        self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
         self.center_line: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
                                                     lineColor=None, fillColor=self.bar.frame_color, autoDraw=True)
         self.feedback_frame: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
                                                        lineColor=self.bar.frame_color, fillColor=None, autoDraw=True)
-        self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
         self.feedback_bar: visual.Rect = visual.Rect(self.win, pos=(0, self.feedback_frame.pos[1]),
                                                      size=(0, self.feedback_frame.size[1]),
-                                                     lineColor=self.bar.frame_color, fillColor=self.bar.fill_color,
-                                                     autoDraw=True)
+                                                     lineColor=self.bar.frame_color, fillColor=self.bar.fill_color)
 
         # Time bar object
         self.time_bar_frame: visual.Rect = visual.Rect(win=self.win, pos=self.time_bar.pos,
@@ -93,12 +92,7 @@ class Feedback:
                                                        lineColor=self.time_bar.frame_color, autoDraw=True)
         self.time_bar: visual.Rect = visual.Rect(win=self.win, pos=(0, self.time_bar_frame.pos[1]),
                                                  size=(0, self.time_bar_frame.size[1]),
-                                                 fillColor=self.time_bar.fill_color, autoDraw=True)
-
-        # self.display()
-        # Display the feedback with new thread
-        th = threading.Thread(target=self.display)
-        th.start()
+                                                 fillColor=self.time_bar.fill_color)
 
     def update(self, predict_stim: int):
         """
@@ -116,38 +110,24 @@ class Feedback:
             if self.progress == 1:
                 self.confident = True
 
-        # self.display()
-
-    def display(self):
+    def display(self, current_time):
         """
         Display the current state of the progress bar aside to the current stim
         :return:
         """
 
-        # Time bar object
-        # time_bar_frame = visual.Rect(win=self.win, pos=self.time_bar.pos, size=self.time_bar.frame_size,
-        #                              lineColor=self.time_bar.frame_color, autoDraw=True)
-        # time_bar = visual.Rect(win=self.win, pos=(0, time_bar_frame.pos[1]), size=(0, time_bar_frame.size[1]),
-        #                        fillColor=self.time_bar.fill_color, autoDraw=True)
+        self._draw_feedback()
 
-        timer = core.Clock()
+        self._draw_time_bar(current_time)
 
-        while True:
-            if timer.getTime() > self.buffer_time:
-                timer.reset()
+        # If confident draw finished message
+        if self.confident:
 
-            self._draw_feedback()
+            visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
 
-            self._draw_time_bar(timer.getTime())
-
-            # If confident is True display message
-            if self.confident:
-                visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
-                break
-
-            # Display window & wait
-            self.win.flip()
-            time.sleep(self.refresh_rate)
+        # Display window & wait
+        self.win.flip()
+        time.sleep(self.refresh_rate)
 
         # todo: Set auto draw to false
 
@@ -164,7 +144,8 @@ class Feedback:
         self.feedback_bar.pos[0] = direction * (self.bar.pos[0] + self.feedback_bar.width / 2)
 
         # Draw elements
-        # self.img_stim.draw()
+        self.img_stim.draw()  # always keep the draw of the image first
+        self.feedback_bar.draw()
 
     def _draw_time_bar(self, current_time):
         """
@@ -176,6 +157,9 @@ class Feedback:
         # Update size & pos
         self.time_bar.width = current_time / self.buffer_time
         self.time_bar.pos[0] = self.time_bar_frame.pos[0] - self.time_bar_frame.width / 2 + self.time_bar.width / 2
+
+        # Draw
+        self.time_bar.draw()
 
 
 class OnlineExperiment(Experiment):
@@ -209,7 +193,7 @@ class OnlineExperiment(Experiment):
 
         return trials
 
-    def _get_data(self, board: BoardShim, start_time: float) -> np.ndarray:
+    def _get_data(self, board: BoardShim, current_time: float) -> np.ndarray:
         """
         The method return data from the board according to the buffer_time param.
 
@@ -217,12 +201,33 @@ class OnlineExperiment(Experiment):
         :param start_time: the start time of the recording
         :return:
         """
-        wait_time = max(0, self.buffer_time - (time.time() - start_time))
+        wait_time = max(0, self.buffer_time - current_time)
 
         time.sleep(wait_time)
 
         # return board.get_board_data()
         return None
+
+    def _learning_model(self, feedback: Feedback, board: BoardShim, stim):
+
+        # todo: the stim arg is only for debug
+        timer = core.Clock()
+
+        while not feedback.confident:
+
+            # Get the data
+            data = self._get_data(board, timer.getTime())
+
+            # Reset the clock for the next buffer
+            timer.reset()
+
+            # predict = self.model_predict(data)
+
+            feedback.update(stim)  # this line should be: feedback.update(predict)
+
+            # self.model_update(data)
+
+        print('Finished to training the model for the current stim...')
 
     def run(self, ip_port, serial_port):
 
@@ -242,21 +247,19 @@ class OnlineExperiment(Experiment):
 
             feedback = Feedback(win, stim, self.buffer_time, self.threshold)
 
-            start_time = time.time()
+            threading.Thread(target=self._learning_model, args=(feedback, board, stim)).start()
+
+            timer = core.Clock()
 
             while not feedback.confident:
 
-                data = self._get_data(board, start_time)
+                feedback.display(timer.getTime())
 
-                start_time = time.time()  # reset the clock
-
-                # predict = self.model_predict(data)
-
-                feedback.update(stim)
-
-                # self.model_update(data)
+                if timer.getTime() > self.buffer_time:
+                    timer.reset()
 
             # Start the next trial
+            feedback.display(0)
             event.waitKeys()
-            board.get_board_data()
+            # board.get_board_data()
 
