@@ -14,9 +14,6 @@ import threading
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
 
-def foo():
-    print('g')
-
 class Feedback:
     """
     Class for presenting the feedback on the screen.
@@ -110,9 +107,10 @@ class Feedback:
             if self.progress == 1:
                 self.confident = True
 
-    def display(self, current_time):
+    def display(self, current_time: float):
         """
         Display the current state of the progress bar aside to the current stim
+        :param current_time: the current time for the time bar object
         :return:
         """
 
@@ -147,10 +145,10 @@ class Feedback:
         self.img_stim.draw()  # always keep the draw of the image first
         self.feedback_bar.draw()
 
-    def _draw_time_bar(self, current_time):
+    def _draw_time_bar(self, current_time: float):
         """
         Draw time bar on win according to the current time
-        :param current_time:
+        :param current_time: the current time in the experiment from the range [0, buffer_time]
         :return:
         """
 
@@ -163,13 +161,27 @@ class Feedback:
 
 
 class OnlineExperiment(Experiment):
+    """
+    Class for running an online MI experiments.
 
-    def __init__(self, num_trials, buffer_time, threshold, rest_time=2):
+    Attributes:
+    ----------
+
+        num_trials (int):
+            Amount of trials in the experiment.
+
+        buffer_time (float):
+            Time in seconds for collecting EEG data before model's prediction.
+
+        threshold (int):
+            The amount the times the model need to be correct (predict = stim) before moving to the next stim.
+
+    """
+    def __init__(self, num_trials: int, buffer_time: float, threshold: int):
 
         super().__init__(num_trials)
-        self.threshold = threshold
-        self.buffer_time = buffer_time
-        self.rest_time = rest_time
+        self.threshold: int = threshold
+        self.buffer_time: float = buffer_time
 
         # self.model = model
 
@@ -209,6 +221,21 @@ class OnlineExperiment(Experiment):
         return None
 
     def _learning_model(self, feedback: Feedback, board: BoardShim, stim):
+
+        """
+        The method from learning the model from the current stim.
+
+        A separate thread running this method. The method responsible for the following steps:
+            1. Collecting the EEG data from the board (according to the buffer time attribute).
+            2. Predicting the stim using the current model and collected EEG data.
+            3. Updating the feedback object according to the model's prediction.
+            4. Updating the model according to the data and stim.
+
+        :param feedback: feedback visualization for the subject
+        :param board: BoardShim object which responsible for collecting the data
+        :param stim: ONLY FOR DEBUG - SHOULD BE DELETED
+        :return:
+        """
 
         # todo: the stim arg is only for debug
         timer = core.Clock()
