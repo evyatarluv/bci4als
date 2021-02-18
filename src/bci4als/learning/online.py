@@ -162,7 +162,7 @@ class Feedback:
 
 class OnlineExperiment(Experiment):
     """
-    Class for running an online MI experiments.
+    Class for running an online MI experiment.
 
     Attributes:
     ----------
@@ -254,9 +254,9 @@ class OnlineExperiment(Experiment):
 
             # self.model_update(data)
 
-        print('Finished to training the model for the current stim...')
+        print('Finished learning model')
 
-    def run(self, ip_port, serial_port):
+    def run(self, ip_port: int, serial_port: str):
 
         # Init list of trials
         trials = self._init_trials()

@@ -44,5 +44,5 @@ from bci4als.learning.eeg import EEG
 # print(durations)
 
 
-exp = OnlineExperiment(num_trials=3, buffer_time=2, threshold=3)
+exp = OnlineExperiment(num_trials=3, buffer_time=5, threshold=3)
 exp.run(ip_port=6677, serial_port='COM4')
