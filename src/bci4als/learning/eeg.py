@@ -1,44 +1,50 @@
 import numpy as np
-from nptyping import ndarray
-from typing import List, Tuple
+import pandas as pd
+from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 
 
 class EEG:
 
-    def __init__(self):
+    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
+        self.board_id = board_id
+        self.params = BrainFlowInputParams()
+        self.params.ip_port = ip_port
+        self.params.serial_port = serial_port
+        self.board = BoardShim(board_id, self.params)
+        self.Fz = self.board.get_sampling_rate(board_id)
 
-        # todo: what about the channels names? input argument?
-        self.markers_row = 31  # Get it as arg
-        self.labels: List[int] = []
-        self.durations: List[Tuple] = []
+        # self.labels: List[int] = []
+        # self.durations: List[Tuple] = []
 
         # Construct the labels & durations lists
         # self._extract_trials()
 
-    def _extract_trials(self, data: ndarray):
-        """
-        The method get ndarray and extract the labels and durations from the data.
-        :param data: the data from the board.
-        :return:
-        """
-
-        # Get marker indices
-        markers_idx = np.where(data[self.markers_row, :] != 0)[0]
-
-        # For each marker
-        for idx in markers_idx:
-
-            # Decode the marker
-            status, label, _ = self.decode_marker(data[self.markers_row, idx])
-
-            if status == 'start':
-
-                self.labels.append(label)
-                self.durations.append((idx,))
-
-            elif status == 'stop':
-
-                self.durations[-1] = self.durations[-1] + (idx,)
+    # def _extract_trials(self, data: NDArray):
+    #     """
+    #     The method get ndarray and extract the labels and durations from the data.
+    #     :param data: the data from the board.
+    #     :return:
+    #     """
+    #
+    #     # Get marker indices
+    #     markers_idx = np.where(data[self.markers_row, :] != 0)[0]
+    #
+    #     # For each marker
+    #     for idx in markers_idx:
+    #
+    #         # Decode the marker
+    #         status, label, _ = self.decode_marker(data[self.markers_row, idx])
+    #
+    #         if status == 'start':
+    #
+    #             self.labels.append(label)
+    #             self.durations.append((idx,))
+    #
+    #         elif status == 'stop':
+    #
+    #             self.durations[-1] = self.durations[-1] + (idx,)
+    def push(self, status: str, label: int, index: int):
+        marker = self.encode_marker(status, label, index)
 
     @staticmethod
     def encode_marker(status: str, label: int, index: int):
@@ -86,5 +92,46 @@ class EEG:
 
         return status, int(label), int(index)
 
+    def on(self):
+        self.board.prepare_session()
+        self.board.start_stream()
 
+    def off(self):
+        self.board.stop_stream()
 
+    def get_data(self) -> np.ndarray:
+        """
+        The method return data from the board according to the buffer_time param.
+
+        :param start_time: the start time of the recording
+        :return:
+        """
+
+        return self.preprocess(self.board.get_board_data())
+
+    def preprocess(self, board_data):
+        # create dictionary of <col index,col name>
+        eeg_channels = self.board.get_eeg_channels(self.board_id)
+        eeg_names = self.board.get_eeg_names(self.board_id)
+        timestamp_channel = self.board.get_timestamp_channel(self.board_id)
+        acceleration_channels = self.board.get_accel_channels(self.board_id)
+        marker_channel = self.board.get_marker_channel(self.board_id)
+
+        column_names = {}
+        column_names.update(zip(eeg_channels, eeg_names))
+        column_names.update(zip(acceleration_channels, ['X', 'Y', 'Z']))
+        column_names.update({timestamp_channel: "timestamp",
+                             marker_channel: "marker"})
+
+        df = pd.DataFrame(board_data.T)
+        df.rename(columns=column_names)
+
+        # drop unused channels
+        df = df[column_names]
+
+        # decode int markers
+        df['marker'] = df['marker'].apply(self.decode_marker)
+        df[['marker_status', 'marker_label', 'marker_index']] = pd.DataFrame(df['marker'].tolist(), index=df.index)
+
+        # todo: signal processing (Notch Filter @ 50Hz, Bandpass Filter, Artifact Removal)
+        return df
