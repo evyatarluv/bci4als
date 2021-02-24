@@ -29,3 +29,7 @@ pytest>=5.2.1
 bci4als>=0.1.2
 
 nptyping>=1.4.0
+
+click>=7.1.2
+argparse>=1.4.0
+moabb>=0.2.1
