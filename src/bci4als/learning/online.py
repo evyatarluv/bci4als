@@ -1,14 +1,15 @@
-import logging
 import os
-import time
-from typing import Dict
-from collections import namedtuple
 import random
-from bci4als.learning.experiment import Experiment
-from psychopy import visual, event, core
-from brainflow import BoardShim
-import numpy as np
 import threading
+import time
+from collections import namedtuple
+from typing import Dict
+
+import numpy as np
+from bci4als.learning.eeg import EEG
+from bci4als.learning.experiment import Experiment
+from brainflow import BoardShim
+from psychopy import visual, event, core
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -120,7 +121,6 @@ class Feedback:
 
         # If confident draw finished message
         if self.confident:
-
             visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
 
         # Display window & wait
@@ -177,19 +177,22 @@ class OnlineExperiment(Experiment):
             The amount the times the model need to be correct (predict = stim) before moving to the next stim.
 
     """
-    def __init__(self, num_trials: int, buffer_time: float, threshold: int):
 
-        super().__init__(num_trials)
+    def __init__(self, eeg: EEG, num_trials: int, buffer_time: float, threshold: int):
+
+        super().__init__(eeg, num_trials)
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
+        self.trials = self._init_trials()
+        # Init psychopy window
+        self.win = visual.Window(monitor='testMonitor', fullscr=False)
 
         # self.model = model
 
     def _init_trials(self):
         """
         Create list with trials as num_trials attributes.
-        The trials consist only from right and left (0, 1). Additionally, half of the
-        trials be right and half left.
+        The trials consists of equal number of right and left targets (0, 1).
         :return:
         """
 
@@ -207,8 +210,8 @@ class OnlineExperiment(Experiment):
 
     def _get_data(self, board: BoardShim, current_time: float) -> np.ndarray:
         """
+        DEPRECATED
         The method return data from the board according to the buffer_time param.
-
         :param board: board object we get the data from
         :param start_time: the start time of the recording
         :return:
@@ -220,19 +223,19 @@ class OnlineExperiment(Experiment):
         # return board.get_board_data()
         return None
 
-    def _learning_model(self, feedback: Feedback, board: BoardShim, stim):
+    def _learning_model(self, feedback: Feedback, stim):
 
         """
-        The method from learning the model from the current stim.
+        The method for learning the model from the current stim.
 
-        A separate thread running this method. The method responsible for the following steps:
+        A separate thread runs this method. The method responsible for the following steps:
             1. Collecting the EEG data from the board (according to the buffer time attribute).
             2. Predicting the stim using the current model and collected EEG data.
             3. Updating the feedback object according to the model's prediction.
             4. Updating the model according to the data and stim.
 
         :param feedback: feedback visualization for the subject
-        :param board: BoardShim object which responsible for collecting the data
+        :param eeg: EEG object which is responsible for providing the data
         :param stim: ONLY FOR DEBUG - SHOULD BE DELETED
         :return:
         """
@@ -241,9 +244,10 @@ class OnlineExperiment(Experiment):
         timer = core.Clock()
 
         while not feedback.confident:
-
             # Get the data
-            data = self._get_data(board, timer.getTime())
+            data = self._get_data(None, timer.getTime())
+            # todo: should be
+            #  data = self.eeg.get_data()
 
             # Reset the clock for the next buffer
             timer.reset()
@@ -256,25 +260,17 @@ class OnlineExperiment(Experiment):
 
         print('Finished learning model')
 
-    def run(self, ip_port: int, serial_port: str):
-
-        # Init list of trials
-        trials = self._init_trials()
-
-        # Init psychopy window
-        win = visual.Window(monitor='testMonitor', fullscr=False)
-
-        # Init board for streaming
-        # board = self._init_board(ip_port, serial_port)
-        # board.start_stream()  # init exact num_samples?
-        board = None
+    def run(self, use_eeg=True):
+        # turn on EEG streaming
+        if use_eeg:
+            self.eeg.on()
 
         # For each stim in the trials list
-        for stim in trials:
+        for stim in self.trials:
 
-            feedback = Feedback(win, stim, self.buffer_time, self.threshold)
+            feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
-            threading.Thread(target=self._learning_model, args=(feedback, board, stim)).start()
+            threading.Thread(target=self._learning_model, args=(feedback, stim)).start()
 
             timer = core.Clock()
 
@@ -288,5 +284,8 @@ class OnlineExperiment(Experiment):
             # Start the next trial
             feedback.display(0)
             event.waitKeys()
-            # board.get_board_data()
+            # eeg.get_data()
 
+        # turn off EEG streaming
+        if use_eeg:
+            self.eeg.off()

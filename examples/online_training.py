@@ -7,13 +7,13 @@ from bci4als.learning.online import Feedback, OnlineExperiment
 from bci4als.learning.eeg import EEG
 
 # Check the feedback
-# win = visual.Window(fullscr=False)
-#
-# f = Feedback(win, 1)
-# f.update(1)
-# event.waitKeys()
-# f.update(1)
-# event.waitKeys()
+def check_feedback():
+    win = visual.Window(fullscr=False)
+    f = Feedback(win, 1)
+    f.update(1)
+    event.waitKeys()
+    f.update(1)
+    event.waitKeys()
 
 # Extract data from board data
 
@@ -43,9 +43,13 @@ from bci4als.learning.eeg import EEG
 # print(labels)
 # print(durations)
 
+def run_experiment():
+    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM4")
 
-exp = OnlineExperiment(num_trials=3, buffer_time=5, threshold=3)
-exp.run(ip_port=6677, serial_port='COM4')
+    exp = OnlineExperiment(eeg=eeg, num_trials=3, buffer_time=5, threshold=3)
+    exp.run(use_eeg=False)
 
 
+if __name__ == '__main__':
+    run_experiment()
 

@@ -4,33 +4,13 @@ from psychopy import event
 
 class Experiment:
 
-    def __init__(self, num_trials):
-
+    def __init__(self, eeg, num_trials):
+        self.eeg = eeg
         self.num_trials = num_trials
 
-    def run(self, ip_port, serial_port):
+    def run(self):
         pass
 
-    @staticmethod
-    def _init_board(ip_port: int, serial_port: int) -> BoardShim:
-
-        """
-        Init board to have stream from.
-        :param ip_port: ip port of the board
-        :param serial_port: serial port of the board
-        :return:
-        """
-
-        # Update the params
-        params = BrainFlowInputParams()
-        params.ip_port = ip_port
-        params.serial_port = serial_port
-
-        # Init board and prepare for session
-        board = BoardShim(BoardIds.CYTON_DAISY_BOARD.value, params)
-        board.prepare_session()
-
-        return board
 
     @staticmethod
     def get_keypress():
