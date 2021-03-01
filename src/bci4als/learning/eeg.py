@@ -1,14 +1,18 @@
 import time
 from typing import List, Tuple
 
+import mne
 import numpy as np
 import pandas as pd
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
+from mne_features.feature_extraction import extract_features
 from nptyping import NDArray
 
 
 class EEG:
     def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
+
+        # Board params
         self.board_id = board_id
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
@@ -16,18 +20,16 @@ class EEG:
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
-        self.buffer = None
+        self.eeg_names = self.board.get_eeg_names(board_id)
 
         # Features params
         # todo: get as arg
         self.features_params = {'channels': ['C03', 'C04']}
 
-
-        self.labels: List[int] = []
-        self.durations: List[Tuple] = []
-
-        # Construct the labels & durations lists
-        self._extract_trials()
+        # todo: offline mode
+        # self.labels: List[int] = []
+        # self.durations: List[Tuple] = []
+        # self._extract_trials()
 
     def _extract_trials(self, data: NDArray):
         """
@@ -99,69 +101,58 @@ class EEG:
         df[['marker_status', 'marker_label', 'marker_index']] = pd.DataFrame(df['marker'].tolist(), index=df.index)
         return df
 
-    def _preprocess(self, board_data):
-        # todo: signal processing (Notch Filter @ 50Hz, Bandpass Filter, Artifact Removal)
-        raise NotImplementedError
+    def _board_to_mne(self, board_data: NDArray) -> mne.io.RawArray:
 
-    def get_data(self, wait_time: float = 0) -> np.ndarray:
-        """
-        The method return data from the board according to the buffer_time param.
-        :param wait_time: board object we get the data from
-        :return:
-        """
+        eeg_data = board_data / 1000000  # BrainFlow returns uV, convert to V for MNE
 
-        time.sleep(wait_time)
-        return self.board.get_board_data()
+        # Creating MNE objects from brainflow data arrays
+        ch_types = ['eeg'] * len(board_data)
+        info = mne.create_info(ch_names=self.eeg_names, sfreq=self.sfreq, ch_types=ch_types)
+        raw = mne.io.RawArray(eeg_data, info)
 
-    def get_raw_data(self):
+        return raw
+
+    def get_raw_data(self, ch_names: List[str]) -> mne.io.RawArray:
         """
         The method returns dataframe with all the raw data, and empties the buffer
 
-        :param:
-        :return:
+        :param ch_names: list[str] of channels to select
+        :return: mne_raw data
         """
-        data = self.board.get_board_data()
-        df = self._numpy_to_df(data)
-        return df
 
-    def get_processed_data(self):
-        """
-        The method returns dataframe with all the preprocessed (filters etc.) data, and empties the buffer
+        indices = [self.eeg_names.index(ch) for ch in ch_names]
 
-        :param:
-        :return:
-        """
-        # todo: implement this
-        raise NotImplementedError
+        data = self.board.get_board_data()[indices]
 
-    def get_features(self) -> NDArray:
+        return self._board_to_mne(data)
+
+    def get_features(self, channels: List[str], selected_funcs: List[str],
+                     notch: float = 50, low_pass: float = 4, high_pass: float = 48) -> NDArray:
         """
         Returns features of all data since last call to get board data.
         :return features: NDArray of shape (n_samples, n_features)
         """
 
         # Get the raw data
-        data = self.get_raw_data()
-
-        # Get the relevant channels
-        data = data[self.features_params['channels']].values
+        data = self.get_raw_data(ch_names=channels)
 
         # Filter
-        data = self._filter_data(data)
+        data = self.filter_data(data, notch, low_pass, high_pass)
 
-        #
+        # Extract features
+        features = extract_features(data.get_data()[0][np.newaxis], self.sfreq, selected_funcs)
 
-        # data = get_data()
-        #
-        # data = filter_data() [(n_channel X n_samples) -> (n_channel X n_samples)]
-        #
-        # features = extract_features(data)  [(n_channel X n_samples) -> (1 X n_features)]
-        #
-        # return features
+        return features
 
-        # todo: implement this
+    @staticmethod
+    def filter_data(data: mne.io.RawArray,
+                    notch: float, low_pass: float, high_pass: float) -> mne.io.RawArray:
 
-        raise NotImplementedError
+        data.notch_filter(freqs=notch)
+        data.filter(l_freq=low_pass, h_freq=None)
+        data.filter(l_freq=None, h_freq=high_pass)
+
+        return data
 
     @staticmethod
     def encode_marker(status: str, label: int, index: int):
