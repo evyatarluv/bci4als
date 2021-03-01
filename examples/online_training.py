@@ -44,6 +44,7 @@ def check_feedback():
 # print(durations)
 
 def run_experiment():
+
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM4")
 
     exp = OnlineExperiment(eeg=eeg, num_trials=3, buffer_time=5, threshold=3)

@@ -208,20 +208,17 @@ class OnlineExperiment(Experiment):
 
         return trials
 
-    def _get_data(self, board: BoardShim, current_time: float) -> np.ndarray:
+    def get_data(self, wait_time: float = 0) -> np.ndarray:
         """
         DEPRECATED
         The method return data from the board according to the buffer_time param.
-        :param board: board object we get the data from
-        :param start_time: the start time of the recording
+        :param wait_time: board object we get the data from
         :return:
         """
-        wait_time = max(0, self.buffer_time - current_time)
 
         time.sleep(wait_time)
 
-        # return board.get_board_data()
-        return None
+        return self.board.get_board_data()
 
     def _learning_model(self, feedback: Feedback, stim):
 
@@ -245,9 +242,10 @@ class OnlineExperiment(Experiment):
 
         while not feedback.confident:
             # Get the data
-            data = self._get_data(None, timer.getTime())
+            # data = self._get_data(None, timer.getTime())
             # todo: should be
-            #  data = self.eeg.get_data()
+            wait_time = max(0, self.buffer_time - timer.getTime())
+            data = self.eeg.get_data(wait_time)
 
             # Reset the clock for the next buffer
             timer.reset()

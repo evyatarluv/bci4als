@@ -12,7 +12,7 @@ class EEG:
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
 
-        self.buffer =
+        self.buffer = None
 
         # self.labels: List[int] = []
         # self.durations: List[Tuple] = []
