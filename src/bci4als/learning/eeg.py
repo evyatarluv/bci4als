@@ -130,8 +130,16 @@ class EEG:
         # todo: implement this
         raise NotImplementedError
 
-    def get_features(self):
+    def get_features(self) -> NDArray:
+        """
+        Returns features of all data since last call to get board data.
+        :return features: NDArray of shape (n_samples, n_features)
+        """
+
+
+
         # todo: implement this
+
         raise NotImplementedError
 
     @staticmethod

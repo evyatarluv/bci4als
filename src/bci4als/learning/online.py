@@ -12,6 +12,10 @@ from brainflow import BoardShim
 from psychopy import visual, event, core
 
 # name tuple object for the progress bar params
+from sklearn.base import ClassifierMixin, BaseEstimator
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model._base import LinearClassifierMixin
+
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
 
@@ -178,7 +182,7 @@ class OnlineExperiment(Experiment):
 
     """
 
-    def __init__(self, eeg: EEG, num_trials: int, buffer_time: float, threshold: int):
+    def __init__(self, eeg: EEG, model: LinearClassifierMixin, num_trials: int, buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
         self.threshold: int = threshold
@@ -186,8 +190,7 @@ class OnlineExperiment(Experiment):
         self.trials = self._init_trials()
         # Init psychopy window
         self.win = visual.Window(monitor='testMonitor', fullscr=False)
-
-        # self.model = model
+        self.model = model
 
     def _init_trials(self):
         """
@@ -208,7 +211,7 @@ class OnlineExperiment(Experiment):
 
         return trials
 
-    def _learning_model(self, feedback: Feedback, stim):
+    def _learning_model(self, feedback: Feedback):
 
         """
         The method for learning the model from the current stim.
@@ -221,28 +224,26 @@ class OnlineExperiment(Experiment):
 
         :param feedback: feedback visualization for the subject
         :param eeg: EEG object which is responsible for providing the data
-        :param stim: ONLY FOR DEBUG - SHOULD BE DELETED
         :return:
         """
 
-        # todo: the stim arg is only for debug
         timer = core.Clock()
 
         while not feedback.confident:
+            # sleep
+            time.sleep(max(0, self.buffer_time - timer.getTime()))
             # Get the data
-            # data = self._get_data(None, timer.getTime())
-            # todo: should be
-            wait_time = max(0, self.buffer_time - timer.getTime())
-            data = self.eeg.get_data(wait_time)
+            features = self.eeg.get_features()
 
             # Reset the clock for the next buffer
             timer.reset()
 
-            # predict = self.model_predict(data)
+            prediction = self.model.predict(features)
 
-            feedback.update(stim)  # this line should be: feedback.update(predict)
+            feedback.update(prediction)  # this line should be: feedback.update(predict)
 
-            # self.model_update(data)
+            # todo: this assumes learning after every attempt. Consider alternatives.
+            self.model.partial_fit(features)
 
         print('Finished learning model')
 
