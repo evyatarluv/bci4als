@@ -4,14 +4,15 @@ from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 
 
 class EEG:
-
     def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
         self.board_id = board_id
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
         self.params.serial_port = serial_port
         self.board = BoardShim(board_id, self.params)
-        self.Fz = self.board.get_sampling_rate(board_id)
+        self.sfreq = self.board.get_sampling_rate(board_id)
+
+        self.buffer =
 
         # self.labels: List[int] = []
         # self.durations: List[Tuple] = []
@@ -43,8 +44,76 @@ class EEG:
     #         elif status == 'stop':
     #
     #             self.durations[-1] = self.durations[-1] + (idx,)
-    def push(self, status: str, label: int, index: int):
+
+    def on(self):
+        """Turn EEG On"""
+        self.board.prepare_session()
+        self.board.start_stream()
+
+    def off(self):
+        """Turn EEG Off"""
+        self.board.stop_stream()
+        self.board.release_session()
+
+    def insert_marker(self, status: str, label: int, index: int):
+        """Insert an encoded marker into EEG data"""
         marker = self.encode_marker(status, label, index)
+        self.board.insert_marker(marker)
+
+    def _numpy_to_df(self, board_data):
+        # create dictionary of <col index,col name>
+        eeg_channels = self.board.get_eeg_channels(self.board_id)
+        eeg_names = self.board.get_eeg_names(self.board_id)
+        timestamp_channel = self.board.get_timestamp_channel(self.board_id)
+        acceleration_channels = self.board.get_accel_channels(self.board_id)
+        marker_channel = self.board.get_marker_channel(self.board_id)
+
+        column_names = {}
+        column_names.update(zip(eeg_channels, eeg_names))
+        column_names.update(zip(acceleration_channels, ['X', 'Y', 'Z']))
+        column_names.update({timestamp_channel: "timestamp",
+                             marker_channel: "marker"})
+
+        df = pd.DataFrame(board_data.T)
+        df.rename(columns=column_names)
+
+        # drop unused channels
+        df = df[column_names]
+
+        # decode int markers
+        df['marker'] = df['marker'].apply(self.decode_marker)
+        df[['marker_status', 'marker_label', 'marker_index']] = pd.DataFrame(df['marker'].tolist(), index=df.index)
+        return df
+
+    def _preprocess(self, board_data):
+        # todo: signal processing (Notch Filter @ 50Hz, Bandpass Filter, Artifact Removal)
+        raise NotImplementedError
+
+    def get_raw_data(self):
+        """
+        The method returns dataframe with all the raw data, and empties the buffer
+
+        :param:
+        :return:
+        """
+        data = self.board.get_board_data()
+        df = self._numpy_to_df(data)
+        return df
+
+    def get_processed_data(self):
+        """
+        The method returns dataframe with all the preprocessed (filters etc.) data, and empties the buffer
+
+        :param:
+        :return:
+        """
+        # todo: implement this
+        raise NotImplementedError
+
+    def get_features(self):
+        # todo: implement this
+        raise NotImplementedError
+
 
     @staticmethod
     def encode_marker(status: str, label: int, index: int):
@@ -91,47 +160,3 @@ class EEG:
         index = (marker_value - (marker_value % 100)) / 100
 
         return status, int(label), int(index)
-
-    def on(self):
-        self.board.prepare_session()
-        self.board.start_stream()
-
-    def off(self):
-        self.board.stop_stream()
-
-    def get_data(self) -> np.ndarray:
-        """
-        The method return data from the board according to the buffer_time param.
-
-        :param start_time: the start time of the recording
-        :return:
-        """
-
-        return self.preprocess(self.board.get_board_data())
-
-    def preprocess(self, board_data):
-        # create dictionary of <col index,col name>
-        eeg_channels = self.board.get_eeg_channels(self.board_id)
-        eeg_names = self.board.get_eeg_names(self.board_id)
-        timestamp_channel = self.board.get_timestamp_channel(self.board_id)
-        acceleration_channels = self.board.get_accel_channels(self.board_id)
-        marker_channel = self.board.get_marker_channel(self.board_id)
-
-        column_names = {}
-        column_names.update(zip(eeg_channels, eeg_names))
-        column_names.update(zip(acceleration_channels, ['X', 'Y', 'Z']))
-        column_names.update({timestamp_channel: "timestamp",
-                             marker_channel: "marker"})
-
-        df = pd.DataFrame(board_data.T)
-        df.rename(columns=column_names)
-
-        # drop unused channels
-        df = df[column_names]
-
-        # decode int markers
-        df['marker'] = df['marker'].apply(self.decode_marker)
-        df[['marker_status', 'marker_label', 'marker_index']] = pd.DataFrame(df['marker'].tolist(), index=df.index)
-
-        # todo: signal processing (Notch Filter @ 50Hz, Bandpass Filter, Artifact Removal)
-        return df
