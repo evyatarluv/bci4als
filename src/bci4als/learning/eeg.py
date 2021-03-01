@@ -18,6 +18,10 @@ class EEG:
         self.marker_row = self.board.get_marker_channel(self.board_id)
         self.buffer = None
 
+        # Features params
+        # todo: get as arg
+        self.features_params = {'channels': ['C03', 'C04']}
+
 
         self.labels: List[int] = []
         self.durations: List[Tuple] = []
@@ -136,7 +140,24 @@ class EEG:
         :return features: NDArray of shape (n_samples, n_features)
         """
 
+        # Get the raw data
+        data = self.get_raw_data()
 
+        # Get the relevant channels
+        data = data[self.features_params['channels']].values
+
+        # Filter
+        data = self._filter_data(data)
+
+        #
+
+        # data = get_data()
+        #
+        # data = filter_data() [(n_channel X n_samples) -> (n_channel X n_samples)]
+        #
+        # features = extract_features(data)  [(n_channel X n_samples) -> (1 X n_features)]
+        #
+        # return features
 
         # todo: implement this
 
