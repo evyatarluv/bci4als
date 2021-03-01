@@ -1,6 +1,10 @@
+import time
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
+from nptyping import NDArray
 
 
 class EEG:
@@ -11,39 +15,40 @@ class EEG:
         self.params.serial_port = serial_port
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
-
+        self.marker_row = self.board.get_marker_channel(self.board_id)
         self.buffer = None
 
-        # self.labels: List[int] = []
-        # self.durations: List[Tuple] = []
+
+        self.labels: List[int] = []
+        self.durations: List[Tuple] = []
 
         # Construct the labels & durations lists
-        # self._extract_trials()
+        self._extract_trials()
 
-    # def _extract_trials(self, data: NDArray):
-    #     """
-    #     The method get ndarray and extract the labels and durations from the data.
-    #     :param data: the data from the board.
-    #     :return:
-    #     """
-    #
-    #     # Get marker indices
-    #     markers_idx = np.where(data[self.markers_row, :] != 0)[0]
-    #
-    #     # For each marker
-    #     for idx in markers_idx:
-    #
-    #         # Decode the marker
-    #         status, label, _ = self.decode_marker(data[self.markers_row, idx])
-    #
-    #         if status == 'start':
-    #
-    #             self.labels.append(label)
-    #             self.durations.append((idx,))
-    #
-    #         elif status == 'stop':
-    #
-    #             self.durations[-1] = self.durations[-1] + (idx,)
+    def _extract_trials(self, data: NDArray):
+        """
+        The method get ndarray and extract the labels and durations from the data.
+        :param data: the data from the board.
+        :return:
+        """
+
+        # Get marker indices
+        markers_idx = np.where(data[self.marker_row, :] != 0)[0]
+
+        # For each marker
+        for idx in markers_idx:
+
+            # Decode the marker
+            status, label, _ = self.decode_marker(data[self.marker_row, idx])
+
+            if status == 'start':
+
+                self.labels.append(label)
+                self.durations.append((idx,))
+
+            elif status == 'stop':
+
+                self.durations[-1] = self.durations[-1] + (idx,)
 
     def on(self):
         """Turn EEG On"""
@@ -60,8 +65,13 @@ class EEG:
         marker = self.encode_marker(status, label, index)
         self.board.insert_marker(marker)
 
-    def _numpy_to_df(self, board_data):
-        # create dictionary of <col index,col name>
+    def _numpy_to_df(self, board_data: NDArray):
+        """
+        gets a Brainflow-style matrix and returns a Pandas Dataframe
+        :param board_data: NDAarray retrieved from the board
+        :returns df: a dataframe with the data
+        """
+        # create dictionary of <col index,col name> for renaming DF
         eeg_channels = self.board.get_eeg_channels(self.board_id)
         eeg_names = self.board.get_eeg_names(self.board_id)
         timestamp_channel = self.board.get_timestamp_channel(self.board_id)
@@ -89,6 +99,16 @@ class EEG:
         # todo: signal processing (Notch Filter @ 50Hz, Bandpass Filter, Artifact Removal)
         raise NotImplementedError
 
+    def get_data(self, wait_time: float = 0) -> np.ndarray:
+        """
+        The method return data from the board according to the buffer_time param.
+        :param wait_time: board object we get the data from
+        :return:
+        """
+
+        time.sleep(wait_time)
+        return self.board.get_board_data()
+
     def get_raw_data(self):
         """
         The method returns dataframe with all the raw data, and empties the buffer
@@ -113,7 +133,6 @@ class EEG:
     def get_features(self):
         # todo: implement this
         raise NotImplementedError
-
 
     @staticmethod
     def encode_marker(status: str, label: int, index: int):

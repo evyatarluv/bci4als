@@ -208,18 +208,6 @@ class OnlineExperiment(Experiment):
 
         return trials
 
-    def get_data(self, wait_time: float = 0) -> np.ndarray:
-        """
-        DEPRECATED
-        The method return data from the board according to the buffer_time param.
-        :param wait_time: board object we get the data from
-        :return:
-        """
-
-        time.sleep(wait_time)
-
-        return self.board.get_board_data()
-
     def _learning_model(self, feedback: Feedback, stim):
 
         """
