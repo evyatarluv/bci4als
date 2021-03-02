@@ -223,25 +223,29 @@ class OnlineExperiment(Experiment):
             4. Updating the model according to the data and stim.
 
         :param feedback: feedback visualization for the subject
-        :param eeg: EEG object which is responsible for providing the data
         :return:
         """
 
         timer = core.Clock()
 
         while not feedback.confident:
-            # sleep
+
+            # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
+
             # Get the data
             features = self.eeg.get_features()
 
             # Reset the clock for the next buffer
             timer.reset()
 
+            # Predict using the subject EEG data
             prediction = self.model.predict(features)
 
-            feedback.update(prediction)  # this line should be: feedback.update(predict)
+            # Update the feedback according the prediction
+            feedback.update(prediction)
 
+            # Update the model using partial-fit with the new EEG data
             # todo: this assumes learning after every attempt. Consider alternatives.
             self.model.partial_fit(features)
 
