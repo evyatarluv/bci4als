@@ -250,7 +250,8 @@ class OnlineExperiment(Experiment):
 
         print('Finished learning model')
 
-    def run(self, use_eeg=True):
+    def run(self, use_eeg: bool = True):
+
         # turn on EEG streaming
         if use_eeg:
             self.eeg.on()
@@ -258,23 +259,25 @@ class OnlineExperiment(Experiment):
         # For each stim in the trials list
         for stim in self.trials:
 
+            # Init feedback instance
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
+            # Use different thread for online learning of the model
             threading.Thread(target=self._learning_model, args=(feedback,)).start()
 
+            # Maintain visual feedback on screen
             timer = core.Clock()
 
             while not feedback.confident:
 
-                feedback.display(timer.getTime())
+                feedback.display(current_time=timer.getTime())
 
+                # Reset the timer according the buffer time attribute
                 if timer.getTime() > self.buffer_time:
                     timer.reset()
 
-            # Start the next trial
-            feedback.display(0)
-            event.waitKeys()
-            # eeg.get_data()
+            # Waiting for key-press between trials
+            self._wait_between_trials(feedback, self.eeg, use_eeg)
 
         # turn off EEG streaming
         if use_eeg:
