@@ -3,19 +3,16 @@ import random
 import threading
 import time
 from collections import namedtuple
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 from bci4als.learning.eeg import EEG
 from bci4als.learning.experiment import Experiment
 from brainflow import BoardShim
 from psychopy import visual, event, core
+from sklearn.svm import SVC
 
 # name tuple object for the progress bar params
-from sklearn.base import ClassifierMixin, BaseEstimator
-from sklearn.linear_model import SGDClassifier
-from sklearn.linear_model._base import LinearClassifierMixin
-
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
 
 
@@ -182,7 +179,8 @@ class OnlineExperiment(Experiment):
 
     """
 
-    def __init__(self, eeg: EEG, model: LinearClassifierMixin, num_trials: int, buffer_time: float, threshold: int):
+    def __init__(self, eeg: EEG, model: SVC, num_trials: int,
+                 buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
         self.threshold: int = threshold
@@ -192,7 +190,7 @@ class OnlineExperiment(Experiment):
         self.win = visual.Window(monitor='testMonitor', fullscr=False)
         self.model = model
 
-    def _init_trials(self):
+    def _init_trials(self) -> List[int]:
         """
         Create list with trials as num_trials attributes.
         The trials consists of equal number of right and left targets (0, 1).
@@ -261,7 +259,7 @@ class OnlineExperiment(Experiment):
 
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
-            threading.Thread(target=self._learning_model, args=(feedback, stim)).start()
+            threading.Thread(target=self._learning_model, args=(feedback,)).start()
 
             timer = core.Clock()
 
