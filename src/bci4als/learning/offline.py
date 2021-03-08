@@ -4,25 +4,21 @@ import time
 from tkinter import messagebox, simpledialog
 from tkinter.filedialog import askdirectory
 from typing import Dict, List, Any
-
 import numpy as np
 import pandas as pd
-from bci4als.learning.eeg import EEG
 from bci4als.learning.experiment import Experiment
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from psychopy import visual, event
+from psychopy import visual
 
 
 class OfflineExperiment(Experiment):
 
-    def __init__(self, num_trials, trial_length, next_length=1, cue_length=0.25, ready_length=1):
+    def __init__(self, eeg, num_trials, trial_length, next_length=1, cue_length=0.25, ready_length=1):
 
-        super().__init__(num_trials)
+        super().__init__(eeg, num_trials)
         self.subject_directory: str = ''
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
 
-        # todo: make all the lengths as name tuple 'Lengths'
         self.cue_length: float = cue_length
         self.next_length: float = next_length
         self.ready_length: float = ready_length
@@ -161,14 +157,11 @@ class OfflineExperiment(Experiment):
         if 'escape' == self.get_keypress():
             sys.exit(-1)
 
-    def run(self, ip_port, serial_port):
+    def run(self):
 
         # Update the directory for the current subject
         self._init_directory()
         messagebox.showinfo(title='bci4als', message='Start running trials...')
-
-        # Init Board
-        board = self._init_board(ip_port, serial_port)
 
         # Init psychopy and screen params
         self._init_window()
@@ -177,14 +170,17 @@ class OfflineExperiment(Experiment):
         self._init_labels()
 
         # Start stream
-        board.start_stream(int(125 * self.trial_length * self.num_trials * 1.15))
+        # self.eeg.on()
 
         # Run trials
         for i in range(self.num_trials):
+
             # Messages for user
             self._user_messages(i)
 
             # Show the stimulus
-            # todo: Stopped here
-            board.insert_marker(EEG.encode_marker("start", self.labels[i], i))
+            # self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
             self._show_stimulus(i)
+
+            # Push end-trial marker
+            # self.eeg.insert_marker(status='end', label=self.labels[i], index=i)

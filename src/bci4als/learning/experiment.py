@@ -1,6 +1,5 @@
 from bci4als.learning.eeg import EEG
-from bci4als.learning.online import Feedback
-from brainflow import BrainFlowInputParams, BoardShim, BoardIds
+from bci4als.learning.feedback import Feedback
 from psychopy import event
 
 

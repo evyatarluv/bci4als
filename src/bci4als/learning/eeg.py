@@ -1,6 +1,4 @@
-import time
 from typing import List, Tuple
-
 import mne
 import numpy as np
 import pandas as pd
@@ -10,6 +8,7 @@ from nptyping import NDArray
 
 
 class EEG:
+
     def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
 
         # Board params
