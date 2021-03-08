@@ -184,3 +184,6 @@ class OfflineExperiment(Experiment):
 
             # Push end-trial marker
             # self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
+
+        # Export and return the data
+        # todo: stopped here

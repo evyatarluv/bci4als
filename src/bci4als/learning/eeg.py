@@ -101,7 +101,11 @@ class EEG:
         return df
 
     def _board_to_mne(self, board_data: NDArray) -> mne.io.RawArray:
-
+        """
+        Convert the ndarray board data to mne object
+        :param board_data: raw ndarray from board
+        :return:
+        """
         eeg_data = board_data / 1000000  # BrainFlow returns uV, convert to V for MNE
 
         # Creating MNE objects from brainflow data arrays
