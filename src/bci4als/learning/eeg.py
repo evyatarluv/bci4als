@@ -144,6 +144,12 @@ class EEG:
 
         return features
 
+    def clear_board(self):
+        """Clear all data from the EEG board"""
+
+        # Get the data and don't save it
+        self.board.get_board_data()
+
     @staticmethod
     def filter_data(data: mne.io.RawArray,
                     notch: float, low_pass: float, high_pass: float) -> mne.io.RawArray:

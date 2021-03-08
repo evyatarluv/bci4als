@@ -31,7 +31,7 @@ class Experiment:
 
         # Empty the board
         if use_eeg:
-            eeg.get_data()
+            eeg.clear_board()
 
     @staticmethod
     def get_keypress():
