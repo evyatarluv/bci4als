@@ -10,7 +10,7 @@ from bci4als.learning.eeg import EEG
 from bci4als.learning.experiment import Experiment
 from brainflow import BoardShim
 from psychopy import visual, event, core
-from sklearn.svm import SVC
+from sklearn.linear_model import SGDClassifier
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -179,7 +179,7 @@ class OnlineExperiment(Experiment):
 
     """
 
-    def __init__(self, eeg: EEG, model: SVC, num_trials: int,
+    def __init__(self, eeg: EEG, model: SGDClassifier, num_trials: int,
                  buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
@@ -245,6 +245,7 @@ class OnlineExperiment(Experiment):
 
             # Update the model using partial-fit with the new EEG data
             # todo: this assumes learning after every attempt. Consider alternatives.
+            # todo: add y label to the fit method (add current label attribute)
             self.model.partial_fit(features)
 
         print('Finished learning model')
