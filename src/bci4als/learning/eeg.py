@@ -108,7 +108,7 @@ class EEG:
         """
         eeg_data = board_data / 1000000  # BrainFlow returns uV, convert to V for MNE
 
-        # Creating MNE objects from brainflow data arrays
+        # Creating MNE objects from BrainFlow data arrays
         ch_types = ['eeg'] * len(board_data)
         info = mne.create_info(ch_names=self.eeg_names, sfreq=self.sfreq, ch_types=ch_types)
         raw = mne.io.RawArray(eeg_data, info)
