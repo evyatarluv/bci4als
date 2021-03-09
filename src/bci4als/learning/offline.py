@@ -162,7 +162,7 @@ class OfflineExperiment(Experiment):
 
         # Extract the data
         trials = []
-        # data = self.eeg.get_board_data().T
+        # data = self.eeg.get_board_data()
         data = pickle.load(open('board_data/data.pickle', 'rb'))  # debug
         ch_names = self.eeg.get_board_names()
         ch_channels = self.eeg.get_board_channels()
@@ -177,7 +177,8 @@ class OfflineExperiment(Experiment):
             trial = data[ch_channels, start:end]
             trials.append(pd.DataFrame(data=trial.T, columns=ch_names))
 
-        # todo: dump trials (pickle)
+        # Dump to pickle
+        pickle.dump(trials, open(os.path.join(self.subject_directory, 'trials.pickle'), 'wb'))
 
         return trials
 
@@ -208,9 +209,6 @@ class OfflineExperiment(Experiment):
         #
         #     # Push end-trial marker
         #     self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
-
-        # Debug the method
-        # For debug the extract_trials method you need:
 
         # Export and return the data
         trials = self.extract_trials()
