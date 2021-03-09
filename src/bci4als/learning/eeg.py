@@ -30,12 +30,15 @@ class EEG:
         # self.durations: List[Tuple] = []
         # self._extract_trials()
 
-    def _extract_trials(self, data: NDArray):
+    def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
         The method get ndarray and extract the labels and durations from the data.
         :param data: the data from the board.
         :return:
         """
+
+        # Init params
+        durations, labels = [], []
 
         # Get marker indices
         markers_idx = np.where(data[self.marker_row, :] != 0)[0]
@@ -48,12 +51,14 @@ class EEG:
 
             if status == 'start':
 
-                self.labels.append(label)
-                self.durations.append((idx,))
+                labels.append(label)
+                durations.append((idx,))
 
             elif status == 'stop':
 
-                self.durations[-1] = self.durations[-1] + (idx,)
+                durations[-1] += (idx,)
+
+        return durations, labels
 
     def on(self):
         """Turn EEG On"""
@@ -152,6 +157,18 @@ class EEG:
 
         # Get the data and don't save it
         self.board.get_board_data()
+
+    def get_board_data(self) -> NDArray:
+        """The method returns the data from board and remove it"""
+        return self.board.get_board_data()
+
+    def get_board_names(self) -> List[str]:
+        """The method returns the board's channels"""
+        return self.board.get_eeg_names(self.board_id)
+
+    def get_board_channels(self) -> List[int]:
+        """Get list with the channels locations as list of int"""
+        return self.board.get_eeg_channels(self.board_id)
 
     @staticmethod
     def filter_data(data: mne.io.RawArray,

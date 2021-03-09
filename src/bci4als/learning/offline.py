@@ -157,6 +157,28 @@ class OfflineExperiment(Experiment):
         if 'escape' == self.get_keypress():
             sys.exit(-1)
 
+    def extract_trials(self):
+
+        # Extract the data
+        trials = []
+        data = self.eeg.get_board_data().T
+        ch_names = self.eeg.get_board_names()
+        ch_channels = self.eeg.get_board_channels()
+        durations, labels = self.eeg.extract_trials(data)
+
+        # Assert the labels
+        assert self.labels == labels, 'The labels are not equals to the extracted labels'
+
+        # Append each
+        for start, end in durations:
+
+            trial = data[start:end, ch_channels]
+            trials.append(pd.DataFrame(data=trial, columns=ch_names))
+
+        # todo: dump trials (pickle)
+
+        return trials
+
     def run(self):
 
         # Update the directory for the current subject
@@ -186,4 +208,6 @@ class OfflineExperiment(Experiment):
             # self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
 
         # Export and return the data
-        # todo: stopped here
+        trials = self.extract_trials()
+
+        return trials, self.labels
