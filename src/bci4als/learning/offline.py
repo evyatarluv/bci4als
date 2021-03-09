@@ -1,4 +1,5 @@
 import os
+import pickle
 import sys
 import time
 from tkinter import messagebox, simpledialog
@@ -161,19 +162,20 @@ class OfflineExperiment(Experiment):
 
         # Extract the data
         trials = []
-        data = self.eeg.get_board_data().T
+        # data = self.eeg.get_board_data().T
+        data = pickle.load(open('board_data/data.pickle', 'rb'))  # debug
         ch_names = self.eeg.get_board_names()
         ch_channels = self.eeg.get_board_channels()
         durations, labels = self.eeg.extract_trials(data)
 
         # Assert the labels
-        assert self.labels == labels, 'The labels are not equals to the extracted labels'
+        # assert self.labels == labels, 'The labels are not equals to the extracted labels'
 
         # Append each
         for start, end in durations:
 
-            trial = data[start:end, ch_channels]
-            trials.append(pd.DataFrame(data=trial, columns=ch_names))
+            trial = data[ch_channels, start:end]
+            trials.append(pd.DataFrame(data=trial.T, columns=ch_names))
 
         # todo: dump trials (pickle)
 
@@ -181,31 +183,34 @@ class OfflineExperiment(Experiment):
 
     def run(self):
 
-        # Update the directory for the current subject
-        self._init_directory()
-        messagebox.showinfo(title='bci4als', message='Start running trials...')
-
-        # Init psychopy and screen params
-        self._init_window()
-
-        # Init label vector
-        self._init_labels()
-
-        # Start stream
+        # # Update the directory for the current subject
+        # self._init_directory()
+        # messagebox.showinfo(title='bci4als', message='Start running trials...')
+        #
+        # # Init psychopy and screen params
+        # self._init_window()
+        #
+        # # Init label vector
+        # self._init_labels()
+        #
+        # # Start stream
         # self.eeg.on()
+        #
+        # # Run trials
+        # for i in range(self.num_trials):
+        #
+        #     # Messages for user
+        #     self._user_messages(i)
+        #
+        #     # Show the stimulus
+        #     self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
+        #     self._show_stimulus(i)
+        #
+        #     # Push end-trial marker
+        #     self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
 
-        # Run trials
-        for i in range(self.num_trials):
-
-            # Messages for user
-            self._user_messages(i)
-
-            # Show the stimulus
-            # self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
-            self._show_stimulus(i)
-
-            # Push end-trial marker
-            # self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
+        # Debug the method
+        # For debug the extract_trials method you need:
 
         # Export and return the data
         trials = self.extract_trials()

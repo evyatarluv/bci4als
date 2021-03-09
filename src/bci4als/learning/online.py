@@ -4,6 +4,7 @@ import time
 from typing import Dict, List
 from bci4als.learning.eeg import EEG
 from bci4als.learning.experiment import Experiment
+from bci4als.learning.feedback import Feedback
 from psychopy import visual, core
 from sklearn.linear_model import SGDClassifier
 

@@ -25,11 +25,6 @@ class EEG:
         # todo: get as arg
         self.features_params = {'channels': ['C03', 'C04']}
 
-        # todo: offline mode
-        # self.labels: List[int] = []
-        # self.durations: List[Tuple] = []
-        # self._extract_trials()
-
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
         The method get ndarray and extract the labels and durations from the data.
