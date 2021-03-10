@@ -184,31 +184,31 @@ class OfflineExperiment(Experiment):
 
     def run(self):
 
-        # Update the directory for the current subject
-        self._init_directory()
-        messagebox.showinfo(title='bci4als', message='Start running trials...')
-
-        # Init psychopy and screen params
-        self._init_window()
-
-        # Init label vector
-        self._init_labels()
-
-        # Start stream
-        self.eeg.on()
-
-        # Run trials
-        for i in range(self.num_trials):
-
-            # Messages for user
-            self._user_messages(i)
-
-            # Show the stimulus
-            self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
-            self._show_stimulus(i)
-
-            # Push end-trial marker
-            self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
+        # # Update the directory for the current subject
+        # self._init_directory()
+        # messagebox.showinfo(title='bci4als', message='Start running trials...')
+        #
+        # # Init psychopy and screen params
+        # self._init_window()
+        #
+        # # Init label vector
+        # self._init_labels()
+        #
+        # # Start stream
+        # self.eeg.on()
+        #
+        # # Run trials
+        # for i in range(self.num_trials):
+        #
+        #     # Messages for user
+        #     self._user_messages(i)
+        #
+        #     # Show the stimulus
+        #     self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
+        #     self._show_stimulus(i)
+        #
+        #     # Push end-trial marker
+        #     self.eeg.insert_marker(status='end', label=self.labels[i], index=i)
 
         # Export and return the data
         trials = self.extract_trials()
