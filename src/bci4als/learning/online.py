@@ -57,7 +57,7 @@ class OnlineExperiment(Experiment):
 
         return trials
 
-    def _learning_model(self, feedback: Feedback):
+    def _learning_model(self, feedback: Feedback, stim: int):
 
         """
         The method for learning the model from the current stim.
@@ -69,6 +69,7 @@ class OnlineExperiment(Experiment):
             4. Updating the model according to the data and stim.
 
         :param feedback: feedback visualization for the subject
+        :param stim: current stim
         :return:
         """
 
@@ -90,11 +91,11 @@ class OnlineExperiment(Experiment):
 
             # Update the feedback according the prediction
             feedback.update(prediction)
+            # feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
             # todo: this assumes learning after every attempt. Consider alternatives.
-            # todo: add y label to the fit method (add current label attribute)
-            self.model.partial_fit(features)
+            self.model.partial_fit(features, [stim])
 
         print('Finished learning model')
 
@@ -111,7 +112,7 @@ class OnlineExperiment(Experiment):
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
             # Use different thread for online learning of the model
-            threading.Thread(target=self._learning_model, args=(feedback,)).start()
+            threading.Thread(target=self._learning_model, args=(feedback, stim)).start()
 
             # Maintain visual feedback on screen
             timer = core.Clock()

@@ -132,7 +132,7 @@ class EEG:
     def get_features(self, channels: List[str], selected_funcs: List[str],
                      notch: float = 50, low_pass: float = 4, high_pass: float = 48) -> NDArray:
         """
-        Returns features of all data since last call to get board data.
+        Returns features of all data since last call to get_board_data method.
         :return features: NDArray of shape (n_samples, n_features)
         """
 
