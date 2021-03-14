@@ -8,6 +8,7 @@ from bci4als.learning.eeg import EEG
 from bci4als.learning.offline import OfflineExperiment
 import numpy as np
 
+
 def preprocess(eeg: EEG, trials: List[pd.DataFrame], ch_names: List[str]) -> List[RawArray]:
 
     filtered_trials = []
@@ -43,6 +44,7 @@ def to_3d_matrix(trials_ndarray: List[np.ndarray]):
     matrix = np.dstack(map(lambda x: x[:, :n_col], trials_ndarray))
 
     return np.rollaxis(matrix, -1)
+
 
 def extract_features(eeg: EEG, trials: List[RawArray], features: List[str]) -> np.ndarray:
 
