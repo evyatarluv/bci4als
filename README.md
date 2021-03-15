@@ -183,7 +183,7 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [issues-shield]: https://img.shields.io/github/issues/evyatarluv/BCI-4-ALS.svg?style=for-the-badge
 [issues-url]: https://github.com/evyatarluv/BCI-4-ALS/issues
 [license-shield]: https://img.shields.io/github/license/evyatarluv/BCI-4-ALS.svg?style=for-the-badge
-[license-url]: https://github.com/evyatarluv/BCI-4-ALS/blob/master/LICENSE.txt
+[license-url]: https://github.com/evyatarluv/BCI-4-ALS/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
