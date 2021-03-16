@@ -3,8 +3,8 @@ from typing import List, Tuple
 
 import numpy as np
 from psychopy import visual, event
-from bci4als.learning.online import Feedback, OnlineExperiment
-from bci4als.learning.eeg import EEG
+from bci4als.online import Feedback, OnlineExperiment
+from bci4als.eeg import EEG
 
 def run_experiment():
 

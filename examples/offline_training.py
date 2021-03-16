@@ -4,8 +4,8 @@ from mne.io import RawArray
 import mne
 import pandas as pd
 from mne_features import feature_extraction
-from bci4als.learning.eeg import EEG
-from bci4als.learning.offline import OfflineExperiment
+from bci4als.eeg import EEG
+from bci4als.offline import OfflineExperiment
 import numpy as np
 
 
