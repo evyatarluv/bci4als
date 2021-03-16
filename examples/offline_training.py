@@ -82,15 +82,15 @@ def main():
 
     trials, labels = exp.run()
 
-    # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
-    #
-    # features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
-    #
-    # model = train_model(features, labels)
-    #
-    # filename = "saved_models/model-{}.pickle".format(strftime())
-    # file = open(filename, 'wb')
-    # pickle.dump(model, file)
+    trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
+
+    features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
+
+    model = train_model(features, labels)
+
+    filename = "saved_models/model-{}.pickle".format(strftime())
+    file = open(filename, 'wb')
+    pickle.dump(model, file)
 
 
 if __name__ == '__main__':

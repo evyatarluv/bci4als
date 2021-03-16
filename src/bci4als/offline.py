@@ -177,7 +177,7 @@ class OfflineExperiment(Experiment):
         durations, labels = self.eeg.extract_trials(data)
 
         # Assert the labels
-        # assert self.labels == labels, 'The labels are not equals to the extracted labels'
+        assert self.labels == labels, 'The labels are not equals to the extracted labels'
 
         # Append each
         for start, end in durations:
