@@ -67,8 +67,12 @@ class EEG:
 
     def insert_marker(self, status: str, label: int, index: int):
         """Insert an encoded marker into EEG data"""
-        marker = self.encode_marker(status, label, index)
-        self.board.insert_marker(marker)
+
+        marker = self.encode_marker(status, label, index)  # encode marker
+        self.board.insert_marker(marker)  # insert the marker to the stream
+
+        # print(f'Status: { status }, Marker: { marker }')  # debug
+        # print(f'Count: { self.board.get_board_data_count() }')  # debug
 
     def _numpy_to_df(self, board_data: NDArray):
         """

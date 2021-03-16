@@ -76,21 +76,21 @@ def train_model(features, labels):
 
 def main():
 
-    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM4")
+    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=5, trial_length=3)
+    exp = OfflineExperiment(eeg=eeg, num_trials=4, trial_length=2)
 
     trials, labels = exp.run()
 
-    trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
-
-    features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
-
-    model = train_model(features, labels)
-
-    filename = "saved_models/model-{}.pickle".format(strftime())
-    file = open(filename, 'wb')
-    pickle.dump(model, file)
+    # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
+    #
+    # features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
+    #
+    # model = train_model(features, labels)
+    #
+    # filename = "saved_models/model-{}.pickle".format(strftime())
+    # file = open(filename, 'wb')
+    # pickle.dump(model, file)
 
 
 if __name__ == '__main__':
