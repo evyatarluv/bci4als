@@ -1,3 +1,5 @@
+import pickle
+from time import strftime
 from typing import List
 
 from mne.io import RawArray
@@ -58,6 +60,20 @@ def extract_features(eeg: EEG, trials: List[RawArray], features: List[str]) -> n
     return feature_extraction.extract_features(trials_ndarray, sfreq=eeg.sfreq, selected_funcs=features)
 
 
+def train_model(features, labels):
+    """
+    Train a SGDClassifier model on the features and labels.
+    Return the model.
+    Args:
+        features: ndarray[num_samples, num_features]
+        labels: list[num_samples]. each entry is 0, 1 or 2
+
+    Returns:
+
+    """
+    raise NotImplementedError
+
+
 def main():
 
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM4")
@@ -70,7 +86,11 @@ def main():
 
     features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
 
-    # model = train_model(features)
+    model = train_model(features, labels)
+
+    filename = "saved_models/model-{}.pickle".format(strftime())
+    file = open(filename, 'wb')
+    pickle.dump(model, file)
 
 
 if __name__ == '__main__':
