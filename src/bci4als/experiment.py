@@ -1,5 +1,5 @@
-from bci4als.learning.eeg import EEG
-from bci4als.learning.feedback import Feedback
+from bci4als.eeg import EEG
+from bci4als.feedback import Feedback
 from psychopy import event
 
 

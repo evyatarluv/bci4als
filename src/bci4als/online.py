@@ -2,9 +2,9 @@ import random
 import threading
 import time
 from typing import Dict, List
-from bci4als.learning.eeg import EEG
-from bci4als.learning.experiment import Experiment
-from bci4als.learning.feedback import Feedback
+from bci4als.eeg import EEG
+from bci4als.experiment import Experiment
+from bci4als.feedback import Feedback
 from psychopy import visual, core
 from sklearn.linear_model import SGDClassifier
 

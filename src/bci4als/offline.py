@@ -7,7 +7,7 @@ from tkinter.filedialog import askdirectory
 from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
-from bci4als.learning.experiment import Experiment
+from bci4als.experiment import Experiment
 from psychopy import visual
 
 
