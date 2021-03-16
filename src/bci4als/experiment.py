@@ -6,8 +6,8 @@ from psychopy import event
 class Experiment:
 
     def __init__(self, eeg, num_trials):
-        self.eeg = eeg
-        self.num_trials = num_trials
+        self.eeg: EEG = eeg
+        self.num_trials: int = num_trials
 
     def run(self):
         pass

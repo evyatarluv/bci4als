@@ -8,12 +8,14 @@ from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
 from bci4als.experiment import Experiment
+from bci4als.eeg import EEG
 from psychopy import visual
 
 
 class OfflineExperiment(Experiment):
 
-    def __init__(self, eeg, num_trials, trial_length, next_length=1, cue_length=0.25, ready_length=1):
+    def __init__(self, eeg: EEG, num_trials: int, trial_length: float,
+                 next_length: float = 1, cue_length: float = 0.25, ready_length: float = 1):
 
         super().__init__(eeg, num_trials)
         self.subject_directory: str = ''
@@ -158,11 +160,11 @@ class OfflineExperiment(Experiment):
         if 'escape' == self.get_keypress():
             sys.exit(-1)
 
-    def extract_trials(self) -> List[pd.DataFrame]:
+    def _extract_trials(self) -> List[pd.DataFrame]:
         """
         The method extract from the offline experiment collected EEG data and split it into trials.
         The method export a pickle file to the subject directory with a list with all the trials.
-        :return: list of trials
+        :return: list of trials where each trial is a pandas DataFrame
         """
 
         # Wait for a sec to the OpenBCI to get the last marker
@@ -171,7 +173,6 @@ class OfflineExperiment(Experiment):
         # Extract the data
         trials = []
         data = self.eeg.get_board_data()
-        # data = pickle.load(open('board_data/data.pickle', 'rb'))  # debug
         ch_names = self.eeg.get_board_names()
         ch_channels = self.eeg.get_board_channels()
         durations, labels = self.eeg.extract_trials(data)
@@ -219,7 +220,7 @@ class OfflineExperiment(Experiment):
             self.eeg.insert_marker(status='stop', label=self.labels[i], index=i)
 
         # Export and return the data
-        trials = self.extract_trials()
+        trials = self._extract_trials()
         self.eeg.off()
 
         return trials, self.labels
