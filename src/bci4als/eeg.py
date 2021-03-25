@@ -217,7 +217,7 @@ class EEG:
             status = "stop"
             marker_value -= 2
         else:
-            raise ValueError("incorrect status value")
+            raise ValueError("incorrect status value. Use start or stop.")
 
         label = ((marker_value % 100) - (marker_value % 10)) / 10
 
