@@ -13,6 +13,7 @@ import numpy as np
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
 
 
 def preprocess(eeg: EEG, trials: List[pd.DataFrame], ch_names: List[str]) -> List[RawArray]:
@@ -61,14 +62,14 @@ def extract_features(eeg: EEG, trials: List[RawArray], features: List[str]) -> n
     return feature_extraction.extract_features(trials_ndarray, sfreq=eeg.sfreq, selected_funcs=features)
 
 
-def load_featuresNlabels_fromPKL():
-    import pickle
-
-    with open('../features.pickle', 'rb') as f:
-        features = pickle.load(f)
-    with open('../labels.pickle', 'rb') as l:
-        labels = pickle.load(l)
-    return features, labels
+# def load_featuresNlabels_fromPKL():
+#     import pickle
+#
+#     with open('../features.pickle', 'rb') as f:
+#         features = pickle.load(f)
+#     with open('../labels.pickle', 'rb') as l:
+#         labels = pickle.load(l)
+#     return features, labels
 
 
 def train_model(features, labels):
@@ -83,26 +84,26 @@ def train_model(features, labels):
         model: trained svm model
         mean_acc: accuracy percent
     """
-    # todo - separate the data to train and validation
+    features_train, features_test, y_train, y_test = train_test_split(features, labels, random_state=1)
     clf = make_pipeline(StandardScaler(), SGDClassifier(max_iter=1000, tol=1e-3))
-    model = clf.fit(features, labels)
-    mean_acc = clf.score(features, labels, sample_weight=None)
+    model = clf.fit(features_train, y_train)
+    mean_acc = clf.score(features_test, y_test, sample_weight=None)
 
     return model, mean_acc
 
 
 def main():
-    #
-    # eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
-    #
-    # exp = OfflineExperiment(eeg=eeg, num_trials=4, trial_length=2)
-    #
-    # trials, labels = exp.run()
-    #
-    # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
-    #
-    # features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
-    features, labels = load_featuresNlabels_fromPKL()
+
+    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
+
+    exp = OfflineExperiment(eeg=eeg, num_trials=4, trial_length=2)
+
+    trials, labels = exp.run()
+
+    trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
+
+    features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
+    # features, labels = load_featuresNlabels_fromPKL()
     model, mean_acc = train_model(features, labels)
     print(mean_acc)
 
