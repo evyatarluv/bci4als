@@ -81,21 +81,21 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
             # Get the data
-            features = self.eeg.get_features()
+            # features = self.eeg.get_features()
 
             # Reset the clock for the next buffer
             timer.reset()
 
             # Predict using the subject EEG data
-            prediction = self.model.predict(features)
+            # prediction = self.model.predict(features)
 
             # Update the feedback according the prediction
-            feedback.update(prediction)
-            # feedback.update(stim)  # debug
+            # feedback.update(prediction)
+            feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
             # todo: this assumes learning after every attempt. Consider alternatives.
-            self.model.partial_fit(features, [stim])
+            # self.model.partial_fit(features, [stim])
 
         print('Finished learning model')
 
