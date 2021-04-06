@@ -1,10 +1,10 @@
-from enum import Enum
+import os
 from typing import List, Tuple
 from nptyping import NDArray
 import mne
 import numpy as np
-import pandas as pd
 import pyxdf
+import pickle
 
 
 class EEG:
@@ -15,7 +15,7 @@ class EEG:
         self.labels: List[int] = []
         self.sample_freq: float = 125
         self._xdf, _ = pyxdf.load_xdf(xdf_path)
-        self.data: NDArray = self._xdf[1]['time_series']
+        self.data: NDArray = self._xdf[1]['time_series'][:, 3:]  # remove first 3 columns (time, noisy, noisy)
         self.duration: List[Tuple] = self.extract_durations()
 
     def extract_durations(self) -> List[Tuple]:
@@ -139,9 +139,16 @@ class EEG:
         return np.rollaxis(idles, -1), np.rollaxis(lefts, -1), np.rollaxis(rights, -1)
 
 
-ch_names = ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1',
-            'FC2', 'Cz', 'F4', 'FC5', 'FC6', 'CP1', 'CP2']
-eeg = EEG(r'data/EEG.xdf', ch_names)
+ch_names = ['C03', 'C04', 'P07', 'P08', 'O01', 'O02', 'F07', 'F08', 'F03', 'F04', 'T07', 'T08', 'P03']
+data_folder = 'adi_eden_records'
+filename = 'EEG.xdf'
+
+for sub in os.listdir(data_folder):
+
+    eeg = EEG(os.path.join(data_folder, sub, filename), ch_names)  # read the data
+    pickle_dict = {'data': eeg.data, 'duration': eeg.duration, 'ch_names': eeg.channels, 'labels': eeg.labels}
+    pickle_name = '{}.pkl'.format(sub)
+    pickle.dump(pickle_dict, open(pickle_name, 'wb'))
 
 
 
