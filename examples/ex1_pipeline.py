@@ -1,51 +1,68 @@
-import numpy as np
+import os
 import pickle
-import pyxdf
+
+import mne.filter
+import numpy as np
 from mne_features.feature_extraction import extract_features
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import cross_val_score
 
-fpath = "adi_eden_records/Sub2011001.pkl"
+base_path = "adi_eden_records"
+filenames = ["Sub2011001.pkl", "Sub2111001.pkl", "Sub2211001.pkl"]
+for fname in filenames:
+    fpath = os.path.join(base_path, fname)
+    files = pickle.load(open(fpath, 'rb'))
 
-files = pickle.load(open(fpath, 'rb'))
+    data = files["data"]
+    intervals = files["duration"]
+    ch_names = files["ch_names"]
+    labels = files["labels"]
+    sfreq = 120  # todo: verify the sfreq used
+    l_freq = 0.5
+    h_freq = 40
 
-data = files["data"]
-intervals = files["duration"]
-ch_names = files["ch_names"]
-labels = files["labels"]
-sfreq = 120 #todo: verify the sfreq used
+    # transpose data
+    data = data.T
 
-# select channels
-channels = ['C03', 'C04']
-data = data[:, [ch_names.index(channel) for channel in channels]]
+    # convert to np.float64
+    data = data.astype(np.float64)
 
-# Step - Split to Trials
-trials = [data[ival[0]:ival[1], :] for ival in intervals]
+    # bandpass filter
+    data = mne.filter.filter_data(data, sfreq, l_freq, h_freq, verbose=False)
 
-# Step - Extract Features
+    # notch filter
+    data = mne.filter.notch_filter(data, sfreq, 50, verbose=False)
 
-# trim all trials to same length
-min_length = min([len(trial) for trial in trials])
-trials = [trial[:min_length] for trial in trials]
+    # select channels
+    channels = ['C03', 'C04']
+    data = data[[ch_names.index(channel) for channel in channels], :]
 
-# convert trials to np.float64
-trials = [trial.astype(np.float64) for trial in trials]
-
-# transpose trials
-trials = [trial.T for trial in trials]
-
-selected_funcs = ['energy_freq_bands']
-mne_params = {
-    # 'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
-    'energy_freq_bands__freq_bands': {'low_alpha': [8, 10],
-                                      'high_alpha': [10, 12.5],
-                                      'beta': [12.5, 29]}
-}
-X = np.stack(trials)
-features = extract_features(X, sfreq, selected_funcs, mne_params, return_as_df=False)
-# Step - Split to Train, Validation, Test sets
+    # split to trials
+    trials = [data[:, ival[0]:ival[1]] for ival in intervals]
 
 
-# Step - Train Model on Training Set
+    # trials = [mne.filter.notch_filter(trial, sfreq, 50) for trial in trials]
 
-# Step - Tune hyperparameters on validation set
+    # trim all trials to same length
+    min_length = min([len(trial) for trial in trials])
+    trials = [trial[:, :min_length] for trial in trials]
 
-# Step - Evaluate on test set
+    # extract features
+    selected_funcs = ['energy_freq_bands']
+    mne_params = {
+        # 'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
+        'energy_freq_bands__freq_bands': {'band_1': [15.5, 18.5],
+                                          'band_2': [8, 10.5],
+                                          'band_3': [10, 15.5],
+                                          'band_4': [17.5, 20.5],
+                                          'band_5': [12.5, 30]
+                                          }
+    }
+    X = np.stack(trials)
+    features_df = extract_features(X, sfreq, selected_funcs, mne_params, return_as_df=True)
+    features = features_df.values
+
+    # train model on training set and evaluate with 5-fold cross validation
+    clf = SGDClassifier()
+    scores = cross_val_score(clf, features, labels, cv=5)
+    print(f"scores for {fpath}: ", scores)
