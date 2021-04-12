@@ -90,6 +90,7 @@ class OnlineExperiment(Experiment):
             # Predict using the subject EEG data
             prediction = self.model.predict(features)[0]
             prediction = {1: 2, 2: 1, 3: 0}[prediction]  # translate the model prediction to the Feedback prediction
+            conf_predict = self.model.decision_function(features)[0]
 
             # Update the feedback according the prediction
             feedback.update(prediction)
@@ -99,7 +100,7 @@ class OnlineExperiment(Experiment):
             # self.model.partial_fit(features, [stim])
 
             # Debug
-            print('Predict: {}, True: {}'.format(prediction, stim))
+            print('Predict: {}, True: {}, Confidence: {}'.format(prediction, stim, conf_predict))
 
     def run(self, use_eeg: bool = True):
 
