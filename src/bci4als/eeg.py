@@ -104,7 +104,7 @@ class EEG:
         df[['marker_status', 'marker_label', 'marker_index']] = pd.DataFrame(df['marker'].tolist(), index=df.index)
         return df
 
-    def _board_to_mne(self, board_data: NDArray) -> mne.io.RawArray:
+    def _board_to_mne(self, board_data: NDArray, ch_names: List[str]) -> mne.io.RawArray:
         """
         Convert the ndarray board data to mne object
         :param board_data: raw ndarray from board
@@ -114,8 +114,8 @@ class EEG:
 
         # Creating MNE objects from BrainFlow data arrays
         ch_types = ['eeg'] * len(board_data)
-        info = mne.create_info(ch_names=self.eeg_names, sfreq=self.sfreq, ch_types=ch_types)
-        raw = mne.io.RawArray(eeg_data, info)
+        info = mne.create_info(ch_names=ch_names, sfreq=self.sfreq, ch_types=ch_types)
+        raw = mne.io.RawArray(eeg_data, info, verbose=False)
 
         return raw
 
@@ -131,10 +131,10 @@ class EEG:
 
         data = self.board.get_board_data()[indices]
 
-        return self._board_to_mne(data)
+        return self._board_to_mne(data, ch_names)
 
     def get_features(self, channels: List[str], selected_funcs: List[str],
-                     notch: float = 50, low_pass: float = 4, high_pass: float = 48) -> NDArray:
+                     notch: float = 50, low_pass: float = 4, high_pass: float = 50) -> NDArray:
         """
         Returns features of all data since last call to get_board_data method.
         :return features: NDArray of shape (1, n_features)
@@ -147,7 +147,9 @@ class EEG:
         data = self.filter_data(data, notch, low_pass, high_pass)
 
         # Extract features
-        features = extract_features(data.get_data()[0][np.newaxis], self.sfreq, selected_funcs)
+        features = extract_features(data.get_data()[np.newaxis], self.sfreq,
+                                    selected_funcs,
+                                    {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])})
 
         return features
 
@@ -173,9 +175,8 @@ class EEG:
     def filter_data(data: mne.io.RawArray,
                     notch: float, low_pass: float, high_pass: float) -> mne.io.RawArray:
 
-        data.notch_filter(freqs=notch)
-        data.filter(l_freq=low_pass, h_freq=None)
-        data.filter(l_freq=None, h_freq=high_pass)
+        # data.notch_filter(freqs=notch, verbose=False)
+        data.filter(l_freq=low_pass, h_freq=high_pass, verbose=False)
 
         return data
 

@@ -81,29 +81,32 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
             # Get the data
-            # features = self.eeg.get_features()
+            features = self.eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
+                                             selected_funcs=['pow_freq_bands', 'variance'])
 
             # Reset the clock for the next buffer
             timer.reset()
 
             # Predict using the subject EEG data
-            # prediction = self.model.predict(features)
+            prediction = self.model.predict(features)[0]
+            prediction = {1: 2, 2: 1, 3: 0}[prediction]  # translate the model prediction to the Feedback prediction
 
             # Update the feedback according the prediction
-            # feedback.update(prediction)
-            feedback.update(stim)  # debug
+            feedback.update(prediction)
+            # feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
-            # todo: this assumes learning after every attempt. Consider alternatives.
             # self.model.partial_fit(features, [stim])
 
-        print('Finished learning model')
+            # Debug
+            print('Predict: {}, True: {}'.format(prediction, stim))
 
     def run(self, use_eeg: bool = True):
 
         # turn on EEG streaming
         if use_eeg:
             self.eeg.on()
+            print('Start getting data from EEG')
 
         # For each stim in the trials list
         for stim in self.trials:
