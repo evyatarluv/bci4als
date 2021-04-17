@@ -62,16 +62,6 @@ def extract_features(eeg: EEG, trials: List[RawArray], features: List[str]) -> n
     return feature_extraction.extract_features(trials_ndarray, sfreq=eeg.sfreq, selected_funcs=features)
 
 
-# def load_featuresNlabels_fromPKL():
-#     import pickle
-#
-#     with open('../features.pickle', 'rb') as f:
-#         features = pickle.load(f)
-#     with open('../labels.pickle', 'rb') as l:
-#         labels = pickle.load(l)
-#     return features, labels
-
-
 def train_model(features, labels):
     """
     Train a SGDClassifier model on the features and labels.
@@ -96,23 +86,18 @@ def main():
 
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=4, trial_length=2)
+    exp = OfflineExperiment(eeg=eeg, num_trials=10, trial_length=2)
 
     trials, labels = exp.run()
 
-    trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
+    # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
 
-    features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
+    # features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
     # features, labels = load_featuresNlabels_fromPKL()
-    model, mean_acc = train_model(features, labels)
-    print(mean_acc)
+    # model, mean_acc = train_model(features, labels)
+    # print(mean_acc)
 
-
-#
-#     filename = "saved_models/model-{}.pickle".format(strftime())
-#     file = open(filename, 'wb')
-#     pickle.dump(model, file)
-#
 
 if __name__ == '__main__':
+
     main()

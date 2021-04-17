@@ -185,7 +185,7 @@ class EEG:
         """
         Encode a marker for the EEG data.
         :param status: status of the stim (start/end)
-        :param label: the label of the stim (right -> 0, left -> 1, idle -> 2)
+        :param label: the label of the stim (right -> 0, left -> 1, idle -> 2, tongue -> 3, legs -> 4)
         :param index: index of the current label
         :return:
         """
@@ -204,7 +204,7 @@ class EEG:
         return markerValue
 
     @staticmethod
-    def decode_marker(marker_value: int):
+    def decode_marker(marker_value: int) -> (str, int, int):
         """
         Decode the marker and return a tuple with the status, label and index.
         Look for the encoder docs for explanation for each argument in the marker.

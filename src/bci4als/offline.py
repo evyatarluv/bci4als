@@ -1,5 +1,6 @@
 import os
 import pickle
+import random
 import sys
 import time
 from tkinter import messagebox, simpledialog
@@ -30,8 +31,10 @@ class OfflineExperiment(Experiment):
         self.images_path: Dict[str, str] = {
             'right': os.path.join(os.path.dirname(__file__), 'images', 'arrow_right.jpeg'),
             'left': os.path.join(os.path.dirname(__file__), 'images', 'arrow_left.jpeg'),
-            'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
-        self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
+            'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg'),
+            'tongue': os.path.join(os.path.dirname(__file__), 'images', 'tongue.jpeg'),
+            'legs': os.path.join(os.path.dirname(__file__), 'images', 'legs.jpeg')}
+        self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
 
     def _init_directory(self):
@@ -85,8 +88,11 @@ class OfflineExperiment(Experiment):
         right_stim = visual.ImageStim(main_window, image=self.images_path['right'])
         left_stim = visual.ImageStim(main_window, image=self.images_path['left'])
         idle_stim = visual.ImageStim(main_window, image=self.images_path['idle'])
+        tongue_stim = visual.ImageStim(main_window, image=self.images_path['tongue'])
+        legs_stim = visual.ImageStim(main_window, image=self.images_path['legs'])
 
-        self.window_params = {'main_window': main_window, 'right': right_stim, 'left': left_stim, 'idle': idle_stim}
+        self.window_params = {'main_window': main_window, 'right': right_stim, 'left': left_stim,
+                              'idle': idle_stim, 'tongue': tongue_stim, 'legs': legs_stim}
 
     def _init_labels(self):
         """
@@ -94,14 +100,17 @@ class OfflineExperiment(Experiment):
         :return: the stimulus in each trial (list)
         """
 
-        # Create the labels
-        labels = (np.random.choice([0, 1, 2], self.num_trials, replace=True))
+        # Create the balance label vector
+        for i in self.enum_image.keys():
+            self.labels += [i] * (self.num_trials // len(self.enum_image.keys()))
+        self.labels += list(np.random.choice(list(self.enum_image.keys()),
+                                             size=self.num_trials % len(self.enum_image.keys()),
+                                             replace=True))
+        random.shuffle(self.labels)
 
         # Save the labels as csv file
-        pd.DataFrame.from_dict(labels).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
-                                              index=False, header=False)
-
-        self.labels = list(labels)
+        pd.DataFrame.from_dict({'name': self.labels}).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
+                                                             index=False, header=False)
 
     def _user_messages(self, trial_index):
         """
@@ -182,7 +191,6 @@ class OfflineExperiment(Experiment):
 
         # Append each
         for start, end in durations:
-
             trial = data[ch_channels, start:end]
             trials.append(pd.DataFrame(data=trial.T, columns=ch_names))
 
@@ -208,7 +216,6 @@ class OfflineExperiment(Experiment):
 
         # Run trials
         for i in range(self.num_trials):
-
             # Messages for user
             self._user_messages(i)
 
