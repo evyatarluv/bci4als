@@ -17,7 +17,8 @@ def run_experiment():
 
     # exp.run(use_eeg=True)
 
-    exp.warmup(use_eeg=False)
+    exp.warmup(use_eeg=False, target='right')
+
 
 if __name__ == '__main__':
 

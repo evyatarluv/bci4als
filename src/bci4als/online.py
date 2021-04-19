@@ -105,19 +105,22 @@ class OnlineExperiment(Experiment):
             # Debug
             print('Predict: {}, True: {}'.format(prediction, stim))
 
-    def warmup(self, use_eeg: bool = True):
+    def warmup(self, use_eeg: bool = True, target: str = 'right'):
 
         # matplotlib config
         matplotlib.use('TkAgg')
-        fig = plt.figure()
-        ax = plt.axes()
+        fig, ax = plt.subplots(1, 2)
 
         # Turn on the EEG streaming
         if use_eeg:
             self.eeg.on()
 
         # Define the animation function
-        def animate(i, buffer, eeg, model):
+        target_num = {'idle': 1, 'left': 2, 'right': 3}[target]
+        correct, total = 0, 0
+        def animate(i, buffer, eeg, model, target_num):
+
+            nonlocal correct, total, target
 
             # Wait for the buffer to fill up
             time.sleep(buffer)
@@ -129,14 +132,27 @@ class OnlineExperiment(Experiment):
 
             # Predict using the subject EEG data
             conf_predict = model.decision_function(features)[0]
+            probs = np.exp(conf_predict)/np.sum(np.exp(conf_predict))
+            prediction = model.predict(features)[0]
 
-            # Plot
-            ax.clear()
-            ax.bar(['Idle', 'Right', 'Left'], conf_predict)
-            ax.set_ylim(-20, 20)
+            # Plot confidence bar plot
+            ax[0].clear()
+            ax[0].bar(['Idle', 'Left', 'Right'], probs, color='lightblue')
+            ax[0].set_title('Classification Probabilities')
+            ax[0].set_ylim(0, 1.2)
+
+            # Plot miss classifications
+            if prediction == target_num:
+                correct += 1
+            total += 1
+            ax[1].clear()
+            ax[1].bar(['Accuracy'], correct / total, color='limegreen')
+            ax[1].set_title('Accuracy: Predict = {}'.format(target.capitalize()))
+            ax[1].set_ylim(0, 1)
 
         # Start Animation
-        ani = FuncAnimation(fig, animate, fargs=(self.buffer_time, self.eeg, self.model), interval=10)
+        ani = FuncAnimation(fig, animate,
+                            fargs=(self.buffer_time, self.eeg, self.model, target_num), interval=10)
         plt.show()
 
     def run(self, use_eeg: bool = True, full_screen: bool = False):
