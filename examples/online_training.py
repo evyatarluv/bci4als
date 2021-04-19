@@ -13,10 +13,11 @@ def run_experiment():
 
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=3, buffer_time=3, threshold=3)
+    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=3, buffer_time=2, threshold=3)
 
-    exp.run(use_eeg=True)
+    # exp.run(use_eeg=True)
 
+    exp.warmup(use_eeg=False)
 
 if __name__ == '__main__':
 

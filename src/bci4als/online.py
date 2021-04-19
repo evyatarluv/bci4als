@@ -1,6 +1,10 @@
 import random
 import threading
 import time
+import matplotlib
+import numpy as np
+from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
 from typing import Dict, List
 from bci4als.eeg import EEG
 from bci4als.experiment import Experiment
@@ -33,10 +37,9 @@ class OnlineExperiment(Experiment):
         super().__init__(eeg, num_trials)
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
-        self.trials = self._init_trials()
-        # Init psychopy window
-        self.win = visual.Window(monitor='testMonitor', fullscr=False)
         self.model = model
+        self.trials = None
+        self.win = None
 
     def _init_trials(self) -> List[int]:
         """
@@ -90,7 +93,7 @@ class OnlineExperiment(Experiment):
             # Predict using the subject EEG data
             prediction = self.model.predict(features)[0]
             prediction = {1: 2, 2: 1, 3: 0}[prediction]  # translate the model prediction to the Feedback prediction
-            conf_predict = self.model.decision_function(features)[0]
+            # conf_predict = self.model.decision_function(features)
 
             # Update the feedback according the prediction
             feedback.update(prediction)
@@ -100,14 +103,51 @@ class OnlineExperiment(Experiment):
             # self.model.partial_fit(features, [stim])
 
             # Debug
-            print('Predict: {}, True: {}, Confidence: {}'.format(prediction, stim, conf_predict))
+            print('Predict: {}, True: {}'.format(prediction, stim))
 
-    def run(self, use_eeg: bool = True):
+    def warmup(self, use_eeg: bool = True):
+
+        # matplotlib config
+        matplotlib.use('TkAgg')
+        fig = plt.figure()
+        ax = plt.axes()
+
+        # Turn on the EEG streaming
+        if use_eeg:
+            self.eeg.on()
+
+        # Define the animation function
+        def animate(i, buffer, eeg, model):
+
+            # Wait for the buffer to fill up
+            time.sleep(buffer)
+
+            # Extract features from collected data
+            # features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
+            #                                  selected_funcs=['pow_freq_bands', 'variance'])
+            features = np.random.rand(1, 8)  # debug
+
+            # Predict using the subject EEG data
+            conf_predict = model.decision_function(features)[0]
+
+            # Plot
+            ax.clear()
+            ax.bar(['Idle', 'Right', 'Left'], conf_predict)
+            ax.set_ylim(-20, 20)
+
+        # Start Animation
+        ani = FuncAnimation(fig, animate, fargs=(self.buffer_time, self.eeg, self.model), interval=10)
+        plt.show()
+
+    def run(self, use_eeg: bool = True, full_screen: bool = False):
+
+        # Init experiments configurations
+        self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
+        self.trials = self._init_trials()
 
         # turn on EEG streaming
         if use_eeg:
             self.eeg.on()
-            print('Start getting data from EEG')
 
         # For each stim in the trials list
         for stim in self.trials:
