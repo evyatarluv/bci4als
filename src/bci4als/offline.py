@@ -50,7 +50,7 @@ class OfflineExperiment(Experiment):
                                               "Please select the CurrentStudy directory:".format(self.num_trials)):
             sys.exit(-1)
 
-        recording_folder = askdirectory()  # show an "Open" dialog box and return the path to the selected file
+        recording_folder = askdirectory(initialdir=os.getcwd())  # show an "Open" dialog box and return the path to the selected file
         if not recording_folder:
             sys.exit(-1)
 

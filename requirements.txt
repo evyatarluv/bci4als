@@ -7,3 +7,4 @@ pandas>=1.0.1
 psychopy>=2020.2.10
 pyWinhook==1.6.0
 scikit-learn>=0.21.3
+-e .
