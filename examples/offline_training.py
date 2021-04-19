@@ -86,9 +86,10 @@ def main():
 
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=10, trial_length=2)
+    exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=4)
 
     trials, labels = exp.run()
+
 
     # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
 
