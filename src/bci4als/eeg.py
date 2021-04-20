@@ -166,7 +166,7 @@ class EEG:
     def get_board_names(self, alternative=True) -> List[str]:
         """The method returns the board's channels"""
         if alternative:
-            return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'CZ', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
+            return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
         else:
             return self.board.get_eeg_names(self.board_id)
 

@@ -14,10 +14,11 @@ from mne_features.feature_extraction import extract_features
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.svm import SVC
 
 
-def laplacian(data: np.ndarray, channels: List[str]):
+def laplacian(data, channels: List[str]):
     """
     The method execute laplacian on the raw data.
     The laplacian was computed as follows:
@@ -37,10 +38,10 @@ def laplacian(data: np.ndarray, channels: List[str]):
     data[idx['C4']] -= (data[idx['Cz']] + data[idx['FC2']] + data[idx['FC6']] +
                         data[idx['CP2']] + data[idx['CP6']]) / 5
 
-    return data
+    return data[[idx['C3'], idx['C4']]]
 
 
-def preprocess(eeg: EEG, trials: List[pd.DataFrame], ch_names: List[str]) -> List[np.ndarray]:
+def preprocess(eeg: EEG, trials: List[pd.DataFrame]) -> List[np.ndarray]:
     """
     Preprocess the EEG data, including the following steps:
         1. filters
@@ -62,14 +63,14 @@ def preprocess(eeg: EEG, trials: List[pd.DataFrame], ch_names: List[str]) -> Lis
 
         # Band-pass & notch filters
         data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq)
-        data = mne.filter.notch_filter(data, Fs=eeg.sfreq, freqs=50)
+        # data = mne.filter.notch_filter(data, Fs=eeg.sfreq, freqs=50)
 
         # Laplacian
-        data = laplacian(data, ch_names)
+        data = laplacian(data, eeg.get_board_names())
 
         # Normalize
         scaler = StandardScaler()
-        data = scaler.fit_transform(data)
+        data = scaler.fit_transform(data.T)
 
         # Append to the filtered list
         filtered_trials.append(data)
@@ -97,7 +98,7 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
     # Features extraction
     funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
     selected_funcs = ['pow_freq_bands', 'variance']
-    X = [extract_features(x[np.newaxis], eeg.sfreq, selected_funcs, funcs_params)[0] for x in trials]
+    X = [extract_features(x.T[np.newaxis], eeg.sfreq, selected_funcs, funcs_params)[0] for x in trials]
 
     return X
 
@@ -133,15 +134,16 @@ def offline_experiment(run: bool):
 
     else:
         path = '../recordings/adi/3/{}'
-        trials = pickle.load(open(path.format('trials.pickle')))
-        labels = pickle.load(open(path.format('labels.csv')))
+        trials = pickle.load(open(path.format('trials.pickle'), 'rb'))
+        labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
-    trials = preprocess(eeg, trials, ch_names=None)  # todo: insert here the ch_names noam built
+    trials = preprocess(eeg, trials)
 
-    features = get_features(eeg, trials)
+    X = get_features(eeg, trials)
 
-    # model, mean_acc = train_model(features, labels)
-    # print(mean_acc)
+    cv_results = cross_validate(SVC(C=3), X, labels, cv=5)
+
+    print(cv_results['test_score'])
 
 
 if __name__ == '__main__':
