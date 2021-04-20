@@ -55,7 +55,6 @@ def preprocess(eeg: EEG, trials: List[pd.DataFrame]) -> List[np.ndarray]:
     filtered_trials = []
 
     for trial in trials:
-
         data = trial.values
 
         # Convert to MNE props
@@ -94,7 +93,6 @@ def to_3d_matrix(trials_ndarray: List[np.ndarray]):
 
 
 def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
-
     # Features extraction
     funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
     selected_funcs = ['pow_freq_bands', 'variance']
@@ -123,8 +121,7 @@ def train_model(features, labels):
     return model, mean_acc
 
 
-def offline_experiment(run: bool):
-
+def offline_experiment(run: bool = True):
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
     exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=4)
@@ -147,5 +144,4 @@ def offline_experiment(run: bool):
 
 
 if __name__ == '__main__':
-
-    offline_experiment(run=False)
+    offline_experiment(run=True)
