@@ -163,9 +163,12 @@ class EEG:
         """The method returns the data from board and remove it"""
         return self.board.get_board_data()
 
-    def get_board_names(self) -> List[str]:
+    def get_board_names(self, alternative=True) -> List[str]:
         """The method returns the board's channels"""
-        return self.board.get_eeg_names(self.board_id)
+        if alternative:
+            return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'CZ', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
+        else:
+            return self.board.get_eeg_names(self.board_id)
 
     def get_board_channels(self) -> List[int]:
         """Get list with the channels locations as list of int"""
