@@ -11,6 +11,7 @@ from bci4als.experiment import Experiment
 from bci4als.feedback import Feedback
 from psychopy import visual, core
 from sklearn.linear_model import SGDClassifier
+import os
 
 
 class OnlineExperiment(Experiment):
@@ -32,14 +33,16 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: SGDClassifier, num_trials: int,
-                 buffer_time: float, threshold: int):
+                 buffer_time: float, threshold: int, num_labels: int = 5):
 
         super().__init__(eeg, num_trials)
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
         self.model = model
-        self.trials = None
         self.win = None
+        self.num_labels = num_labels
+        self.trials = self._init_trials()
+
 
     def _init_trials(self) -> List[int]:
         """
@@ -47,17 +50,18 @@ class OnlineExperiment(Experiment):
         The trials consists of equal number of right and left targets (0, 1).
         :return:
         """
-
-        # Calc the amount of right and left
-        right_amount = self.num_trials // 2
-        left_amount = self.num_trials - right_amount
-
-        # Create the trials list according to the above amounts
-        trials = [0] * right_amount + [1] * left_amount
-
-        # Shuffle it
+        trials = []
+        # Create the balance label vector
+        for i in range(self.num_labels):
+            trials += [i] * (self.num_trials // self.num_labels)
+        trials += list(np.random.choice(np.arange(self.num_labels),
+                                             size=self.num_trials % self.num_labels,
+                                             replace=True))
         random.shuffle(trials)
 
+        # Save the labels as csv file
+        # pd.DataFrame.from_dict({'name': self.labels}).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
+        #                                                      index=False, header=False)
         return trials
 
     def _learning_model(self, feedback: Feedback, stim: int):
@@ -79,7 +83,6 @@ class OnlineExperiment(Experiment):
         timer = core.Clock()
 
         while not feedback.confident:
-
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
@@ -118,6 +121,7 @@ class OnlineExperiment(Experiment):
         # Define the animation function
         target_num = {'idle': 1, 'left': 2, 'right': 3}[target]
         correct, total = 0, 0
+
         def animate(i, buffer, eeg, model, target_num):
 
             nonlocal correct, total, target
@@ -126,9 +130,9 @@ class OnlineExperiment(Experiment):
             time.sleep(buffer)
 
             # Extract features from collected data
-            # features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
-            #                                  selected_funcs=['pow_freq_bands', 'variance'])
-            features = np.random.rand(1, 8)  # debug
+            features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
+                                        selected_funcs=['pow_freq_bands', 'variance'])
+            # features = np.random.rand(1, 8)  # debug
 
             # Predict using the subject EEG data
             conf_predict = model.decision_function(features)[0]
@@ -159,7 +163,7 @@ class OnlineExperiment(Experiment):
 
         # Init experiments configurations
         self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
-        self.trials = self._init_trials()
+
 
         # turn on EEG streaming
         if use_eeg:
