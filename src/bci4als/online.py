@@ -132,14 +132,14 @@ class OnlineExperiment(Experiment):
 
             # Predict using the subject EEG data
             conf_predict = model.decision_function(features)[0]
-            probs = np.exp(conf_predict)/np.sum(np.exp(conf_predict))
+            # probs = np.exp(conf_predict)/np.sum(np.exp(conf_predict))
             prediction = model.predict(features)[0]
 
             # Plot confidence bar plot
             ax[0].clear()
-            ax[0].bar(['Idle', 'Left', 'Right'], probs, color='lightblue')
+            ax[0].bar(['Idle', 'Left', 'Right'], conf_predict, color='lightblue')
             ax[0].set_title('Classification Probabilities')
-            ax[0].set_ylim(0, 1.2)
+            ax[0].set_ylim(-20, 20)
 
             # Plot miss classifications
             if prediction == target_num:
