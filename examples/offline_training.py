@@ -124,7 +124,7 @@ def train_model(features, labels):
 def offline_experiment(run: bool = True):
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=4)
+    exp = OfflineExperiment(eeg=eeg, num_trials=120, trial_length=4)
 
     if run:
         trials, labels = exp.run()
