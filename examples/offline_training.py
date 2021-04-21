@@ -1,20 +1,15 @@
 import pickle
-from time import strftime
 from typing import List
-
-from mne.io import RawArray
 import mne
 import pandas as pd
-from mne_features import feature_extraction
 from bci4als.eeg import EEG
 from bci4als.offline import OfflineExperiment
 import numpy as np
 from mne_features.feature_extraction import extract_features
-
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.model_selection import cross_validate
 from sklearn.svm import SVC
 
 
@@ -49,20 +44,20 @@ def preprocess(eeg: EEG, trials: List[pd.DataFrame]) -> List[np.ndarray]:
         3. normalization
     :param eeg:
     :param trials:
-    :param ch_names:
     :return:
     """
     filtered_trials = []
 
     for trial in trials:
+        # Get the data as a numpy array
         data = trial.values
 
         # Convert to MNE props
         data = data.astype(np.float64).T
 
         # Band-pass & notch filters
-        data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq)
-        # data = mne.filter.notch_filter(data, Fs=eeg.sfreq, freqs=50)
+        data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq, verbose=False)
+        # data = mne.filter.notch_filter(data, Fs=eeg.sfreq, freqs=50, verbose=False)
 
         # Laplacian
         data = laplacian(data, eeg.get_board_names())
@@ -77,21 +72,6 @@ def preprocess(eeg: EEG, trials: List[pd.DataFrame]) -> List[np.ndarray]:
     return filtered_trials
 
 
-def to_3d_matrix(trials_ndarray: List[np.ndarray]):
-    """
-    Get list with ndarray and create 3d matrix for the given list.
-    The dimensions of the matrix is: (n_rows, min(n_cols)).
-    :param trials_ndarray: list with ndarray
-    :return:
-    """
-
-    n_col = min(trials_ndarray, key=lambda x: x.shape[1]).shape[1]
-
-    matrix = np.dstack(map(lambda x: x[:, :n_col], trials_ndarray))
-
-    return np.rollaxis(matrix, -1)
-
-
 def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
     # Features extraction
     funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
@@ -101,27 +81,8 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
     return X
 
 
-def train_model(features, labels):
-    """
-    Train a SGDClassifier model on the features and labels.
-    Return the model.
-    Args:
-        features: ndarray[num_samples, num_features]
-        labels: list[num_samples]. each entry is 0, 1 or 2
+def offline_experiment(run: bool = True, path: str = None):
 
-    Returns:
-        model: trained svm model
-        mean_acc: accuracy percent
-    """
-    features_train, features_test, y_train, y_test = train_test_split(features, labels, random_state=1)
-    clf = make_pipeline(StandardScaler(), SGDClassifier(max_iter=1000, tol=1e-3))
-    model = clf.fit(features_train, y_train)
-    mean_acc = clf.score(features_test, y_test, sample_weight=None)
-
-    return model, mean_acc
-
-
-def offline_experiment(run: bool = True):
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
     exp = OfflineExperiment(eeg=eeg, num_trials=120, trial_length=4)
@@ -130,7 +91,6 @@ def offline_experiment(run: bool = True):
         trials, labels = exp.run()
 
     else:
-        path = '../recordings/adi/3/{}'
         trials = pickle.load(open(path.format('trials.pickle'), 'rb'))
         labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
@@ -138,10 +98,14 @@ def offline_experiment(run: bool = True):
 
     X = get_features(eeg, trials)
 
+    # Cross-validation
     cv_results = cross_validate(SVC(C=3), X, labels, cv=5)
-
     print(cv_results['test_score'])
+
+    # Export model
+    # pickle.dump(SVC(C=3).fit(X, labels), open(r'models/svm_model.pkl', 'wb'))
 
 
 if __name__ == '__main__':
-    offline_experiment(run=True)
+
+    offline_experiment(run=False, path='../recordings/adi/4/{}')

@@ -174,6 +174,10 @@ class EEG:
         """Get list with the channels locations as list of int"""
         return self.board.get_eeg_channels(self.board_id)
 
+    def get_channels_data(self):
+        """Get NDArray only with the channels data (without all the markers and other stuff)"""
+        return self.board.get_board_data()[self.board.get_eeg_channels(self.board_id)]
+
     @staticmethod
     def filter_data(data: mne.io.RawArray,
                     notch: float, low_pass: float, high_pass: float) -> mne.io.RawArray:
@@ -228,3 +232,28 @@ class EEG:
         index = (marker_value - (marker_value % 100)) / 100
 
         return status, int(label), int(index)
+
+    @staticmethod
+    def laplacian(data: NDArray, channels: List[str]):
+        """
+        The method execute laplacian on the raw data.
+        The laplacian was computed as follows:
+            1. C3 = C3 - mean(Cz + F3 + P3 + T3)
+            2. C4 = C4 - mean(Cz + F4 + P4 + T4)
+
+        The data need to be (n_channel, n_samples)
+        :return:
+        """
+
+        # Dict with all the indices of the channels
+        idx = {ch: channels.index(ch) for ch in channels}
+
+        # C3
+        data[idx['C3']] -= (data[idx['Cz']] + data[idx['FC5']] + data[idx['FC1']] +
+                            data[idx['CP5']] + data[idx['CP1']]) / 5
+
+        # C4
+        data[idx['C4']] -= (data[idx['Cz']] + data[idx['FC2']] + data[idx['FC6']] +
+                            data[idx['CP2']] + data[idx['CP6']]) / 5
+
+        return data[[idx['C3'], idx['C4']]]
