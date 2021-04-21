@@ -98,7 +98,7 @@ class OnlineExperiment(Experiment):
 
             # Extract features from the EEG data
             # data = self.eeg.get_channels_data()
-            data = np.random.rand(16, 125 * 4)
+            data = np.random.rand(16, 125 * 4)  # debug
             x = self.online_pipe(data)
 
             # Reset the clock for the next buffer
@@ -116,7 +116,7 @@ class OnlineExperiment(Experiment):
             # self.model.partial_fit([x], [stim])
 
             # Debug
-            print('Predict: {}, True: {}'.format(prediction, stim))
+            print(f'Predict: {prediction}, True: {stim}')
 
     def warmup(self, use_eeg: bool = True, target: str = 'right'):
 
