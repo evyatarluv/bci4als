@@ -1,12 +1,13 @@
 from typing import List
 
+
 class Dashboard:
 
     def __init__(self):
         pass
 
-    def confidence_plot(self, ax, labels: List[str],
-                        confidence: List[float]):
+    def confidence_plot(self, ax, labels: List[str], confidence: List[float]):
+
         ax.clear()
         ax.bar([l.capitalize() for l in labels], confidence, color='lightblue')
         ax.set_title('Confidence')

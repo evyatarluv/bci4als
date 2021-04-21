@@ -12,7 +12,12 @@ from bci4als.feedback import Feedback
 from bci4als.dashboard import Dashboard
 from psychopy import visual, core
 from sklearn.linear_model import SGDClassifier
+from mne_features.feature_extraction import extract_features
+import mne
+from nptyping import NDArray
 import os
+
+from sklearn.preprocessing import StandardScaler
 
 
 class OnlineExperiment(Experiment):
@@ -136,21 +141,21 @@ class OnlineExperiment(Experiment):
             # Wait for the buffer to fill up
             time.sleep(max(0, exp.buffer_time - timer.getTime()))
 
-            # Extract features from collected data
-            # features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
-            #                             selected_funcs=['pow_freq_bands', 'variance'])
-            features = np.random.rand(1, 8)  # debug
+            # Get features from the current EEG data
+            # data = exp.eeg.get_channels_data()  # todo: make sure this line do the work while working with EEG
+            data = np.random.rand(16, 125 * 4)  # debug
+            x = exp.online_pipe(data)
 
-            # Reset the timer for the next prediction
+            # Reset the timer for the next round
             timer.reset()
 
-            # Predict using the subject EEG data
-            conf_predict = exp.model.decision_function(features)[0]
-            prediction = exp.model.predict(features)[0]
+            # Predict using the model
+            confidence = exp.model.decision_function([x])[0]
+            prediction = exp.model.predict([x])[0]
 
             # Plots
             # Confidence plot
-            ax[0] = dash.confidence_plot(ax[0], list(exp.labels_enum.keys()), conf_predict)
+            ax[0] = dash.confidence_plot(ax[0], list(exp.labels_enum.keys()), confidence)
 
             # Accuracy
             if prediction == target_num:
@@ -164,11 +169,37 @@ class OnlineExperiment(Experiment):
                             interval=10)
         plt.show()
 
+    def online_pipe(self, data: NDArray) -> NDArray:
+        """
+        The method get the data as ndarray with dimensions of (n_channels, n_samples).
+        The method returns the features for the given data.
+        :param data: ndarray with the shape (n_channles, n_samples)
+        :return: ndarray with the shape of (1, n_features)
+        """
+        # Prepare the data to MNE functions
+        data = data.astype(np.float64)
+
+        # Filter the data (band-pass only)
+        data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=self.eeg.sfreq, verbose=False)
+
+        # Laplacian
+        data = self.eeg.laplacian(data, self.eeg.get_board_names())
+
+        # Normalize
+        scaler = StandardScaler()
+        data = scaler.fit_transform(data.T).T
+
+        # Extract features
+        funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
+        selected_funcs = ['pow_freq_bands', 'variance']
+        X = extract_features(data[np.newaxis], self.eeg.sfreq, selected_funcs, funcs_params)[0]
+
+        return X
+
     def run(self, use_eeg: bool = True, full_screen: bool = False):
 
         # Init experiments configurations
         self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
-
 
         # turn on EEG streaming
         if use_eeg:
