@@ -54,7 +54,6 @@ class OnlineExperiment(Experiment):
         # Init trials for the experiment
         self.trials = self._init_trials()
 
-
     def _init_trials(self) -> List[int]:
         """
         Create list with trials as num_trials attributes.
@@ -66,8 +65,8 @@ class OnlineExperiment(Experiment):
         for i in range(self.num_labels):
             trials += [i] * (self.num_trials // self.num_labels)
         trials += list(np.random.choice(np.arange(self.num_labels),
-                                             size=self.num_trials % self.num_labels,
-                                             replace=True))
+                                        size=self.num_trials % self.num_labels,
+                                        replace=True))
         random.shuffle(trials)
 
         # Save the labels as csv file
@@ -97,24 +96,24 @@ class OnlineExperiment(Experiment):
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
-            # Get the data
-            features = self.eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
-                                             selected_funcs=['pow_freq_bands', 'variance'])
+            # Extract features from the EEG data
+            # data = self.eeg.get_channels_data()
+            data = np.random.rand(16, 125 * 4)
+            x = self.online_pipe(data)
 
             # Reset the clock for the next buffer
             timer.reset()
 
             # Predict using the subject EEG data
-            prediction = self.model.predict(features)[0]
-            prediction = {1: 2, 2: 1, 3: 0}[prediction]  # translate the model prediction to the Feedback prediction
+            prediction = self.model.predict([x])[0]
             # conf_predict = self.model.decision_function(features)
 
             # Update the feedback according the prediction
-            feedback.update(prediction)
-            # feedback.update(stim)  # debug
+            # feedback.update(prediction)
+            feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
-            # self.model.partial_fit(features, [stim])
+            # self.model.partial_fit([x], [stim])
 
             # Debug
             print('Predict: {}, True: {}'.format(prediction, stim))
@@ -173,7 +172,7 @@ class OnlineExperiment(Experiment):
         """
         The method get the data as ndarray with dimensions of (n_channels, n_samples).
         The method returns the features for the given data.
-        :param data: ndarray with the shape (n_channles, n_samples)
+        :param data: ndarray with the shape (n_channels, n_samples)
         :return: ndarray with the shape of (1, n_features)
         """
         # Prepare the data to MNE functions
