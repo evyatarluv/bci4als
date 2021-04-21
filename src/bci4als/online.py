@@ -9,6 +9,7 @@ from typing import Dict, List
 from bci4als.eeg import EEG
 from bci4als.experiment import Experiment
 from bci4als.feedback import Feedback
+from bci4als.dashboard import Dashboard
 from psychopy import visual, core
 from sklearn.linear_model import SGDClassifier
 import os
@@ -33,14 +34,19 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: SGDClassifier, num_trials: int,
-                 buffer_time: float, threshold: int, num_labels: int = 5):
+                 buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
         self.model = model
         self.win = None
-        self.num_labels = num_labels
+
+        # Model configs
+        self.labels_enum: Dict[str, int] = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
+        self.num_labels: int = len(self.labels_enum)
+
+        # Init trials for the experiment
         self.trials = self._init_trials()
 
 
@@ -114,52 +120,47 @@ class OnlineExperiment(Experiment):
         matplotlib.use('TkAgg')
         fig, ax = plt.subplots(1, 2)
 
-        # Model configs
-        labels_enum = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
-
         # Turn on the EEG streaming
         if use_eeg:
             self.eeg.on()
 
         # Define the animation function
-        target_num = labels_enum[target]
+        target_num = self.labels_enum[target]
         correct, total = 0, 0
+        timer = core.Clock()
 
-        def animate(i, buffer, eeg, model, target_num, labels_enum):
+        def animate(i: int, exp: OnlineExperiment, dash: Dashboard):
 
-            nonlocal correct, total, target
+            nonlocal correct, total, target, timer
 
             # Wait for the buffer to fill up
-            time.sleep(buffer)
+            time.sleep(max(0, exp.buffer_time - timer.getTime()))
 
             # Extract features from collected data
             # features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
             #                             selected_funcs=['pow_freq_bands', 'variance'])
             features = np.random.rand(1, 8)  # debug
 
+            # Reset the timer for the next prediction
+            timer.reset()
+
             # Predict using the subject EEG data
-            conf_predict = model.decision_function(features)[0]
-            # probs = np.exp(conf_predict)/np.sum(np.exp(conf_predict))
-            prediction = model.predict(features)[0]
+            conf_predict = exp.model.decision_function(features)[0]
+            prediction = exp.model.predict(features)[0]
 
-            # Plot confidence bar plot
-            ax[0].clear()
-            ax[0].bar(list(labels_enum.keys()), conf_predict, color='lightblue')
-            ax[0].set_title('Classification Probabilities')
-            ax[0].set_ylim(-20, 20)
+            # Plots
+            # Confidence plot
+            ax[0] = dash.confidence_plot(ax[0], list(exp.labels_enum.keys()), conf_predict)
 
-            # Plot miss classifications
+            # Accuracy
             if prediction == target_num:
                 correct += 1
             total += 1
-            ax[1].clear()
-            ax[1].bar(['Accuracy'], correct / total, color='limegreen')
-            ax[1].set_title('Accuracy: Predict = {}'.format(target.capitalize()))
-            ax[1].set_ylim(0, 1)
+            ax[1] = dash.accuracy_plot(ax[1], correct / total, target.capitalize())
 
         # Start Animation
         ani = FuncAnimation(fig, animate,
-                            fargs=(self.buffer_time, self.eeg, self.model, target_num, labels_enum),
+                            fargs=(self, Dashboard()),
                             interval=10)
         plt.show()
 
