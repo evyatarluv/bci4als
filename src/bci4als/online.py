@@ -141,8 +141,8 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, exp.buffer_time - timer.getTime()))
 
             # Get features from the current EEG data
-            # data = exp.eeg.get_channels_data()  # todo: make sure this line do the work while working with EEG
-            data = np.random.rand(16, 125 * 4)  # debug
+            data = exp.eeg.get_channels_data()
+            # data = np.random.rand(16, 125 * 4)  # debug
             x = exp.online_pipe(data)
 
             # Reset the timer for the next round

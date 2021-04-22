@@ -11,7 +11,7 @@ class Dashboard:
         ax.clear()
         ax.bar([l.capitalize() for l in labels], confidence, color='lightblue')
         ax.set_title('Confidence')
-        ax.set_ylim(-20, 20)
+        ax.set_ylim(-5, 5)
 
         return ax
 

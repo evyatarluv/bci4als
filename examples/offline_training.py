@@ -108,4 +108,4 @@ def offline_experiment(run: bool = True, path: str = None):
 
 if __name__ == '__main__':
 
-    offline_experiment(run=False, path='../recordings/adi/4/{}')
+    offline_experiment(run=True, path='../recordings/adi/4/{}')
