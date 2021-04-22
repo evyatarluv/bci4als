@@ -104,7 +104,7 @@ def offline_experiment(run: bool = True, path: str = None):
     print(cv_results['test_score'])
 
     # Export model
-    pickle.dump(SGDClassifier().fit(X, labels), open(r'models/7/sgd_log.pkl', 'wb'))
+    # pickle.dump(SGDClassifier().fit(X, labels), open(r'models/7/sgd_log.pkl', 'wb'))
 
 
 if __name__ == '__main__':
