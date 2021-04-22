@@ -11,6 +11,7 @@ from bci4als.experiment import Experiment
 from bci4als.feedback import Feedback
 from bci4als.dashboard import Dashboard
 from psychopy import visual, core
+from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import SGDClassifier
 from mne_features.feature_extraction import extract_features
 import mne
@@ -144,6 +145,7 @@ class OnlineExperiment(Experiment):
             data = exp.eeg.get_channels_data()
             # data = np.random.rand(16, 125 * 4)  # debug
             x = exp.online_pipe(data)
+            x = Nystroem(kernel='rbf', gamma=1/8).fit_transform(x)  # test transform
 
             # Reset the timer for the next round
             timer.reset()
