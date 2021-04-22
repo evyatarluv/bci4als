@@ -103,9 +103,9 @@ def offline_experiment(run: bool = True, path: str = None):
     print(cv_results['test_score'])
 
     # Export model
-    # pickle.dump(SVC(C=3).fit(X, labels), open(r'models/svm_model.pkl', 'wb'))
+    pickle.dump(SVC(C=3).fit(X, labels), open(r'models/6/svm.pkl', 'wb'))
 
 
 if __name__ == '__main__':
 
-    offline_experiment(run=False, path='../recordings/adi/4/{}')
+    offline_experiment(run=False, path='../recordings/adi/6/{}')

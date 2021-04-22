@@ -9,7 +9,7 @@ from bci4als.eeg import EEG
 
 def run_experiment():
 
-    model = pickle.load(open(r'models/20-04-21/svm_model.pkl', 'rb'))
+    model = pickle.load(open(r'models/4/svm_model.pkl', 'rb'))
 
     eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
