@@ -99,13 +99,13 @@ def offline_experiment(run: bool = True, path: str = None):
     X = get_features(eeg, trials)
 
     # Cross-validation
-    cv_results = cross_validate(SVC(C=3), X, labels, cv=5)
+    cv_results = cross_validate(SVC(C=3), X, labels, cv=8)
     print(cv_results['test_score'])
 
     # Export model
-    pickle.dump(SVC(C=3).fit(X, labels), open(r'models/6/svm.pkl', 'wb'))
+    pickle.dump(SVC(C=3).fit(X, labels), open(r'models/7/svm.pkl', 'wb'))
 
 
 if __name__ == '__main__':
 
-    offline_experiment(run=False, path='../recordings/adi/6/{}')
+    offline_experiment(run=False, path='../recordings/adi/7/{}')
