@@ -7,7 +7,8 @@ from bci4als.offline import OfflineExperiment
 import numpy as np
 from mne_features.feature_extraction import extract_features
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, PassiveAggressiveClassifier, Perceptron
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_validate
 from sklearn.svm import SVC
@@ -99,13 +100,13 @@ def offline_experiment(run: bool = True, path: str = None):
     X = get_features(eeg, trials)
 
     # Cross-validation
-    cv_results = cross_validate(SVC(C=3), X, labels, cv=5)
+    cv_results = cross_validate(MultinomialNB(), X, labels, cv=5)
     print(cv_results['test_score'])
 
     # Export model
-    pickle.dump(SVC(C=3).fit(X, labels), open(r'models/6/svm.pkl', 'wb'))
+    # pickle.dump(SVC(C=3).fit(X, labels), open(r'models/6/svm.pkl', 'wb'))
 
 
 if __name__ == '__main__':
 
-    offline_experiment(run=False, path='../recordings/adi/6/{}')
+    offline_experiment(run=False, path='../recordings/adi/7/{}')
