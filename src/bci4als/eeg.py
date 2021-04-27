@@ -181,7 +181,7 @@ class EEG:
 
     def get_channels_data(self):
         """Get NDArray only with the channels data (without all the markers and other stuff)"""
-        return self.board.get_board_data()[self.board.get_eeg_channels(self.board_id)]
+        return self.board.get_board_data()[self.get_board_channels()]
 
     @staticmethod
     def filter_data(data: mne.io.RawArray,
