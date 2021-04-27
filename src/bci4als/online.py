@@ -9,8 +9,16 @@ from typing import Dict, List
 from bci4als.eeg import EEG
 from bci4als.experiment import Experiment
 from bci4als.feedback import Feedback
+from bci4als.dashboard import Dashboard
 from psychopy import visual, core
+from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import SGDClassifier
+from mne_features.feature_extraction import extract_features
+import mne
+from nptyping import NDArray
+import os
+
+from sklearn.preprocessing import StandardScaler
 
 
 class OnlineExperiment(Experiment):
@@ -38,8 +46,14 @@ class OnlineExperiment(Experiment):
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
         self.model = model
-        self.trials = None
         self.win = None
+
+        # Model configs
+        self.labels_enum: Dict[str, int] = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
+        self.num_labels: int = len(self.labels_enum)
+
+        # Init trials for the experiment
+        self.trials = self._init_trials()
 
     def _init_trials(self) -> List[int]:
         """
@@ -47,17 +61,18 @@ class OnlineExperiment(Experiment):
         The trials consists of equal number of right and left targets (0, 1).
         :return:
         """
-
-        # Calc the amount of right and left
-        right_amount = self.num_trials // 2
-        left_amount = self.num_trials - right_amount
-
-        # Create the trials list according to the above amounts
-        trials = [0] * right_amount + [1] * left_amount
-
-        # Shuffle it
+        trials = []
+        # Create the balance label vector
+        for i in range(self.num_labels):
+            trials += [i] * (self.num_trials // self.num_labels)
+        trials += list(np.random.choice(np.arange(self.num_labels),
+                                        size=self.num_trials % self.num_labels,
+                                        replace=True))
         random.shuffle(trials)
 
+        # Save the labels as csv file
+        # pd.DataFrame.from_dict({'name': self.labels}).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
+        #                                                      index=False, header=False)
         return trials
 
     def _learning_model(self, feedback: Feedback, stim: int):
@@ -79,71 +94,112 @@ class OnlineExperiment(Experiment):
         timer = core.Clock()
 
         while not feedback.confident:
-
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
-            # Get the data
-            features = self.eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
-                                             selected_funcs=['pow_freq_bands', 'variance'])
+            # Extract features from the EEG data
+            # data = self.eeg.get_channels_data()
+            data = np.random.rand(16, 125 * 4)  # debug
+            x = self.online_pipe(data)
 
             # Reset the clock for the next buffer
             timer.reset()
 
             # Predict using the subject EEG data
-            prediction = self.model.predict(features)[0]
-            prediction = {1: 2, 2: 1, 3: 0}[prediction]  # translate the model prediction to the Feedback prediction
+            prediction = self.model.predict([x])[0]
             # conf_predict = self.model.decision_function(features)
 
             # Update the feedback according the prediction
-            feedback.update(prediction)
-            # feedback.update(stim)  # debug
+            # feedback.update(prediction)
+            feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
-            # self.model.partial_fit(features, [stim])
+            # self.model.partial_fit([x], [stim])
 
             # Debug
-            print('Predict: {}, True: {}'.format(prediction, stim))
+            print(f'Predict: {prediction}, True: {stim}')
 
-    def warmup(self, use_eeg: bool = True):
+    def warmup(self, use_eeg: bool = True, target: str = 'right'):
 
         # matplotlib config
         matplotlib.use('TkAgg')
-        fig = plt.figure()
-        ax = plt.axes()
+        fig, ax = plt.subplots(1, 2)
 
         # Turn on the EEG streaming
         if use_eeg:
             self.eeg.on()
 
         # Define the animation function
-        def animate(i, buffer, eeg, model):
+        target_num = self.labels_enum[target]
+        correct, total = 0, 0
+        timer = core.Clock()
+
+        def animate(i: int, exp: OnlineExperiment, dash: Dashboard):
+
+            nonlocal correct, total, target, timer
 
             # Wait for the buffer to fill up
-            time.sleep(buffer)
+            time.sleep(max(0, exp.buffer_time - timer.getTime()))
 
-            # Extract features from collected data
-            # features = eeg.get_features(channels=['C3', 'C4'], low_pass=8, high_pass=30,
-            #                                  selected_funcs=['pow_freq_bands', 'variance'])
-            features = np.random.rand(1, 8)  # debug
+            # Get features from the current EEG data
+            # data = exp.eeg.get_channels_data()
+            data = np.random.rand(16, 125 * 4)  # debug
+            x = exp.online_pipe(data)
 
-            # Predict using the subject EEG data
-            conf_predict = model.decision_function(features)[0]
+            # Reset the timer for the next round
+            timer.reset()
 
-            # Plot
-            ax.clear()
-            ax.bar(['Idle', 'Right', 'Left'], conf_predict)
-            ax.set_ylim(-20, 20)
+            # Predict using the model
+            confidence = exp.model.decision_function([x])[0]
+            prediction = exp.model.predict([x])[0]
+
+            # Plots
+            # Confidence plot
+            ax[0] = dash.confidence_plot(ax[0], list(exp.labels_enum.keys()), confidence)
+
+            # Accuracy
+            if prediction == target_num:
+                correct += 1
+            total += 1
+            ax[1] = dash.accuracy_plot(ax[1], correct / total, target.capitalize())
 
         # Start Animation
-        ani = FuncAnimation(fig, animate, fargs=(self.buffer_time, self.eeg, self.model), interval=10)
+        ani = FuncAnimation(fig, animate,
+                            fargs=(self, Dashboard()),
+                            interval=10)
         plt.show()
+
+    def online_pipe(self, data: NDArray) -> NDArray:
+        """
+        The method get the data as ndarray with dimensions of (n_channels, n_samples).
+        The method returns the features for the given data.
+        :param data: ndarray with the shape (n_channels, n_samples)
+        :return: ndarray with the shape of (1, n_features)
+        """
+        # Prepare the data to MNE functions
+        data = data.astype(np.float64)
+
+        # Filter the data (band-pass only)
+        data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=self.eeg.sfreq, verbose=False)
+
+        # Laplacian
+        data = self.eeg.laplacian(data, self.eeg.get_board_names())
+
+        # Normalize
+        scaler = StandardScaler()
+        data = scaler.fit_transform(data.T).T
+
+        # Extract features
+        funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
+        selected_funcs = ['pow_freq_bands', 'variance']
+        X = extract_features(data[np.newaxis], self.eeg.sfreq, selected_funcs, funcs_params)[0]
+
+        return X
 
     def run(self, use_eeg: bool = True, full_screen: bool = False):
 
         # Init experiments configurations
         self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
-        self.trials = self._init_trials()
 
         # turn on EEG streaming
         if use_eeg:

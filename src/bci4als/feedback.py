@@ -57,8 +57,10 @@ class Feedback:
         self.images_path: Dict[str, str] = {
             'right': os.path.join(os.path.dirname(__file__), 'images', 'arrow_right.jpeg'),
             'left': os.path.join(os.path.dirname(__file__), 'images', 'arrow_left.jpeg'),
-            'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg')}
-        self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
+            'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg'),
+            'tongue': os.path.join(os.path.dirname(__file__), 'images', 'tongue.jpeg'),
+            'legs': os.path.join(os.path.dirname(__file__), 'images', 'legs.jpeg')}
+        self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
 
         # Progress bars params
         self.bar: Bar = Bar(pos=(0, -0.5), line_size=(0.01, 0.4), frame_size=(1.9, 0.2),
@@ -70,7 +72,7 @@ class Feedback:
         self.win: visual.Window = win
         self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
         self.center_line: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
-                                                    lineColor=None, fillColor=self.bar.frame_color, autoDraw=True)
+                                                    lineColor=None, fillColor=self.bar.frame_color, autoDraw=False)
         self.feedback_frame: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
                                                        lineColor=self.bar.frame_color, fillColor=None, autoDraw=True)
         self.feedback_bar: visual.Rect = visual.Rect(self.win, pos=(0, self.feedback_frame.pos[1]),
@@ -128,11 +130,9 @@ class Feedback:
         :return:
         """
 
-        direction = 1 if self.stim == 0 else -1
-
         # Update feedback size & pos
-        self.feedback_bar.width = self.progress * self.bar.frame_size[0] / 2
-        self.feedback_bar.pos[0] = direction * (self.bar.pos[0] + self.feedback_bar.width / 2)
+        self.feedback_bar.width = self.progress * self.bar.frame_size[0]
+        self.feedback_bar.pos[0] = self.feedback_frame.pos[0] - self.feedback_frame.width / 2 + self.feedback_bar.width / 2
 
         # Draw elements
         self.img_stim.draw()  # always keep the draw of the image first

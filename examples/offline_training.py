@@ -1,107 +1,112 @@
 import pickle
-from time import strftime
 from typing import List
-
 import mne
-import numpy as np
 import pandas as pd
 from bci4als.eeg import EEG
 from bci4als.offline import OfflineExperiment
-from brainflow import BoardIds
-from mne.io import RawArray
-from mne_features import feature_extraction
-
+import numpy as np
+from mne_features.feature_extraction import extract_features
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_validate
+from sklearn.svm import SVC
 
 
-def preprocess(eeg: EEG, trials: List[pd.DataFrame], ch_names: List[str]) -> List[RawArray]:
+def laplacian(data, channels: List[str]):
+    """
+    The method execute laplacian on the raw data.
+    The laplacian was computed as follows:
+        1. C3 = C3 - mean(Cz + F3 + P3 + T3)
+        2. C4 = C4 - mean(Cz + F4 + P4 + T4)
+    :return:
+    """
+
+    # Dict with all the indices of the channels
+    idx = {ch: channels.index(ch) for ch in channels}
+
+    # C3
+    data[idx['C3']] -= (data[idx['Cz']] + data[idx['FC5']] + data[idx['FC1']] +
+                        data[idx['CP5']] + data[idx['CP1']]) / 5
+
+    # C4
+    data[idx['C4']] -= (data[idx['Cz']] + data[idx['FC2']] + data[idx['FC6']] +
+                        data[idx['CP2']] + data[idx['CP6']]) / 5
+
+    return data[[idx['C3'], idx['C4']]]
+
+
+def preprocess(eeg: EEG, trials: List[pd.DataFrame]) -> List[np.ndarray]:
+    """
+    Preprocess the EEG data, including the following steps:
+        1. filters
+        2. laplacian
+        3. normalization
+    :param eeg:
+    :param trials:
+    :return:
+    """
     filtered_trials = []
 
     for trial in trials:
-        # Create MNE RawArray object
-        eeg_data = trial.to_numpy() / 1000000  # BrainFlow returns uV, convert to V for MNE
-        eeg_data = eeg_data.T  # Transpose for MNE
-        ch_types = ['eeg'] * len(eeg_data)
-        info = mne.create_info(ch_names=eeg.eeg_names, sfreq=eeg.sfreq, ch_types=ch_types)
-        raw = RawArray(eeg_data, info).pick_channels(ch_names)
+        # Get the data as a numpy array
+        data = trial.values
 
-        # Filter the data
-        raw = EEG.filter_data(raw, notch=50, low_pass=4, high_pass=48)
+        # Convert to MNE props
+        data = data.astype(np.float64).T
+
+        # Band-pass & notch filters
+        data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq, verbose=False)
+        # data = mne.filter.notch_filter(data, Fs=eeg.sfreq, freqs=50, verbose=False)
+
+        # Laplacian
+        data = laplacian(data, eeg.get_board_names())
+
+        # Normalize
+        scaler = StandardScaler()
+        data = scaler.fit_transform(data.T)
 
         # Append to the filtered list
-        filtered_trials.append(raw)
+        filtered_trials.append(data)
 
     return filtered_trials
 
 
-def to_3d_matrix(trials_ndarray: List[np.ndarray]):
-    """
-    Get list with ndarray and create 3d matrix for the given list.
-    The dimensions of the matrix is: (n_rows, min(n_cols)).
-    :param trials_ndarray: list with ndarray
-    :return:
-    """
+def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
+    # Features extraction
+    funcs_params = {'pow_freq_bands__freq_bands': np.array([8, 10, 12.5, 30])}
+    selected_funcs = ['pow_freq_bands', 'variance']
+    X = [extract_features(x.T[np.newaxis], eeg.sfreq, selected_funcs, funcs_params)[0] for x in trials]
 
-    n_col = min(trials_ndarray, key=lambda x: x.shape[1]).shape[1]
-
-    matrix = np.dstack(map(lambda x: x[:, :n_col], trials_ndarray))
-
-    return np.rollaxis(matrix, -1)
+    return X
 
 
-def extract_features(eeg: EEG, trials: List[RawArray], features: List[str]) -> np.ndarray:
-    # Convert RawArray to ndarray
-    trials_ndarray = list(map(lambda x: x.get_data(), trials))
+def offline_experiment(run: bool = True, path: str = None):
 
-    # Convert to 3d matrix
-    trials_ndarray = to_3d_matrix(trials_ndarray)
+    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
 
-    # Return features
-    return feature_extraction.extract_features(trials_ndarray, sfreq=eeg.sfreq, selected_funcs=features)
+    exp = OfflineExperiment(eeg=eeg, num_trials=120, trial_length=4)
 
+    if run:
+        trials, labels = exp.run()
 
-def train_model(features, labels):
-    """
-    Train a SGDClassifier model on the features and labels.
-    Return the model.
-    Args:
-        features: ndarray[num_epochs, num_features]
-        labels: list[num_epochs]. each entry is 0, 1 or 2
+    else:
+        trials = pickle.load(open(path.format('trials.pickle'), 'rb'))
+        labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
-    Returns:
-        model: trained svm model
-        mean_acc: accuracy percent
-    """
-    features_train, features_test, y_train, y_test = train_test_split(features, labels, random_state=1)
-    clf = make_pipeline(StandardScaler(), SGDClassifier(max_iter=1000, tol=1e-3))
-    model = clf.fit(features_train, y_train)
-    mean_acc = clf.score(features_test, y_test, sample_weight=None)
+    trials = preprocess(eeg, trials)
 
-    return model, mean_acc
+    X = get_features(eeg, trials)
 
+    # Cross-validation
+    cv_results = cross_validate(SGDClassifier(), X, labels, cv=5)
+    print(cv_results['test_score'])
 
-def main():
-    board_id = BoardIds.CYTON_DAISY_BOARD  # The real deal
-    board_id = BoardIds.SYNTHETIC_BOARD  # Only for prototyping
-
-    eeg = EEG(board_id=board_id, ip_port=6677, serial_port="COM6")
-
-    exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=4)
-
-    trials, labels = exp.run()
-
-
-    # trials = preprocess(eeg, trials, ch_names=['C3', 'C4'])
-
-    # features = extract_features(eeg, trials, features=['ptp_amp', 'mean', 'skewness'])
-    # features, labels = load_featuresNlabels_fromPKL()
-    # model, mean_acc = train_model(features, labels)
-    # print(mean_acc)
+    # Export model
+    # pickle.dump(SGDClassifier().fit(X, labels), open(r'models/7/sgd_log.pkl', 'wb'))
 
 
 if __name__ == '__main__':
 
-    main()
+    offline_experiment(run=False, path='../recordings/adi/7/{}')
