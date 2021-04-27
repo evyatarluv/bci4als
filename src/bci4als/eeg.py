@@ -21,10 +21,6 @@ class EEG:
         self.marker_row = self.board.get_marker_channel(self.board_id)
         self.eeg_names = self.board.get_eeg_names(board_id)
 
-        # Features params
-        # todo: get as arg
-        self.features_params = {'channels': ['C03', 'C04']}
-
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
         The method get ndarray and extract the labels and durations from the data.
@@ -76,8 +72,8 @@ class EEG:
 
     def _numpy_to_df(self, board_data: NDArray):
         """
-        gets a Brainflow-style matrix and returns a Pandas Dataframe
-        :param board_data: NDAarray retrieved from the board
+        gets a BrainFlow-style matrix and returns a Pandas Dataframe
+        :param board_data: NDArray retrieved from the board
         :returns df: a dataframe with the data
         """
         # create dictionary of <col index,col name> for renaming DF

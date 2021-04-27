@@ -21,3 +21,5 @@ setuptools>=41.4.0
 opencv-python>=4.4.0.46
 keras>=2.4.3
 pylsl>=1.14.0
+
+pynput>=1.7.3
