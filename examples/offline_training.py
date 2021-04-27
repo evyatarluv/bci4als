@@ -7,7 +7,6 @@ from bci4als.offline import OfflineExperiment
 import numpy as np
 from mne_features.feature_extraction import extract_features
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_validate
