@@ -1,4 +1,5 @@
 from typing import List, Tuple
+
 import mne
 import numpy as np
 import pandas as pd
@@ -20,6 +21,10 @@ class EEG:
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
         self.eeg_names = self.board.get_eeg_names(board_id)
+
+        # Features params
+        # todo: get as arg
+        self.features_params = {'channels': ['C03', 'C04']}
 
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
@@ -72,8 +77,8 @@ class EEG:
 
     def _numpy_to_df(self, board_data: NDArray):
         """
-        gets a BrainFlow-style matrix and returns a Pandas Dataframe
-        :param board_data: NDArray retrieved from the board
+        gets a Brainflow-style matrix and returns a Pandas Dataframe
+        :param board_data: NDAarray retrieved from the board
         :returns df: a dataframe with the data
         """
         # create dictionary of <col index,col name> for renaming DF
@@ -159,22 +164,24 @@ class EEG:
         """The method returns the data from board and remove it"""
         return self.board.get_board_data()
 
-    def get_board_names(self, new_cortex=True) -> List[str]:
+    def get_board_names(self, alternative=True) -> List[str]:
         """The method returns the board's channels"""
-        if new_cortex:
-            # return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2',
-            # 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
+        if alternative:
+            # return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
             return ['CP2', 'FC2', 'CP6', 'C4', 'C3', 'CP5', 'FC1', 'CP1', 'Cz', 'FC6', 'T8', 'T7', 'FC5']
         else:
             return self.board.get_eeg_names(self.board_id)
 
-    def get_board_channels(self) -> List[int]:
+    def get_board_channels(self, alternative=True) -> List[int]:
         """Get list with the channels locations as list of int"""
-        return self.board.get_eeg_channels(self.board_id)
+        if alternative:
+            return self.board.get_eeg_channels(self.board_id)[:-3]
+        else:
+            return self.board.get_eeg_channels(self.board_id)
 
     def get_channels_data(self):
         """Get NDArray only with the channels data (without all the markers and other stuff)"""
-        return self.board.get_board_data()[self.board.get_eeg_channels(self.board_id)]
+        return self.board.get_board_data()[self.get_board_channels()]
 
     @staticmethod
     def filter_data(data: mne.io.RawArray,
