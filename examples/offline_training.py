@@ -2,13 +2,14 @@ import pickle
 from time import strftime
 from typing import List
 
-from mne.io import RawArray
 import mne
+import numpy as np
 import pandas as pd
-from mne_features import feature_extraction
 from bci4als.eeg import EEG
 from bci4als.offline import OfflineExperiment
-import numpy as np
+from brainflow import BoardIds
+from mne.io import RawArray
+from mne_features import feature_extraction
 
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
@@ -67,8 +68,8 @@ def train_model(features, labels):
     Train a SGDClassifier model on the features and labels.
     Return the model.
     Args:
-        features: ndarray[num_samples, num_features]
-        labels: list[num_samples]. each entry is 0, 1 or 2
+        features: ndarray[num_epochs, num_features]
+        labels: list[num_epochs]. each entry is 0, 1 or 2
 
     Returns:
         model: trained svm model
@@ -83,8 +84,10 @@ def train_model(features, labels):
 
 
 def main():
+    board_id = BoardIds.CYTON_DAISY_BOARD  # The real deal
+    board_id = BoardIds.SYNTHETIC_BOARD  # Only for prototyping
 
-    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
+    eeg = EEG(board_id=board_id, ip_port=6677, serial_port="COM6")
 
     exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=4)
 
