@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Optional
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap
 
@@ -23,6 +24,12 @@ class Config(QWidget):
         self.configs = [os.path.join('configs', img) for img in os.listdir('configs')]
         self.current_config = 0
         self.button_padding = {'bottom': 20, 'side': 10}
+
+        # key = config image, value = actions
+        # assume: {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
+        self.config_dict = {0: {0: 'right_click', 1: 'left_click', 3: 'scroll_up', 4: 'scroll_down'},
+                            1: {0: 'left_click', 1: 'left_release', 3: 'scroll_up', 4: 'scroll_down'},
+                            2: {0: 'right_click', 1: 'double_click', 3: 'scroll_up', 4: 'scroll_down'}}
 
         # Init window
         self.initUI()
@@ -76,8 +83,18 @@ class Config(QWidget):
 
         self.show()
 
+    def get_action(self, label: int) -> str:
+        """
+        The method get the ML model prediction and returns the action which need to be actioned by the mouse
+        according to the current configuration on the screen.
+        :param label: prediction of the ML model - 0-> right, 1-> left, 2-> idle, 3-> tongue, 4-> legs
+        :return: action of the mouse as str
+        """
+        return self.config_dict[self.current_config][label]
+
 
 if __name__ == '__main__':
+
     app = QApplication(sys.argv)
     ex = Config()
     sys.exit(app.exec_())
