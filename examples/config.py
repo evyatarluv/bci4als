@@ -1,23 +1,30 @@
 import os
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QPixmap
 
 
-class App(QWidget):
+class Config(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.configs = [os.path.join('configs', img) for img in os.listdir('configs')]
-        self.current_config = 0
-        self.title = 'BCI Configuration'
+
+        # Window size and position
         self.left = 10
         self.top = 50
         self.width = 640
         self.height = 640
-        self.button_padding = {'bottom': 20, 'side': 10}
+
+        # Widgets for the window
         self.label = QLabel(self)
         self.pixmap = QPixmap(self.configs[self.current_config])
+
+        # Config images params
+        self.configs = [os.path.join('configs', img) for img in os.listdir('configs')]
+        self.current_config = 0
+        self.button_padding = {'bottom': 20, 'side': 10}
+
+        # Init window
         self.initUI()
 
     def next_config(self):
@@ -47,10 +54,10 @@ class App(QWidget):
     def initUI(self):
 
         # Set title & position
-        self.setWindowTitle(self.title)
+        self.setWindowTitle('BCI Configuration')
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        # Create config on screen
+        # Configuration image
         self.label.setPixmap(self.pixmap)
 
         # Next button
@@ -72,5 +79,5 @@ class App(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
+    ex = Config()
     sys.exit(app.exec_())
