@@ -1,7 +1,9 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+
 import mne
 import numpy as np
 import pandas as pd
+import serial.tools.list_ports
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 from mne_features.feature_extraction import extract_features
 from nptyping import NDArray
@@ -9,13 +11,13 @@ from nptyping import NDArray
 
 class EEG:
 
-    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
+    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port: Optional[str] = None):
 
         # Board params
         self.board_id = board_id
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
-        self.params.serial_port = serial_port
+        self.params.serial_port = serial_port if serial_port is not None else self.find_serial_port()
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
@@ -261,3 +263,12 @@ class EEG:
                             data[idx['CP2']] + data[idx['CP6']]) / 5
 
         return data[[idx['C3'], idx['C4']]]
+
+    def find_serial_port(self):
+        plist = serial.tools.list_ports.comports()
+        FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
+        if len(FTDIlist) > 1:
+            raise LookupError("More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
+        if len(FTDIlist) < 1:
+            raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
+        return FTDIlist[0].name
