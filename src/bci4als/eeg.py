@@ -23,10 +23,6 @@ class EEG:
         self.marker_row = self.board.get_marker_channel(self.board_id)
         self.eeg_names = self.board.get_eeg_names(board_id)
 
-        # Features params
-        # todo: get as arg
-        self.features_params = {'channels': ['C03', 'C04']}
-
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
         The method get ndarray and extract the labels and durations from the data.
@@ -264,7 +260,9 @@ class EEG:
 
         return data[[idx['C3'], idx['C4']]]
 
-    def find_serial_port(self):
+    @staticmethod
+    def find_serial_port():
+
         plist = serial.tools.list_ports.comports()
         FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
         if len(FTDIlist) > 1:
