@@ -110,11 +110,11 @@ class OnlineExperiment(Experiment):
             # conf_predict = self.model.decision_function(features)
 
             # Update the feedback according the prediction
-            # feedback.update(prediction)
-            feedback.update(stim)  # debug
+            feedback.update(prediction)
+            # feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
-            # self.model.partial_fit([x], [stim])
+            self.model.partial_fit([x], [stim])
 
             # Debug
             print(f'Predict: {prediction}, True: {stim}')
@@ -142,9 +142,10 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, exp.buffer_time - timer.getTime()))
 
             # Get features from the current EEG data
-            # data = exp.eeg.get_channels_data()
-            data = np.random.rand(16, 125 * 4)  # debug
+            data = exp.eeg.get_channels_data()
+            # data = np.random.rand(16, 125 * 4)  # debug
             x = exp.online_pipe(data)
+            # x = Nystroem(kernel='rbf', gamma=1/8).fit_transform(x.reshape(1,-1))  # test transform
 
             # Reset the timer for the next round
             timer.reset()
