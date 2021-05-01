@@ -1,7 +1,9 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+
 import mne
 import numpy as np
 import pandas as pd
+import serial.tools.list_ports
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 from mne_features.feature_extraction import extract_features
 from nptyping import NDArray
@@ -9,21 +11,17 @@ from nptyping import NDArray
 
 class EEG:
 
-    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port="COM3"):
+    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port: Optional[str] = None):
 
         # Board params
         self.board_id = board_id
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
-        self.params.serial_port = serial_port
+        self.params.serial_port = serial_port if serial_port is not None else self.find_serial_port()
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
         self.eeg_names = self.board.get_eeg_names(board_id)
-
-        # Features params
-        # todo: get as arg
-        self.features_params = {'channels': ['C03', 'C04']}
 
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
@@ -166,17 +164,21 @@ class EEG:
     def get_board_names(self, alternative=True) -> List[str]:
         """The method returns the board's channels"""
         if alternative:
-            return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
+            # return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
+            return ['CP2', 'FC2', 'CP6', 'C4', 'C3', 'CP5', 'FC1', 'CP1', 'Cz', 'FC6', 'T8', 'T7', 'FC5']
         else:
             return self.board.get_eeg_names(self.board_id)
 
-    def get_board_channels(self) -> List[int]:
+    def get_board_channels(self, alternative=True) -> List[int]:
         """Get list with the channels locations as list of int"""
-        return self.board.get_eeg_channels(self.board_id)
+        if alternative:
+            return self.board.get_eeg_channels(self.board_id)[:-3]
+        else:
+            return self.board.get_eeg_channels(self.board_id)
 
     def get_channels_data(self):
         """Get NDArray only with the channels data (without all the markers and other stuff)"""
-        return self.board.get_board_data()[self.board.get_eeg_channels(self.board_id)]
+        return self.board.get_board_data()[self.get_board_channels()]
 
     @staticmethod
     def filter_data(data: mne.io.RawArray,
@@ -257,3 +259,14 @@ class EEG:
                             data[idx['CP2']] + data[idx['CP6']]) / 5
 
         return data[[idx['C3'], idx['C4']]]
+
+    @staticmethod
+    def find_serial_port():
+
+        plist = serial.tools.list_ports.comports()
+        FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
+        if len(FTDIlist) > 1:
+            raise LookupError("More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
+        if len(FTDIlist) < 1:
+            raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
+        return FTDIlist[0].name

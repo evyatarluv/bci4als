@@ -17,9 +17,9 @@ for fname in filenames:
     intervals = files["duration"]
     ch_names = files["ch_names"]
     labels = files["labels"]
-    sfreq = 120  # todo: verify the sfreq used
-    l_freq = 0.5
-    h_freq = 40
+    sfreq = 125  # todo: verify the sfreq used
+    l_freq = 1
+    h_freq = 30
 
     # transpose data
     data = data.T
@@ -48,14 +48,14 @@ for fname in filenames:
     trials = [trial[:, :min_length] for trial in trials]
 
     # extract features
-    selected_funcs = ['energy_freq_bands']
+    selected_funcs = ['pow_freq_bands', 'mean', 'spect_edge_freq']
     mne_params = {
         # 'pow_freq_bands__freq_bands': np.arange(1, int(s_freq / 2), 1),
-        'energy_freq_bands__freq_bands': {'band_1': [15.5, 18.5],
+        'pow_freq_bands__freq_bands': {'band_1': [15.5, 18.5],
                                           'band_2': [8, 10.5],
                                           'band_3': [10, 15.5],
-                                          'band_4': [17.5, 20.5],
-                                          'band_5': [12.5, 30]
+                                          # 'band_4': [17.5, 20.5],
+                                          # 'band_5': [12.5, 30]
                                           }
     }
     X = np.stack(trials)

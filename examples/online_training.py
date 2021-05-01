@@ -11,7 +11,7 @@ def run_experiment():
 
     model = pickle.load(open(r'models/7/MultinomialNB.pkl', 'rb'))
 
-    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM6")
+    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM5")
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=25, buffer_time=4, threshold=3)
 
