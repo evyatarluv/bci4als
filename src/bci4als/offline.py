@@ -47,33 +47,16 @@ class OfflineExperiment(Experiment):
         if not messagebox.askokcancel(title='bci4als',
                                       message="Welcome to the motor imagery EEG recorder."
                                               "\n\nNumber of trials: {}\n\n"
-                                              "Please select the CurrentStudy directory:".format(self.num_trials)):
+                                              "Please select the subject directory:".format(self.num_trials)):
             sys.exit(-1)
 
-        recording_folder = askdirectory(initialdir=os.getcwd())  # show an "Open" dialog box and return the path to the selected file
+        # show an "Open" dialog box and return the path to the selected file
+        recording_folder = askdirectory(initialdir=os.getcwd())
         if not recording_folder:
             sys.exit(-1)
 
-        while True:
-            # Get the session id
-            session_id = simpledialog.askstring('bci4als', "Please enter a new Session ID:")
-
-            # Update the recording folder directory
-            session_folder = os.path.join(recording_folder, session_id)
-
-            try:
-                # Create new folder for the current subject
-                os.mkdir(session_folder)
-                messagebox.showinfo(title='bci4als',
-                                    message='The session folder was created successfully.')
-                self.subject_directory = session_folder
-                return
-
-            except Exception as e:
-                if not messagebox.askretrycancel(title='bci4als',
-                                                 message='Exception Raised: {}. Please insert a new subject ID:'.format(
-                                                     type(e).__name__)):
-                    sys.exit(-1)
+        # Init the current experiment folder
+        self.subject_directory = self.create_session_folder(recording_folder)
 
     def _init_window(self):
         """
@@ -82,7 +65,7 @@ class OfflineExperiment(Experiment):
         """
 
         # Create the main window
-        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=False)
+        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=True)
 
         # Create right, left and idle stimulus
         right_stim = visual.ImageStim(main_window, image=self.images_path['right'])

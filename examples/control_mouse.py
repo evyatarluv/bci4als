@@ -1,7 +1,7 @@
 import sys
 import threading
 from PyQt5.QtWidgets import QApplication
-from bci4als.mouse import movement_indicator, excute_action, MouseConfig
+from bci4als.mouse import movement_indicator, execute_action, MouseConfig
 
 
 def control_mouse(config: MouseConfig):
@@ -12,7 +12,7 @@ def control_mouse(config: MouseConfig):
 
         action = config.get_action(label=1)  # todo: `label` arg need to be the ML model prediction
 
-        excute_action(action=action)
+        execute_action(action=action)
 
 
 # Turn the configuration window on

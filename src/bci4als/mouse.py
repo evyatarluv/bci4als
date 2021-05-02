@@ -126,7 +126,7 @@ def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
     return True
 
 
-def excute_action(action: str):
+def execute_action(action: str):
 
     mouse = Controller()
 
