@@ -82,7 +82,7 @@ class OfflineExperiment(Experiment):
         """
 
         # Create the main window
-        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=False)
+        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=True)
 
         # Create right, left and idle stimulus
         right_stim = visual.ImageStim(main_window, image=self.images_path['right'])
