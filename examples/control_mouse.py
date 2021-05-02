@@ -1,7 +1,7 @@
 import sys
 import threading
 from PyQt5.QtWidgets import QApplication
-from bci4als.mouse import movement_indicator, execute_action, MouseConfig
+from bci4als.mouse import movement_indicator, execute_action, MouseConfig, ctrl_c
 
 
 def control_mouse(config: MouseConfig):
