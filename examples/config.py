@@ -1,7 +1,7 @@
 import os
 import sys
 from typing import Optional
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QHBoxLayout, QComboBox
 from PyQt5.QtGui import QPixmap
 
 
@@ -13,23 +13,24 @@ class Config(QWidget):
         # Window size and position
         self.left = 10
         self.top = 50
-        self.width = 640
-        self.height = 640
+        self.width = 377
+        self.height = 720
+
+        # Config images params
+        # self.configs = [os.path.join('configs', img) for img in os.listdir('configs')]
+        # self.current_config = 0
+        # self.button_padding = {'bottom': 20, 'side': 10}
 
         # Widgets for the window
         self.label = QLabel(self)
-        self.pixmap = QPixmap(self.configs[self.current_config])
+        # self.pixmap = QPixmap(self.configs[self.current_config])
+        self.pixmap = QPixmap('configs/config.png')
 
-        # Config images params
-        self.configs = [os.path.join('configs', img) for img in os.listdir('configs')]
-        self.current_config = 0
-        self.button_padding = {'bottom': 20, 'side': 10}
-
-        # key = config image, value = actions
-        # assume: {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
-        self.config_dict = {0: {0: 'right_click', 1: 'left_click', 3: 'scroll_up', 4: 'scroll_down'},
-                            1: {0: 'left_click', 1: 'left_release', 3: 'scroll_up', 4: 'scroll_down'},
-                            2: {0: 'right_click', 1: 'double_click', 3: 'scroll_up', 4: 'scroll_down'}}
+        # # key = config image, value = actions
+        # # assume: {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
+        # self.config_dict = {0: {0: 'right_click', 1: 'left_click', 3: 'scroll_up', 4: 'scroll_down'},
+        #                     1: {0: 'left_click', 1: 'left_release', 3: 'scroll_up', 4: 'scroll_down'},
+        #                     2: {0: 'right_click', 1: 'double_click', 3: 'scroll_up', 4: 'scroll_down'}}
 
         # Init window
         self.initUI()
@@ -67,19 +68,28 @@ class Config(QWidget):
         # Configuration image
         self.label.setPixmap(self.pixmap)
 
-        # Next button
-        next_button = QPushButton(self)
-        next_button.setText('Next')
-        next_button.clicked.connect(self.next_config)
-        next_button.move(self.width - next_button.width() - self.button_padding['side'] * 2,
-                         self.height - next_button.height() - self.button_padding['bottom'])
+        # # Next button
+        # next_button = QPushButton(self)
+        # next_button.setText('Next')
+        # next_button.clicked.connect(self.next_config)
+        # next_button.move(self.width - next_button.width() - self.button_padding['side'] * 2,
+        #                  self.height - next_button.height() - self.button_padding['bottom'])
+        #
+        # # Previous button
+        # previous_button = QPushButton(self)
+        # previous_button.setText('Previous')
+        # previous_button.clicked.connect(self.previous_config)
+        # previous_button.move(self.button_padding['side'],
+        #                      self.height - next_button.height() - self.button_padding['bottom'])
 
-        # Previous button
-        previous_button = QPushButton(self)
-        previous_button.setText('Previous')
-        previous_button.clicked.connect(self.previous_config)
-        previous_button.move(self.button_padding['side'],
-                             self.height - next_button.height() - self.button_padding['bottom'])
+        # Combo-box
+        space = 170
+        x, y = 230, 85
+        for i in range(5):
+            cb = QComboBox(self)
+            cb.addItems(['Right Click', 'Left Click', 'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
+                        'Left Release', 'None'])
+            cb.move(x, y + i * space)
 
         self.show()
 
@@ -94,7 +104,6 @@ class Config(QWidget):
 
 
 if __name__ == '__main__':
-
     app = QApplication(sys.argv)
     ex = Config()
     sys.exit(app.exec_())
