@@ -1,8 +1,10 @@
 import time
-from pynput.mouse import Button, Controller
+from pynput.mouse import Button
+from pynput.mouse import Controller as Controller_mouse
+from pynput.keyboard import Key
+from pynput.keyboard import Controller as Controller_keyboard
 import os
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap
 
 
@@ -104,7 +106,7 @@ def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
     :return:
     """
 
-    mouse = Controller()
+    mouse = Controller_mouse()
     x_center, y_center = mouse.position
     counter = 0
 
@@ -126,9 +128,9 @@ def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
     return True
 
 
-def excute_action(action: str):
+def execute_action(action: str):
 
-    mouse = Controller()
+    mouse = Controller_mouse()
 
     # Click action
     if 'click' in action:
@@ -168,3 +170,33 @@ def excute_action(action: str):
     # If unknown action raise exception
     elif action is not None:
         raise NotImplementedError('The given action is not supprted')
+
+
+def ctrl_c():
+
+    mouse = Controller_mouse()
+    keyboard = Controller_keyboard()
+
+    # Choose the file under the cursor
+    mouse.press(Button.left)
+    mouse.release(Button.left)
+
+    # ctrl+c it!
+    with keyboard.pressed(Key.ctrl):
+        keyboard.press('c')
+        keyboard.release('c')
+
+
+def ctrl_v():
+
+    mouse = Controller_mouse()
+    keyboard = Controller_keyboard()
+
+    # Choose the file under the cursor
+    mouse.press(Button.left)
+    mouse.release(Button.left)
+
+    # ctrl+v it!
+    with keyboard.pressed(Key.ctrl):
+        keyboard.press('v')
+        keyboard.release('v')
