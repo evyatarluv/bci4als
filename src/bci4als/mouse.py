@@ -1,10 +1,12 @@
 import time
+from typing import Optional
+
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
 from pynput.keyboard import Key
 from pynput.keyboard import Controller as Controller_keyboard
 import os
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QComboBox
 from PyQt5.QtGui import QPixmap
 
 
@@ -16,24 +18,19 @@ class MouseConfig(QWidget):
         # Window size and position
         self.left = 10
         self.top = 50
-        self.width = 640
-        self.height = 640
-
-        # Config images params
-        config_folder = os.path.join(os.path.dirname(__file__), 'configs')
-        self.configs = [os.path.join(config_folder, img) for img in os.listdir(config_folder)]
-        self.current_config = 0
-        self.button_padding = {'bottom': 20, 'side': 10}
-
-        # key = config image, value = actions
-        # assume: {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
-        self.config_dict = {0: {0: 'right_click', 1: 'left_click', 3: 'scroll_up', 4: 'scroll_down'},
-                            1: {0: 'left_hold', 1: 'left_release', 3: 'scroll_up', 4: 'scroll_down'},
-                            2: {0: 'right_click', 1: 'double_click', 3: 'scroll_up', 4: 'scroll_down'}}
+        self.width = 377
+        self.height = 720
 
         # Widgets for the window
         self.label = QLabel(self)
-        self.pixmap = QPixmap(self.configs[self.current_config])
+        self.pixmap = QPixmap(os.path.join(os.path.dirname(__file__), 'configs', 'config.png'))
+
+        # Combo-box
+        self.mouse_actions = ['Right Click', 'Left Click', 'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
+                              'Left Release', 'None']
+        self.box_space = 170
+        self.box_init_pos = (230, 85)
+        self.boxes = []
 
         # Init window
         self.initUI()
@@ -71,30 +68,31 @@ class MouseConfig(QWidget):
         # Configuration image
         self.label.setPixmap(self.pixmap)
 
-        # Next button
-        next_button = QPushButton(self)
-        next_button.setText('Next')
-        next_button.clicked.connect(self.next_config)
-        next_button.move(self.width - next_button.width() - self.button_padding['side'] * 2,
-                         self.height - next_button.height() - self.button_padding['bottom'])
-
-        # Previous button
-        previous_button = QPushButton(self)
-        previous_button.setText('Previous')
-        previous_button.clicked.connect(self.previous_config)
-        previous_button.move(self.button_padding['side'],
-                             self.height - next_button.height() - self.button_padding['bottom'])
+        # Set combo boxes
+        for i in range(5):
+            cb = QComboBox(self)
+            cb.addItems(['Right Click', 'Left Click', 'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
+                        'Left Release', 'None'])
+            cb.move(self.box_init_pos[0], self.box_init_pos[1] + i * self.box_space)
+            self.boxes.append(cb)
 
         self.show()
 
-    def get_action(self, label: int) -> str:
+    def get_action(self, label: int) -> Optional[str]:
         """
         The method get the ML model prediction and returns the action which need to be actioned by the mouse
         according to the current configuration on the screen.
         :param label: prediction of the ML model - 0-> right, 1-> left, 2-> idle, 3-> tongue, 4-> legs
         :return: action of the mouse as str
         """
-        return self.config_dict[self.current_config][label]
+        # According the config img locations
+        # 0 - right, 1 - left, 2 - tongue, 3 - legs
+        config_dict = {0: 0, 1: 1, 3: 2, 4: 3}
+
+        if label == 2:  # idle
+            return None
+        else:
+            return str(self.boxes[config_dict[label]].currentText())
 
 
 def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
@@ -131,6 +129,7 @@ def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
 def execute_action(action: str):
 
     mouse = Controller_mouse()
+    action = action.lower()
 
     # Click action
     if 'click' in action:
