@@ -127,9 +127,8 @@ plt.show()
 
 
 # todo: continue here
-# why recordings/adi/7 different lengths? (are they online??)
+# why recordings/adi/7 different lengths? (oh they are online? should be same lengths?)
 # why are recordings/adi/6 different lengths (sometimes 4, sometimes 4.5 secs)
-# expose full_scr to main script
 # add metadata: datetime, offline/online
 # control all trials to be same sample length
 # keep track of recordings

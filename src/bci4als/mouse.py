@@ -1,6 +1,7 @@
 import time
 from typing import Optional, List
 
+from PyQt5.QtCore import Qt
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
 from pynput.keyboard import Key
@@ -35,35 +36,12 @@ class MouseConfig(QWidget):
         # Init window
         self.initUI()
 
-    def next_config(self):
-
-        # Change current config index
-        if self.current_config + 1 == len(self.configs):
-            self.current_config = 0
-        else:
-            self.current_config += 1
-
-        # Change the image
-        self.pixmap = QPixmap(self.configs[self.current_config])
-        self.label.setPixmap(self.pixmap)
-
-    def previous_config(self):
-
-        # Change current config index
-        if self.current_config - 1 == -1:
-            self.current_config = len(self.configs) - 1
-        else:
-            self.current_config -= 1
-
-        # Change the image
-        self.pixmap = QPixmap(self.configs[self.current_config])
-        self.label.setPixmap(self.pixmap)
-
     def initUI(self):
 
         # Set title & position
-        self.setWindowTitle('BCI Configuration')
+        self.setWindowTitle('Config')
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         # Configuration image
         self.label.setPixmap(self.pixmap)

@@ -25,11 +25,13 @@ class OfflineExperiment(Experiment):
         self.labels: List[int] = []
         self.full_screen = full_screen
 
+        # trial times
         self.cue_length: float = cue_length
         self.next_length: float = next_length
         self.ready_length: float = ready_length
         self.trial_length: float = trial_length
 
+        # paths
         self.images_path: Dict[str, str] = {
             'right': os.path.join(os.path.dirname(__file__), 'images', 'arrow_right.jpeg'),
             'left': os.path.join(os.path.dirname(__file__), 'images', 'arrow_left.jpeg'),
