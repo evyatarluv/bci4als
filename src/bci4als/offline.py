@@ -53,7 +53,7 @@ class OfflineExperiment(Experiment):
             sys.exit(-1)
 
         # show an "Open" dialog box and return the path to the selected file
-        init_dir = os.path.join(os.path.dirname(__file__), '../recordings')
+        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
         recording_folder = askdirectory(initialdir=init_dir)
         if not recording_folder:
             sys.exit(-1)
