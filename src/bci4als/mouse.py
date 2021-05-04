@@ -1,14 +1,13 @@
+import os
 import time
 from typing import Optional, List
-
 from PyQt5.QtCore import Qt
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
 from pynput.keyboard import Key
 from pynput.keyboard import Controller as Controller_keyboard
-import os
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QComboBox
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QWidget, QLabel, QComboBox
+from PyQt5.QtGui import QPixmap, QFont
 
 
 class MouseConfig(QWidget):
@@ -18,27 +17,29 @@ class MouseConfig(QWidget):
 
         # Window size and position
         self.left = 10
-        self.top = 50
-        self.width = 377
-        self.height = 720
+        self.top = 10
+        self.width = 415
+        self.height = 770
 
         # Widgets for the window
         self.label = QLabel(self)
         self.pixmap = QPixmap(os.path.join(os.path.dirname(__file__), 'configs', 'config.png'))
 
         # Combo-box
-        self.mouse_actions = ['Right Click', 'Left Click', 'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
+        self.mouse_actions = ['Scroll Up', 'Right Click', 'Left Click', 'Scroll Down',
+                              'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
                               'Left Release', 'None']
-        self.box_space = 170
-        self.box_init_pos = (230, 85)
+        self.box_x = 265
+        self.box_y = [85, 270, 450, 665]
         self.boxes = []
+        self.box_font = QFont('Calibri', 10)
 
         # Init window
         self.initUI()
 
     def initUI(self):
 
-        # Set title & position
+        # Set window properties
         self.setWindowTitle('Config')
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -47,11 +48,12 @@ class MouseConfig(QWidget):
         self.label.setPixmap(self.pixmap)
 
         # Set combo boxes
-        for i in range(5):
+        for i in range(4):
             cb = QComboBox(self)
-            cb.addItems(['Right Click', 'Left Click', 'Double Click', 'Ctrl + C', 'Ctrl + V', 'Left Press',
-                        'Left Release', 'None'])
-            cb.move(self.box_init_pos[0], self.box_init_pos[1] + i * self.box_space)
+            cb.addItems(self.mouse_actions)
+            cb.setCurrentText(self.mouse_actions[i])
+            cb.move(self.box_x, self.box_y[i])
+            cb.setFont(self.box_font)
             self.boxes.append(cb)
 
         self.show()
