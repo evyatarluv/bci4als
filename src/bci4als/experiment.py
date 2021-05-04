@@ -73,9 +73,5 @@ class Experiment:
         session_folder = os.path.join(subject_folder, str(session))
         os.mkdir(session_folder)
 
-        # todo: create metadata
-        # Here we going to create the metadata of the experiment and
-        # save it in the `session_folder` path
-
         return session_folder
 

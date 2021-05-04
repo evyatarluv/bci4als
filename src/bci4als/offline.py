@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle
 import random
@@ -16,12 +17,13 @@ from psychopy import visual
 class OfflineExperiment(Experiment):
 
     def __init__(self, eeg: EEG, num_trials: int, trial_length: float,
-                 next_length: float = 1, cue_length: float = 0.25, ready_length: float = 1):
+                 next_length: float = 1, cue_length: float = 0.25, ready_length: float = 1, full_screen=False):
 
         super().__init__(eeg, num_trials)
         self.subject_directory: str = ''
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
+        self.full_screen = full_screen
 
         self.cue_length: float = cue_length
         self.next_length: float = next_length
@@ -51,12 +53,40 @@ class OfflineExperiment(Experiment):
             sys.exit(-1)
 
         # show an "Open" dialog box and return the path to the selected file
-        recording_folder = askdirectory(initialdir=os.getcwd())
+        init_dir = os.path.join(os.path.dirname(__file__), '../recordings')
+        recording_folder = askdirectory(initialdir=init_dir)
         if not recording_folder:
             sys.exit(-1)
 
         # Init the current experiment folder
         self.subject_directory = self.create_session_folder(recording_folder)
+
+        # Create experiment's metadata
+        self.create_metadata()
+
+    def create_metadata(self):
+
+        # The path of the metadata file
+        path = os.path.join(self.subject_directory, 'metadata.txt')
+
+        with open(path, 'w') as file:
+
+            # Datetime
+            file.write(f'Experiment datetime: {datetime.datetime.now()}\n\n')
+
+            # Channels
+            file.write('EEG Channels:\n')
+            file.write('*************\n')
+            for index, ch in enumerate(self.eeg.get_board_names()):
+                file.write(f'Channel {index}: {ch}\n')
+
+            # Experiment data
+            file.write('\nExperiment Data\n')
+            file.write('***************\n')
+            file.write(f'Num of trials: {self.num_trials}\n')
+            file.write(f'Trials length: {self.trial_length}\n')
+            file.write(f'Cue length: {self.cue_length}\n')
+            file.write(f'Labels Enum: {self.enum_image}\n')
 
     def _init_window(self):
         """
@@ -65,7 +95,7 @@ class OfflineExperiment(Experiment):
         """
 
         # Create the main window
-        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=True)
+        main_window = visual.Window(monitor='testMonitor', units='pix', color='black', fullscr=self.full_screen)
 
         # Create right, left and idle stimulus
         right_stim = visual.ImageStim(main_window, image=self.images_path['right'])
