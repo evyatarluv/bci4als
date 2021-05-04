@@ -3,6 +3,7 @@ import os
 import pickle
 import random
 import sys
+import threading
 import time
 from tkinter import messagebox, simpledialog
 from tkinter.filedialog import askdirectory
@@ -11,25 +12,29 @@ import numpy as np
 import pandas as pd
 from bci4als.experiment import Experiment
 from bci4als.eeg import EEG
+from playsound import playsound
 from psychopy import visual
 
 
 class OfflineExperiment(Experiment):
 
     def __init__(self, eeg: EEG, num_trials: int, trial_length: float,
-                 next_length: float = 1, cue_length: float = 0.25, ready_length: float = 1, full_screen=False):
+                 next_length: float = 1, cue_length: float = 0.25, ready_length: float = 1,
+                 full_screen: bool = False, audio: bool = False):
 
         super().__init__(eeg, num_trials)
         self.subject_directory: str = ''
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
-        self.full_screen = full_screen
+        self.full_screen: bool = full_screen
+        self.audio: bool = audio
 
         # trial times
         self.cue_length: float = cue_length
         self.next_length: float = next_length
         self.ready_length: float = ready_length
         self.trial_length: float = trial_length
+        self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
 
         # paths
         self.images_path: Dict[str, str] = {
@@ -38,7 +43,8 @@ class OfflineExperiment(Experiment):
             'idle': os.path.join(os.path.dirname(__file__), 'images', 'square.jpeg'),
             'tongue': os.path.join(os.path.dirname(__file__), 'images', 'tongue.jpeg'),
             'legs': os.path.join(os.path.dirname(__file__), 'images', 'legs.jpeg')}
-        self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
+        self.audio_path: Dict[str, str] = {label: os.path.join(os.path.dirname(__file__), 'audio', f'{label}.mp3')
+                                           for label in self.enum_image.values()}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
 
     def _init_directory(self):
@@ -148,11 +154,15 @@ class OfflineExperiment(Experiment):
         win.flip()
         time.sleep(self.next_length)
 
-        # Show cue
+        # Show cue & play sound
         cue = visual.ImageStim(win, self.images_path[trial_image])
         cue.draw()
         win.flip()
         time.sleep(self.cue_length)
+
+        # play sound
+        if self.audio:
+            playsound(self.audio_path[trial_image])
 
         # Show ready & state message
         state_text = 'Trial: {} / {}'.format(trial_index + 1, self.num_trials)
@@ -174,11 +184,24 @@ class OfflineExperiment(Experiment):
         # Params
         win = self.window_params['main_window']
         trial_img = self.enum_image[self.labels[trial_index]]
+        audio_path = os.path.join(os.path.dirname(__file__), 'audio', '{}.mp3')
 
-        # Get the current stimulus on draw it on screen
+        # Play start sound
+        if self.audio:
+            playsound(audio_path.format('start'))
+
+        # Draw and push marker
+        self.eeg.insert_marker(status='start', label=self.labels[trial_index], index=trial_index)
         self.window_params[trial_img].draw()
         win.flip()
+
+        # Wait
         time.sleep(self.trial_length)
+        self.eeg.insert_marker(status='stop', label=self.labels[trial_index], index=trial_index)
+
+        # Play end sound
+        if self.audio:
+            playsound(audio_path.format('end'))
 
         # Halt if escape was pressed
         if 'escape' == self.get_keypress():
@@ -231,15 +254,12 @@ class OfflineExperiment(Experiment):
 
         # Run trials
         for i in range(self.num_trials):
+
             # Messages for user
             self._user_messages(i)
 
-            # Show the stimulus
-            self.eeg.insert_marker(status='start', label=self.labels[i], index=i)
+            # Show stim on window
             self._show_stimulus(i)
-
-            # Push end-trial marker
-            self.eeg.insert_marker(status='stop', label=self.labels[i], index=i)
 
         # Export and return the data
         trials = self._extract_trials()
