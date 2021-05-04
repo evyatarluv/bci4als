@@ -1,24 +1,30 @@
 import sys
 import threading
 from PyQt5.QtWidgets import QApplication
-from bci4als.mouse import movement_indicator, execute_action, MouseConfig, ctrl_c
+from bci4als.mouse import VirtualMouse, MouseConfig
 
 
 def control_mouse(config: MouseConfig):
 
-    for i in range(10):
+    virtual_mouse = VirtualMouse(config)
 
-        movement_indicator(r=25, counter_limit=5, interval=0.4)
+    while True:
+
+        virtual_mouse.monitor(r=25, counter_limit=5, interval=0.4)
 
         action = config.get_action(label=1)  # todo: `label` arg need to be the ML model prediction
 
-        execute_action(action=action)
+        virtual_mouse.execute(action=action)
 
 
-# Turn the configuration window on
-app = QApplication(sys.argv)
-configuration = MouseConfig()
+if __name__ == '__main__':
 
-threading.Thread(target=control_mouse, args=(configuration,)).start()
+    # Init the app window
+    app = QApplication(sys.argv)
+    configuration = MouseConfig()
 
-sys.exit(app.exec_())
+    # Start the virtual mouse
+    threading.Thread(target=control_mouse, args=(configuration,)).start()
+
+    # Start the config window
+    sys.exit(app.exec_())

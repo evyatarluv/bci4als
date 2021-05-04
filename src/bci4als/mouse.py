@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Optional, List
 
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
@@ -95,107 +95,106 @@ class MouseConfig(QWidget):
             return str(self.boxes[config_dict[label]].currentText())
 
 
-def movement_indicator(r: float, counter_limit: int, interval: float) -> bool:
-    """
+class VirtualMouse:
 
-    :param r:
-    :param counter_limit:
-    :param interval:
-    :return:
-    """
+    def __init__(self, config: MouseConfig):
 
-    mouse = Controller_mouse()
-    x_center, y_center = mouse.position
-    counter = 0
+        self.mouse = Controller_mouse()
+        self.keyboard = Controller_keyboard()
+        self.actions = {'right click': self.right_click, 'left click': self.left_click,
+                        'double click': self.double_click, 'ctrl + c': self.ctrl_c, 'ctrl + v': self.ctrl_v,
+                        'left press': self.left_press, 'left release': self.left_release,
+                        'scroll up': self.scroll_up, 'scroll down': self.scroll_down}
 
-    while counter < counter_limit:
+        # Assert all actions from the config object exist in the virtual mouse object
+        self.assert_actions(config.mouse_actions)
 
-        x, y = mouse.position
+    def assert_actions(self, config_actions: List[str]):
+        """
+        The method assert all the action in ConfigMouse exist in VirtualMouse
+        :param config_actions: list with all the actions which represent to user
+        :return:
+        """
+        for a in config_actions:
 
-        if ((x - x_center) ** 2) + ((y - y_center) ** 2) < r ** 2:
+            if (a is not 'None') and (a.lower() not in self.actions.keys()):
 
-            counter += 1
-            print(f'Counter: {counter}')
-        else:
+                raise ValueError(f'The action `{a}` is in ConfigMouse but not implemented in VirtualMouse')
 
-            x_center, y_center = x, y
-            counter = 0
+    def monitor(self, r: float, counter_limit: int, interval: float) -> bool:
 
-        time.sleep(interval)
+        x_center, y_center = self.mouse.position
+        counter = 0
 
-    return True
+        while counter < counter_limit:
 
+            x, y = self.mouse.position
 
-def execute_action(action: str):
+            if ((x - x_center) ** 2) + ((y - y_center) ** 2) < r ** 2:
 
-    mouse = Controller_mouse()
-    action = action.lower()
+                counter += 1
+                print(f'Counter: {counter}')
+            else:
 
-    # Click action
-    if 'click' in action:
+                x_center, y_center = x, y
+                counter = 0
 
-        if 'right' in action:
-            mouse.press(Button.right)
-            mouse.release(Button.right)
+            time.sleep(interval)
 
-        elif 'left' in action:
-            mouse.press(Button.left)
-            mouse.release(Button.left)
+        return True
 
-        elif 'double' in action:
-            mouse.click(Button.left, 2)
+    def execute(self, action: str):
+        """
+        The method execute the given action
+        :param action: the action to execute as str
+        :return:
+        """
 
-    # Press action
-    elif 'hold' in action:
+        if action is not None:
 
-        if 'left' in action:
-            mouse.press(Button.right)
+            self.actions[action.lower()]()
 
-    # Realse action
-    elif 'release' in action:
+    def right_click(self):
+        self.mouse.press(Button.right)
+        self.mouse.release(Button.right)
 
-        if 'left' in action:
-            mouse.release(Button.left)
+    def left_click(self):
+        self.mouse.press(Button.left)
+        self.mouse.release(Button.left)
 
-    # Scroll action
-    elif 'scroll' in action:
+    def double_click(self):
+        self.mouse.click(Button.left, 2)
 
-        if 'down' in action:
-            mouse.scroll(0, 2)
+    def left_press(self):
+        self.mouse.press(Button.right)
 
-        elif 'up' in action:
-            mouse.scroll(0, -2)
+    def left_release(self):
+        self.mouse.release(Button.left)
 
-    # If unknown action raise exception
-    elif action is not None:
-        raise NotImplementedError('The given action is not supprted')
+    def scroll_up(self):
+        self.mouse.scroll(0, -2)
 
+    def scroll_down(self):
+        self.mouse.scroll(0, 2)
 
-def ctrl_c():
+    def ctrl_c(self):
 
-    mouse = Controller_mouse()
-    keyboard = Controller_keyboard()
+        # Choose the file under the cursor
+        self.mouse.press(Button.left)
+        self.mouse.release(Button.left)
 
-    # Choose the file under the cursor
-    mouse.press(Button.left)
-    mouse.release(Button.left)
+        # ctrl+c it!
+        with self.keyboard.pressed(Key.ctrl):
+            self.keyboard.press('c')
+            self.keyboard.release('c')
 
-    # ctrl+c it!
-    with keyboard.pressed(Key.ctrl):
-        keyboard.press('c')
-        keyboard.release('c')
+    def ctrl_v(self):
 
+        # Choose the file under the cursor
+        self.mouse.press(Button.left)
+        self.mouse.release(Button.left)
 
-def ctrl_v():
-
-    mouse = Controller_mouse()
-    keyboard = Controller_keyboard()
-
-    # Choose the file under the cursor
-    mouse.press(Button.left)
-    mouse.release(Button.left)
-
-    # ctrl+v it!
-    with keyboard.pressed(Key.ctrl):
-        keyboard.press('v')
-        keyboard.release('v')
+        # ctrl+v it!
+        with self.keyboard.pressed(Key.ctrl):
+            self.keyboard.press('v')
+            self.keyboard.release('v')
