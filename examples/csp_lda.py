@@ -11,13 +11,15 @@ from mne.decoding import CSP
 from numpy import ndarray
 from pandas import DataFrame
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.metrics import confusion_matrix, plot_confusion_matrix
+from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import ShuffleSplit, cross_val_score
 from sklearn.pipeline import Pipeline
 
+# recordings_path = 'recordings'
+# recordings_path = 'examples'
 recordings_path = '../recordings'
-subject = 'adi'
-session_id = '6'
+subject = 'avi'
+session_id = '1'
 labels_path = os.path.join(recordings_path, subject, session_id, 'labels.csv')
 trials_path = os.path.join(recordings_path, subject, session_id, 'trials.pickle')
 
@@ -42,17 +44,23 @@ epochs.set_montage(montage)
 # Apply band-pass filter
 epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
 
+# apply notch filter at 25
+# epochs.filter(24.5, 25.5, fir_design='firwin', skip_by_annotation='edge')
+
 epochs_train = epochs.copy().crop(tmin=0.5, tmax=1.5)
 
 ###############################################################################
-# Classification with linear discrimant analysis
+# Classification with linear discriminant analysis
 
 # Define a monte-carlo cross-validation generator (reduce variance):
 scores = []
 epochs_data = epochs.get_data()
 epochs_data_train = epochs_train.get_data()
-cv = ShuffleSplit(10, test_size=0.2, random_state=42)
+cv = ShuffleSplit(4, test_size=0.2, random_state=42)
 cv_split = cv.split(epochs_data_train)
+
+# plot epochs
+epochs.plot_psd()
 
 # Assemble a classifier
 lda = LinearDiscriminantAnalysis()
@@ -115,12 +123,19 @@ plt.title('Classification score over time')
 plt.legend(loc='lower right')
 plt.show()
 
-##############################################################################
-# References
-# ----------
-# .. footbibliography::
+
 
 
 # todo: continue here
 # why recordings/adi/7 different lengths? (are they online??)
 # why are recordings/adi/6 different lengths (sometimes 4, sometimes 4.5 secs)
+# expose full_scr to main script
+# add metadata: datetime, offline/online
+# control all trials to be same sample length
+# keep track of recordings
+# write a recordings schedule
+# set recordings_folder initial_dir
+# incremental LDA
+# when recording 13 channels, don't save last 3 channels in dataframe
+# rename channel locations in new helmet
+# save AVI's raw data
