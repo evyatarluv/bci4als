@@ -82,29 +82,29 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
 
 
 def offline_experiment(run: bool = True, path: str = None):
-
-    eeg = EEG()
+    print("Beginning Offline Experiment")
+    print("Stage 1: Recording")
+    eeg = EEG(board_id=-1)
 
     exp = OfflineExperiment(eeg=eeg, num_trials=5, trial_length=4,
-                            full_screen=False, audio=True)
+                            full_screen=False, audio=False)
 
     if run:
         trials, labels = exp.run()
-
     else:
         trials = pickle.load(open(path.format('trials.pickle'), 'rb'))
         labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
+    print("Stage 2: Preprocess")
     trials = preprocess(eeg, trials)
 
+    print("Stage 3: Extract Features")
     X = get_features(eeg, trials)
 
     # Cross-validation
+    print("Stage 4: Evaluate")
     cv_results = cross_validate(SGDClassifier(), X, labels, cv=5)
     print(cv_results['test_score'])
-
-    # Export model
-    # pickle.dump(SGDClassifier().fit(X, labels), open(r'models/7/sgd_log.pkl', 'wb'))
 
 
 if __name__ == '__main__':
