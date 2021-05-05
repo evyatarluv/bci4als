@@ -13,14 +13,13 @@ pyserial>=3.5
 matplotlib>=3.1.1
 pyxdf>=1.16.3
 
-nptyping>=1.4.0
 pyqt5>=5.15.4
 bci4als>=0.1.2
 sklearn>=0.0
-future>=0.17.1
 importlib_metadata>=0.23
 pytest>=5.2.1
 setuptools>=41.4.0
 opencv-python>=4.4.0.46
 keras>=2.4.3
 pylsl>=1.14.0
+playsound
