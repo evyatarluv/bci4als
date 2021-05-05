@@ -15,19 +15,23 @@ from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import ShuffleSplit, cross_val_score
 from sklearn.pipeline import Pipeline
 
+
+###############################################################################
+# Prepare Data
+
 # recordings_path = 'recordings'
 # recordings_path = 'examples'
 recordings_path = '../recordings'
-subject = 'avi'
-session_id = '1'
+subject = 'adi'
+session_id = '6'
 labels_path = os.path.join(recordings_path, subject, session_id, 'labels.csv')
 trials_path = os.path.join(recordings_path, subject, session_id, 'trials.pickle')
 
 # load data
-labels = pd.read_csv(labels_path, header=None).to_numpy().squeeze()
 trials: List[DataFrame] = pickle.load(open(trials_path, 'rb'))
+labels = pd.read_csv(labels_path, header=None).to_numpy().squeeze()
 
-# convert data to mne.Raw
+# convert data to mne.Epochs
 ch_names = list(trials[0].columns)
 ch_types = ['eeg'] * len(ch_names)
 sfreq = 120
@@ -38,7 +42,7 @@ info = mne.create_info(ch_names, sfreq, ch_types)
 epochs = mne.EpochsArray(epochs_array, info)
 
 # set montage
-montage = make_standard_montage('standard_1005')
+montage = make_standard_montage('standard_1020')
 epochs.set_montage(montage)
 
 # Apply band-pass filter
@@ -50,14 +54,11 @@ epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
 epochs_train = epochs.copy().crop(tmin=0.5, tmax=1.5)
 
 ###############################################################################
-# Classification with linear discriminant analysis
+# Fit data with CSP and linear discriminant analysis
 
-# Define a monte-carlo cross-validation generator (reduce variance):
-scores = []
 epochs_data = epochs.get_data()
 epochs_data_train = epochs_train.get_data()
-cv = ShuffleSplit(4, test_size=0.2, random_state=42)
-cv_split = cv.split(epochs_data_train)
+
 
 # plot epochs
 epochs.plot_psd()
@@ -68,16 +69,21 @@ csp = CSP(n_components=6, reg=None, log=True, norm_trace=False)
 
 # Use scikit-learn Pipeline with cross_val_score function
 clf = Pipeline([('CSP', csp), ('LDA', lda)])
-scores = cross_val_score(clf, epochs_data_train, labels, cv=cv, n_jobs=1)
 
-# plot CSP patterns estimated on full data for visualization
 csp.fit_transform(epochs_data, labels)
 
+# plot CSP patterns estimated on full data for visualization
 csp.plot_patterns(epochs.info, ch_type='eeg', units='Patterns (AU)', size=1.5)
 
 ###############################################################################
 # Look at performance over time
+# Define a monte-carlo cross-validation generator (reduce variance):
 
+cv = ShuffleSplit(4, test_size=0.2, random_state=42)
+scores = cross_val_score(clf, epochs_data_train, labels, cv=cv, n_jobs=1)
+print(f"Cross val score on training data: {scores}")
+
+cv_split = cv.split(epochs_data_train)
 w_length = int(sfreq * 0.5)  # running classifier: window length
 w_step = int(sfreq * 0.1)  # running classifier: window step size
 w_start = np.arange(0, epochs_data.shape[2] - w_length, w_step)
