@@ -316,7 +316,8 @@ class OfflineExperiment(Experiment):
 
         # save csp filters
         csp_figure_path = os.path.join(self.subject_directory, 'csp_filters.png')
-        csp_plot_figure: Figure = csp.plot_patterns(show=False)
+        csp_plot_figure: Figure = csp.plot_patterns(epochs.info, ch_type='eeg', units='Patterns (AU)', size=1.5,
+                                                    show=False)
         csp_plot_figure.savefig(csp_figure_path)
 
         return trials, self.labels

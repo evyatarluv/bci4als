@@ -91,7 +91,7 @@ def offline_experiment(run: bool = True, path: str = None):
     print("Stage 1: Recording")
     eeg = EEG(board_id=-1)
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=5, trial_length=3,
+    exp = OfflineExperiment(eeg=eeg, num_trials=6, trial_length=3,
                             full_screen=False, audio=False)
 
     if run:
