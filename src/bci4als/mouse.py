@@ -66,8 +66,8 @@ class MouseConfig(QWidget):
         :return: action of the mouse as str
         """
         # According the config img locations
-        # 0 - right, 1 - left, 2 - tongue, 3 - legs
-        config_dict = {0: 0, 1: 1, 3: 2, 4: 3}
+        # 0 - tongue, 1 - right, 2 - left, 3 - legs
+        config_dict = {0: 1, 1: 2, 3: 0, 4: 3}
 
         if label == 2:  # idle
             return None
