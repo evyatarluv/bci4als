@@ -1,3 +1,4 @@
+import logging
 from typing import List, Tuple, Optional
 
 import mne
@@ -11,17 +12,19 @@ from nptyping import NDArray
 
 class EEG:
 
-    def __init__(self, board_id=BoardIds.CYTON_DAISY_BOARD.value, ip_port=6677, serial_port: Optional[str] = None):
-
+    def __init__(self, board_id: int = BoardIds.CYTON_DAISY_BOARD.value, ip_port: int = 6677,
+                 serial_port: Optional[str] = None, headset: str = "avi13"):
         # Board params
         self.board_id = board_id
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
         self.params.serial_port = serial_port if serial_port is not None else self.find_serial_port()
+        self.params.headset = headset
+        self.params.board_id = board_id
         self.board = BoardShim(board_id, self.params)
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
-        self.eeg_names = self.board.get_eeg_names(board_id)
+        self.eeg_names = self.get_board_names(headset=headset)
 
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
@@ -161,9 +164,9 @@ class EEG:
         """The method returns the data from board and remove it"""
         return self.board.get_board_data()
 
-    def get_board_names(self, alternative=True) -> List[str]:
+    def get_board_names(self, headset="avi13") -> List[str]:
         """The method returns the board's channels"""
-        if alternative:
+        if headset == "avi13":
             # return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
             return ['CP2', 'FC2', 'CP6', 'C4', 'C3', 'CP5', 'FC1', 'CP1', 'Cz', 'FC6', 'T8', 'T7', 'FC5']
         else:
@@ -212,6 +215,24 @@ class EEG:
 
         return markerValue
 
+    def find_serial_port(self) -> str:
+        """
+        Return the string of the serial port to which the FTDI dongle is connected.
+        If running in Synthetic mode, return ""
+        Example: return "COM5"
+        """
+        if self.board_id == BoardIds.SYNTHETIC_BOARD:
+            return ""
+        else:
+            plist = serial.tools.list_ports.comports()
+            FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
+            if len(FTDIlist) > 1:
+                raise LookupError(
+                    "More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
+            if len(FTDIlist) < 1:
+                raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
+            return FTDIlist[0].name
+
     @staticmethod
     def decode_marker(marker_value: int) -> (str, int, int):
         """
@@ -259,14 +280,3 @@ class EEG:
                             data[idx['CP2']] + data[idx['CP6']]) / 5
 
         return data[[idx['C3'], idx['C4']]]
-
-    @staticmethod
-    def find_serial_port():
-
-        plist = serial.tools.list_ports.comports()
-        FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
-        if len(FTDIlist) > 1:
-            raise LookupError("More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
-        if len(FTDIlist) < 1:
-            raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
-        return FTDIlist[0].name
