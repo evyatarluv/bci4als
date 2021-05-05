@@ -98,8 +98,8 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
             # Extract features from the EEG data
-            data = self.eeg.get_channels_data()
-            # data = np.random.rand(16, 125 * 4)  # debug
+            # data = self.eeg.get_channels_data()
+            data = np.random.rand(13, 125 * 4)  # debug
             x = self.online_pipe(data)
 
             # Reset the clock for the next buffer
