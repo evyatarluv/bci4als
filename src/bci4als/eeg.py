@@ -14,17 +14,22 @@ class EEG:
 
     def __init__(self, board_id: int = BoardIds.CYTON_DAISY_BOARD.value, ip_port: int = 6677,
                  serial_port: Optional[str] = None, headset: str = "avi13"):
-        # Board params
+        # Board Id and Headset Name
         self.board_id = board_id
+        self.headset: str = headset
+
+        # BrainFlowInputParams
         self.params = BrainFlowInputParams()
         self.params.ip_port = ip_port
         self.params.serial_port = serial_port if serial_port is not None else self.find_serial_port()
         self.params.headset = headset
         self.params.board_id = board_id
         self.board = BoardShim(board_id, self.params)
+
+        # Other Params
         self.sfreq = self.board.get_sampling_rate(board_id)
         self.marker_row = self.board.get_marker_channel(self.board_id)
-        self.eeg_names = self.get_board_names(headset=headset)
+        self.eeg_names = self.get_board_names()
 
     def extract_trials(self, data: NDArray) -> [List[Tuple], List[int]]:
         """
@@ -164,9 +169,9 @@ class EEG:
         """The method returns the data from board and remove it"""
         return self.board.get_board_data()
 
-    def get_board_names(self, headset="avi13") -> List[str]:
+    def get_board_names(self) -> List[str]:
         """The method returns the board's channels"""
-        if headset == "avi13":
+        if self.headset == "avi13":
             # return ['Fp1', 'Fp2', 'C3', 'C4', 'CP5', 'CP6', 'O1', 'O2', 'FC1', 'FC2', 'Cz', 'T8', 'FC5', 'FC6', 'CP1', 'CP2']
             return ['CP2', 'FC2', 'CP6', 'C4', 'C3', 'CP5', 'FC1', 'CP1', 'Cz', 'FC6', 'T8', 'T7', 'FC5']
         else:
