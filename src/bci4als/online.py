@@ -3,6 +3,7 @@ import threading
 import time
 import matplotlib
 import numpy as np
+from bci4als.ml_model import MLModel
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 from typing import Dict, List
@@ -39,7 +40,7 @@ class OnlineExperiment(Experiment):
 
     """
 
-    def __init__(self, eeg: EEG, model: SGDClassifier, num_trials: int,
+    def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
                  buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
@@ -99,15 +100,12 @@ class OnlineExperiment(Experiment):
 
             # Extract features from the EEG data
             data = self.eeg.get_channels_data()
-            # data = np.random.rand(13, 125 * 4)  # debug
-            x = self.online_pipe(data)
+
+            # Predict the class
+            prediction = self.model.online_predict(data, eeg=self.eeg)
 
             # Reset the clock for the next buffer
             timer.reset()
-
-            # Predict using the subject EEG data
-            prediction = self.model.predict([x])[0]
-            # conf_predict = self.model.decision_function(features)
 
             # Update the feedback according the prediction
             feedback.update(prediction)

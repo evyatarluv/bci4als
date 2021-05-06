@@ -2,6 +2,7 @@ import pickle
 from typing import List, Tuple
 
 import numpy as np
+from bci4als.ml_model import MLModel
 from psychopy import visual, event
 from bci4als.online import Feedback, OnlineExperiment
 from bci4als.eeg import EEG
@@ -9,9 +10,9 @@ from bci4als.eeg import EEG
 
 def run_experiment():
 
-    model = pickle.load(open(r'models/7/MultinomialNB.pkl', 'rb'))
+    model = MLModel(model_path=r'C:\Users\lenovo\Desktop\1\model.pickle')
 
-    eeg = EEG(board_id=2, ip_port=6677, serial_port="COM5")
+    eeg = EEG(board_id=-1)
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=25, buffer_time=4, threshold=3)
 
