@@ -1,21 +1,25 @@
+import os
 import pickle
 from typing import List
 import mne
 import pandas as pd
 from bci4als.eeg import EEG
+from bci4als.ml_model import MLModel
 from bci4als.offline import OfflineExperiment
 import numpy as np
 from mne.channels import make_standard_montage
 from mne.decoding import CSP
 from mne_features.feature_extraction import extract_features
 from numpy import ndarray
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_validate
 from sklearn.svm import SVC
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.pipeline import Pipeline
+from matplotlib.figure import Figure
+
 
 
 def laplacian(data, channels: List[str]):
@@ -87,11 +91,11 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
 
 
 def offline_experiment(run: bool = True, path: str = None):
-    print("Beginning Offline Experiment")
-    print("Stage 1: Recording")
+
+    print('Beginning Offline Experiment\nStage 1: Recording')
     eeg = EEG(board_id=-1)
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=5, trial_length=3,
+    exp = OfflineExperiment(eeg=eeg, num_trials=6, trial_length=3,
                             full_screen=False, audio=False)
 
     if run:
@@ -100,19 +104,12 @@ def offline_experiment(run: bool = True, path: str = None):
         trials = pickle.load(open(path.format('trials.pickle'), 'rb'))
         labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
-
-    # Old Model
-    # print("Stage 2: Preprocess")
-    # trials = preprocess(eeg, trials)
-    #
-    # print("Stage 3: Extract Features")
-    # X = get_features(eeg, trials)
-    #
-    # # Cross-validation
-    # print("Stage 4: Evaluate")
-    # cv_results = cross_validate(SGDClassifier(), X, labels, cv=5)
-    # print(cv_results['test_score'])
+    # Classification
+    model = MLModel()
+    subject_folder = exp.subject_directory if run else path
+    model.csp_lda(eeg=eeg, trials=trials, labels=labels, subject_folder=subject_folder)
 
 
 if __name__ == '__main__':
+
     offline_experiment(run=True, path='../recordings/adi/7/{}')

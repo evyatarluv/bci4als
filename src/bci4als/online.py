@@ -98,8 +98,8 @@ class OnlineExperiment(Experiment):
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
             # Extract features from the EEG data
-            # data = self.eeg.get_channels_data()
-            data = np.random.rand(13, 125 * 4)  # debug
+            data = self.eeg.get_channels_data()
+            # data = np.random.rand(13, 125 * 4)  # debug
             x = self.online_pipe(data)
 
             # Reset the clock for the next buffer
@@ -114,7 +114,7 @@ class OnlineExperiment(Experiment):
             # feedback.update(stim)  # debug
 
             # Update the model using partial-fit with the new EEG data
-            self.model.partial_fit([x], [stim])
+            # self.model.partial_fit([x], [stim])
 
             # Debug
             print(f'Predict: {prediction}, True: {stim}')

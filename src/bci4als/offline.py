@@ -3,25 +3,17 @@ import os
 import pickle
 import random
 import sys
-import threading
 import time
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 from typing import Dict, List, Any
-
-import mne
 import numpy as np
 import pandas as pd
 from bci4als.experiment import Experiment
 from bci4als.eeg import EEG
-from matplotlib.figure import Figure
-from mne.channels import make_standard_montage
-from mne.decoding import CSP
-from numpy import ndarray
 from playsound import playsound
 from psychopy import visual
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.pipeline import Pipeline
+
 
 
 class OfflineExperiment(Experiment):
@@ -93,7 +85,7 @@ class OfflineExperiment(Experiment):
             file.write('EEG Channels:\n')
             file.write('*************\n')
             for index, ch in enumerate(self.eeg.get_board_names()):
-                file.write(f'Channel {index}: {ch}\n')
+                file.write(f'Channel {index + 1}: {ch}\n')
 
             # Experiment data
             file.write('\nExperiment Data\n')
@@ -237,6 +229,22 @@ class OfflineExperiment(Experiment):
 
         return trials
 
+    def _export_files(self, trials):
+        """
+        Export the experiment files (trials & labels)
+        :param trials:
+        :return:
+        """
+        # Dump to pickle
+        trials_path = os.path.join(self.subject_directory, 'trials.pickle')
+        print(f"Dumping extracted trials recordings to {trials_path}")
+        pickle.dump(trials, open(trials_path, 'wb'))
+
+        # Save the labels as csv file
+        labels_path = os.path.join(self.subject_directory, 'labels.csv')
+        print(f"Saving labels to {labels_path}")
+        pd.DataFrame.from_dict({'name': self.labels}).to_csv(labels_path, index=False, header=False)
+
     def run(self):
 
         # Update the directory for the current subject
@@ -269,54 +277,7 @@ class OfflineExperiment(Experiment):
         print("Turning EEG connection OFF")
         self.eeg.off()
 
-        # Dump to pickle
-        trials_path = os.path.join(self.subject_directory, 'trials.pickle')
-        print(f"Dumping extracted trials recordings to {trials_path}")
-        pickle.dump(trials, open(trials_path, 'wb'))
-
-        # Save the labels as csv file
-        labels_path = os.path.join(self.subject_directory, 'labels.csv')
-        print(f"Saving labels to {labels_path}")
-        pd.DataFrame.from_dict({'name': self.labels}).to_csv(labels_path, index=False, header=False)
-
-        print("Beginning Classification")
-        # convert data to mne.Epochs
-        ch_names = self.eeg.get_board_names()
-        ch_types = ['eeg'] * len(ch_names)
-        sfreq: int = self.eeg.sfreq
-
-        epochs_array: ndarray = np.stack([df[:480].to_numpy().T for df in trials])
-
-        info = mne.create_info(ch_names, sfreq, ch_types)
-        epochs = mne.EpochsArray(epochs_array, info)
-
-        # set montage
-        montage = make_standard_montage('standard_1020')
-        epochs.set_montage(montage)
-
-        # Apply band-pass filter
-        epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
-
-        # get training windows
-        epochs_train = epochs.copy().crop(tmin=0.5, tmax=1.5)
-
-        # Assemble a classifier
-        lda = LinearDiscriminantAnalysis()
-        csp = CSP(n_components=6, reg=None, log=True, norm_trace=False)
-
-        # Use scikit-learn Pipeline with cross_val_score function
-        clf = Pipeline([('CSP', csp), ('LDA', lda)])
-
-        # fit transformer and classifier to data
-        clf.fit(epochs.get_data(), self.labels)
-
-        # save pipeline
-        classifier_path = os.path.join(self.subject_directory, 'model.pickle')
-        pickle.dump(clf, open(classifier_path, 'wb'))
-
-        # save csp filters
-        csp_figure_path = os.path.join(self.subject_directory, 'csp_filters.png')
-        csp_plot_figure: Figure = csp.plot_patterns(show=False)
-        csp_plot_figure.savefig(csp_figure_path)
+        # Dump files to pickle
+        self._export_files(trials)
 
         return trials, self.labels
