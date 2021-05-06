@@ -1,33 +1,36 @@
-import pickle
 import sys
 import threading
+import time
 from PyQt5.QtWidgets import QApplication
+from bci4als.eeg import EEG
+from bci4als.ml_model import MLModel
 from bci4als.mouse import VirtualMouse, MouseConfig
 
 
-def predict_label(model):
-    # todo: fill up this function - ML model predict the label of the user
-    return 1
+def control_mouse(config: MouseConfig, model_path: str):
 
+    # Init variables
+    model = MLModel(model_path=model_path)
+    eeg = EEG(board_id=-1)
+    vm = VirtualMouse(eeg=eeg, model=model, mouse_actions=config.mouse_actions)
 
-def control_mouse(config: MouseConfig):
+    # Turn EEG on
+    eeg.on()
 
-    virtual_mouse = VirtualMouse(config)
-    model = pickle.load(open(r'models/7/sgd.pkl', 'rb'))
-
+    # Start controlling the virtual mouse
     while True:
 
         # Monitor the movement to indicate standstill
-        virtual_mouse.monitor(r=25, counter_limit=5, interval=0.4)
+        vm.monitor(r=25, counter_limit=5, interval=0.4)
 
         # Predict the label imagined by the user
-        label = predict_label(model)
+        label = vm.predict(buffer_time=4)
 
         # Convert the label to action according to current config
         action = config.get_action(label=label)
 
         # Execute the action
-        virtual_mouse.execute(action=action)
+        vm.execute(action=action)
 
 
 if __name__ == '__main__':
@@ -35,9 +38,11 @@ if __name__ == '__main__':
     # Init the app window
     app = QApplication(sys.argv)
     configuration = MouseConfig()
+    clf_path = r'C:\Users\lenovo\Desktop\1\model.pickle'
 
     # Start the virtual mouse
-    threading.Thread(target=control_mouse, args=(configuration,)).start()
+    threading.Thread(target=control_mouse,
+                     args=(configuration, clf_path)).start()
 
     # Start the config window
     sys.exit(app.exec_())

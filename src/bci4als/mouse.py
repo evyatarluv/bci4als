@@ -2,6 +2,8 @@ import os
 import time
 from typing import Optional, List
 from PyQt5.QtCore import Qt
+from bci4als.eeg import EEG
+from bci4als.ml_model import MLModel
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
 from pynput.keyboard import Key
@@ -77,7 +79,7 @@ class MouseConfig(QWidget):
 
 class VirtualMouse:
 
-    def __init__(self, config: MouseConfig):
+    def __init__(self, eeg: EEG, model: MLModel, mouse_actions: List[str]):
 
         self.mouse = Controller_mouse()
         self.keyboard = Controller_keyboard()
@@ -85,9 +87,11 @@ class VirtualMouse:
                         'double click': self.double_click, 'ctrl + c': self.ctrl_c, 'ctrl + v': self.ctrl_v,
                         'left press': self.left_press, 'left release': self.left_release,
                         'scroll up': self.scroll_up, 'scroll down': self.scroll_down}
+        self.eeg: EEG = eeg
+        self.model: MLModel = model
 
         # Assert all actions from the config object exist in the virtual mouse object
-        self.assert_actions(config.mouse_actions)
+        self.assert_actions(mouse_actions)
 
     def assert_actions(self, config_actions: List[str]):
         """
@@ -114,6 +118,7 @@ class VirtualMouse:
 
                 counter += 1
                 print(f'Counter: {counter}')
+
             else:
 
                 x_center, y_center = x, y
@@ -122,6 +127,25 @@ class VirtualMouse:
             time.sleep(interval)
 
         return True
+
+    def predict(self, buffer_time: int) -> int:
+        """
+        Predict the label the user imagined.
+        :param buffer_time: time of data acquisition in seconds
+        :return:
+        """
+        # todo: what about the threshold? predict according the first label?
+
+        # Sleep in order to get EEG data
+        time.sleep(buffer_time)
+
+        # Data Acquisition
+        data = self.eeg.get_channels_data()
+
+        # Predict label
+        prediction = self.model.online_predict(data, eeg=self.eeg)
+
+        return prediction
 
     def execute(self, action: str):
         """
