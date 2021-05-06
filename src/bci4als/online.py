@@ -2,24 +2,21 @@ import random
 import sys
 import threading
 import time
-import matplotlib
-import numpy as np
-from bci4als.ml_model import MLModel
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
 from typing import Dict, List
+
+import matplotlib
+import matplotlib.pyplot as plt
+import mne
+import numpy as np
+from bci4als.dashboard import Dashboard
 from bci4als.eeg import EEG
 from bci4als.experiment import Experiment
 from bci4als.feedback import Feedback
-from bci4als.dashboard import Dashboard
-from psychopy import visual, core
-from sklearn.kernel_approximation import Nystroem
-from sklearn.linear_model import SGDClassifier
+from bci4als.ml_model import MLModel
+from matplotlib.animation import FuncAnimation
 from mne_features.feature_extraction import extract_features
-import mne
 from nptyping import NDArray
-import os
-
+from psychopy import visual, core
 from sklearn.preprocessing import StandardScaler
 
 
@@ -214,9 +211,8 @@ class OnlineExperiment(Experiment):
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
             # Use different thread for online learning of the model
-            t = threading.Thread(target=self._learning_model, args=(feedback, stim))
-            t.daemon = True
-            t.start()
+            threading.Thread(target=self._learning_model,
+                             args=(feedback, stim), daemon=True).start()
 
             # Maintain visual feedback on screen
             timer = core.Clock()
