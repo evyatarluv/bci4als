@@ -51,6 +51,7 @@ class OnlineExperiment(Experiment):
 
         # Model configs
         self.labels_enum: Dict[str, int] = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
+        self.label_dict: Dict[int, str] = dict([(value, key) for key, value in self.labels_enum.items()])
         self.num_labels: int = len(self.labels_enum)
 
         # Init trials for the experiment
@@ -115,7 +116,8 @@ class OnlineExperiment(Experiment):
             # self.model.partial_fit([x], [stim])
 
             # Debug
-            print(f'Predict: {prediction}, True: {stim}')
+            print(f'Predict: {self.label_dict[prediction]}; '
+                  f'True: {self.label_dict[stim]}')
 
     def warmup(self, use_eeg: bool = True, target: str = 'right'):
 

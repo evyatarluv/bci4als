@@ -8,9 +8,9 @@ from bci4als.online import Feedback, OnlineExperiment
 from bci4als.eeg import EEG
 
 
-def run_experiment():
+def run_experiment(model_path: str):
 
-    model = MLModel(model_path=r'C:\Users\lenovo\Desktop\1\model.pickle')
+    model = MLModel(model_path=model_path)
 
     eeg = EEG(board_id=-1)
 
@@ -23,5 +23,5 @@ def run_experiment():
 
 if __name__ == '__main__':
 
-    run_experiment()
+    run_experiment(model_path=r'C:\Users\lenovo\Desktop\1\model.pickle')
 

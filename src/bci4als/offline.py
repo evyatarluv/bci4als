@@ -15,7 +15,6 @@ from playsound import playsound
 from psychopy import visual
 
 
-
 class OfflineExperiment(Experiment):
 
     def __init__(self, eeg: EEG, num_trials: int, trial_length: float,
