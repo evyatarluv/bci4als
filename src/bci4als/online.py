@@ -1,4 +1,5 @@
 import random
+import sys
 import threading
 import time
 import matplotlib
@@ -213,7 +214,9 @@ class OnlineExperiment(Experiment):
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
             # Use different thread for online learning of the model
-            threading.Thread(target=self._learning_model, args=(feedback, stim)).start()
+            t = threading.Thread(target=self._learning_model, args=(feedback, stim))
+            t.daemon = True
+            t.start()
 
             # Maintain visual feedback on screen
             timer = core.Clock()
@@ -225,6 +228,10 @@ class OnlineExperiment(Experiment):
                 # Reset the timer according the buffer time attribute
                 if timer.getTime() > self.buffer_time:
                     timer.reset()
+
+                # Halt if escape was pressed
+                if 'escape' == self.get_keypress():
+                    sys.exit(-1)
 
             # Waiting for key-press between trials
             self._wait_between_trials(feedback, self.eeg, use_eeg)

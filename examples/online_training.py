@@ -16,7 +16,7 @@ def run_experiment(model_path: str):
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=25, buffer_time=4, threshold=3)
 
-    exp.run(use_eeg=True)
+    exp.run(use_eeg=True, full_screen=False)
 
     # exp.warmup(use_eeg=True, target='right')
 
