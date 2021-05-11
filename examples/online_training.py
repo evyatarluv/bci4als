@@ -12,7 +12,7 @@ def run_experiment(model_path: str):
 
     model = MLModel(model_path=model_path)
 
-    eeg = EEG(board_id=-1)
+    eeg = EEG(board_id=2)
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=25, buffer_time=4, threshold=3)
 
