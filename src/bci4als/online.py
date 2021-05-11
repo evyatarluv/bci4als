@@ -55,6 +55,10 @@ class OnlineExperiment(Experiment):
         # Init trials for the experiment
         self.trials = self._init_trials()
 
+        # Hold list of lists of target-prediction pairs per trial
+        # Example: [ [(0, 2), (0,3), (0,0), (0,0), (0,0) ] , [ ...] , ... ,[] ]
+        self.results = []
+
     def _init_trials(self) -> List[int]:
         """
         Create list with trials as num_trials attributes.
@@ -92,7 +96,7 @@ class OnlineExperiment(Experiment):
         """
 
         timer = core.Clock()
-
+        target_predictions = []
         while not feedback.confident:
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
@@ -102,7 +106,7 @@ class OnlineExperiment(Experiment):
 
             # Predict the class
             prediction = self.model.online_predict(data, eeg=self.eeg)
-
+            target_predictions.append((stim, prediction))
             # Reset the clock for the next buffer
             timer.reset()
 
@@ -116,6 +120,9 @@ class OnlineExperiment(Experiment):
             # Debug
             print(f'Predict: {self.label_dict[prediction]}; '
                   f'True: {self.label_dict[stim]}')
+        accuracy = sum([1 if p[1] == p[0] else 0 for p in target_predictions]) / len(target_predictions)
+        print(f'Accuracy of last target: {accuracy}')
+        self.results.append(target_predictions)
 
     def warmup(self, use_eeg: bool = True, target: str = 'right'):
 
