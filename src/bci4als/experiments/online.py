@@ -85,28 +85,6 @@ class OnlineExperiment(Experiment):
         #                                                      index=False, header=False)
         return trials
 
-    def _init_directory(self):
-        """
-        init the current subject directory
-        :return: the subject directory
-        """
-
-        # get the CurrentStudy recording directory
-        if not messagebox.askokcancel(title='bci4als',
-                                      message="Welcome to the motor imagery EEG recorder."
-                                              "\n\nNumber of trials: {}\n\n"
-                                              "Please select the subject directory:".format(self.num_trials)):
-            sys.exit(-1)
-
-        # show an "Open" dialog box and return the path to the selected file
-        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
-        recording_folder = askdirectory(initialdir=init_dir)
-        if not recording_folder:
-            sys.exit(-1)
-
-        # Init the current experiment folder
-        self.subject_directory = self.create_session_folder(recording_folder)
-
     def _learning_model(self, feedback: Feedback, stim: int):
 
         """
@@ -238,11 +216,6 @@ class OnlineExperiment(Experiment):
 
         # Create experiment's metadata
         self.write_metadata()
-
-
-
-        # Update the directory for the current subject
-        self._init_directory()
 
         # Init experiments configurations
         self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
