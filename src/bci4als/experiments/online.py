@@ -4,10 +4,7 @@ import random
 import sys
 import threading
 import time
-from datetime import datetime
-from tkinter import messagebox
-from tkinter.filedialog import askdirectory
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -16,7 +13,7 @@ import numpy as np
 from bci4als.dashboard import Dashboard
 from bci4als.eeg import EEG
 from .experiment import Experiment
-from bci4als.feedback import Feedback
+from bci4als.experiments.feedback import Feedback
 from bci4als.ml_model import MLModel
 from matplotlib.animation import FuncAnimation
 from mne_features.feature_extraction import extract_features
@@ -44,13 +41,15 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
-                 buffer_time: float, threshold: int):
+                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False):
 
         super().__init__(eeg, num_trials)
+        # experiment params
         self.experiment_type = "Online"
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
         self.model = model
+        self.skip_after = skip_after
         self.win = None
 
         # Model configs
@@ -103,7 +102,12 @@ class OnlineExperiment(Experiment):
 
         timer = core.Clock()
         target_predictions = []
-        while not feedback.confident:
+        num_tries = 0
+        while not feedback.stop:
+            # increase num_tries by 1
+            print(f"num tries {num_tries}")
+            num_tries += 1
+
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
 
@@ -112,16 +116,16 @@ class OnlineExperiment(Experiment):
 
             # Predict the class
             prediction = self.model.online_predict(data, eeg=self.eeg)
-            target_predictions.append((stim, int(prediction)))
+            target_predictions.append((int(stim), int(prediction)))
             # Reset the clock for the next buffer
             timer.reset()
 
             # Update the feedback according the prediction
-            feedback.update(prediction)
-            # feedback.update(stim)  # debug
+            feedback.update(prediction, skip=(num_tries >= self.skip_after))
+            # feedback.update(stim)  # For debugging purposes
 
             # Update the model using partial-fit with the new EEG data
-            # self.model.partial_fit([x], [stim])
+            # self.model.partial_fit([x], [stim])  # todo: implement this with csp_lda
 
             # Debug
             print(f'Predict: {self.label_dict[prediction]}; '
@@ -129,6 +133,10 @@ class OnlineExperiment(Experiment):
         accuracy = sum([1 if p[1] == p[0] else 0 for p in target_predictions]) / len(target_predictions)
         print(f'Accuracy of last target: {accuracy}')
         self.results.append(target_predictions)
+
+        # Save Results
+        json.dump(self.results, open(os.path.join(self.session_directory, 'results.json'), "w"))
+
 
     def warmup(self, use_eeg: bool = True, target: str = 'right'):
 
@@ -208,7 +216,6 @@ class OnlineExperiment(Experiment):
 
         return X
 
-
     def run(self, use_eeg: bool = True, full_screen: bool = False):
         # Init the current experiment folder
         self.subject_directory = self._ask_subject_directory()
@@ -237,7 +244,7 @@ class OnlineExperiment(Experiment):
             # Maintain visual feedback on screen
             timer = core.Clock()
 
-            while not feedback.confident:
+            while not feedback.stop:
 
                 feedback.display(current_time=timer.getTime())
 
@@ -255,8 +262,5 @@ class OnlineExperiment(Experiment):
         # turn off EEG streaming
         if use_eeg:
             self.eeg.off()
-
-        # Save Results
-        json.dump(self.results, open(os.path.join(self.subject_directory, 'results.json'), "w"))
 
 # todo: dont ask twice for dir

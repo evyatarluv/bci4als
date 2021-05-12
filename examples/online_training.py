@@ -9,7 +9,7 @@ def run_experiment(model_path: str):
 
     eeg = EEG(board_id=2)
 
-    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=10, buffer_time=4, threshold=3)
+    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=3, buffer_time=4, threshold=3, skip_after=10)
 
     exp.run(use_eeg=True, full_screen=True)
 
@@ -20,3 +20,5 @@ if __name__ == '__main__':
 
     run_experiment(model_path=r'C:\Users\noam\PycharmProjects\bci_4_als\recordings\noam\1\model.pickle')
 
+# todo:
+# skip after 10 tries

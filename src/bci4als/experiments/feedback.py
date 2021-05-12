@@ -49,6 +49,7 @@ class Feedback:
         self.stim: int = stim
         self.threshold: int = threshold
         self.confident: bool = False
+        self.stop = False
         self.progress: float = 0
         self.refresh_rate: float = refresh_rate
         self.buffer_time: float = buffer_time
@@ -87,7 +88,7 @@ class Feedback:
                                                  size=(0, self.time_bar_frame.size[1]),
                                                  fillColor=self.time_bar.fill_color)
 
-    def update(self, predict_stim: int):
+    def update(self, predict_stim: int, skip: bool = False):
         """
         Update the feedback on screen.
         The update occur according to the model prediction. If the model was right
@@ -97,11 +98,14 @@ class Feedback:
         """
         # If the model predicted right
         if predict_stim == self.stim:
-
             self.progress += 1 / self.threshold
 
             if self.progress == 1:
                 self.confident = True
+                self.stop = True
+
+        if skip:
+            self.stop = True
 
     def display(self, current_time: float):
         """
@@ -115,8 +119,12 @@ class Feedback:
         self._draw_time_bar(current_time)
 
         # If confident draw finished message
-        if self.confident:
-            visual.TextStim(self.win, 'Well done!\nPress any key to continue', pos=(0, 0.5)).draw()
+        if self.stop:
+            if self.confident:
+                text = 'Well done!\nPress any key to continue'
+            else:
+                text = 'Skipping.\nPress any key to continue'
+            visual.TextStim(self.win, text, pos=(0, 0.5)).draw()
 
         # Display window & wait
         self.win.flip()
@@ -132,7 +140,8 @@ class Feedback:
 
         # Update feedback size & pos
         self.feedback_bar.width = self.progress * self.bar.frame_size[0]
-        self.feedback_bar.pos[0] = self.feedback_frame.pos[0] - self.feedback_frame.width / 2 + self.feedback_bar.width / 2
+        self.feedback_bar.pos[0] = self.feedback_frame.pos[
+                                       0] - self.feedback_frame.width / 2 + self.feedback_bar.width / 2
 
         # Draw elements
         self.img_stim.draw()  # always keep the draw of the image first

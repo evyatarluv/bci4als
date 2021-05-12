@@ -4,8 +4,9 @@ from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 
+import brainflow
 from bci4als.eeg import EEG
-from bci4als.feedback import Feedback
+from bci4als.experiments.feedback import Feedback
 from psychopy import event
 
 
@@ -14,12 +15,16 @@ class Experiment:
         self.num_trials: int = num_trials
         self.eeg: EEG = eeg
 
+        if self.eeg.board_id == brainflow.BoardIds.SYNTHETIC_BOARD:
+            messagebox.showwarning(title="bci4als WARNING", message="You are running a synthetic board!")
+
         # override in subclass
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
         self.enum_image = None
         self.experiment_type = None
+        self.skip_after = None
 
     def run(self):
         pass
@@ -46,6 +51,7 @@ class Experiment:
             file.write(f'Trials length: {self.trial_length}\n')
             file.write(f'Cue length: {self.cue_length}\n')
             file.write(f'Labels Enum: {self.enum_image}\n')
+            file.write(f'Skip After: {self.skip_after}\n')
 
     def _ask_subject_directory(self):
         """
