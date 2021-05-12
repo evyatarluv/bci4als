@@ -9,7 +9,7 @@ from tkinter.filedialog import askdirectory
 from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
-from bci4als.experiment import Experiment
+from .experiment import Experiment
 from bci4als.eeg import EEG
 from playsound import playsound
 from psychopy import visual
@@ -22,7 +22,6 @@ class OfflineExperiment(Experiment):
                  full_screen: bool = False, audio: bool = False):
 
         super().__init__(eeg, num_trials)
-        self.subject_directory: str = ''
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
         self.full_screen: bool = full_screen
@@ -36,6 +35,8 @@ class OfflineExperiment(Experiment):
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
 
         # paths
+        self.subject_directory: str = ''
+        self.session_directory: str = ''
         self.images_path: Dict[str, str] = {
             'right': os.path.join(os.path.dirname(__file__), 'images', 'arrow_right.jpeg'),
             'left': os.path.join(os.path.dirname(__file__), 'images', 'arrow_left.jpeg'),
@@ -46,35 +47,10 @@ class OfflineExperiment(Experiment):
                                            for label in self.enum_image.values()}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
 
-    def _init_directory(self):
-        """
-        init the current subject directory
-        :return: the subject directory
-        """
 
-        # get the CurrentStudy recording directory
-        if not messagebox.askokcancel(title='bci4als',
-                                      message="Welcome to the motor imagery EEG recorder."
-                                              "\n\nNumber of trials: {}\n\n"
-                                              "Please select the subject directory:".format(self.num_trials)):
-            sys.exit(-1)
-
-        # show an "Open" dialog box and return the path to the selected file
-        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
-        recording_folder = askdirectory(initialdir=init_dir)
-        if not recording_folder:
-            sys.exit(-1)
-
-        # Init the current experiment folder
-        self.subject_directory = self.create_session_folder(recording_folder)
-
-        # Create experiment's metadata
-        self.create_metadata()
-
-    def create_metadata(self):
-
+    def write_metadata(self):
         # The path of the metadata file
-        path = os.path.join(self.subject_directory, 'metadata.txt')
+        path = os.path.join(self.session_directory, 'metadata.txt')
 
         with open(path, 'w') as file:
             # Datetime
@@ -245,9 +221,14 @@ class OfflineExperiment(Experiment):
         pd.DataFrame.from_dict({'name': self.labels}).to_csv(labels_path, index=False, header=False)
 
     def run(self):
+        # artifacts
+        # Init the current experiment folder
+        self.subject_directory = self._ask_subject_directory()
+        self.session_directory = self.create_session_folder(self.subject_directory)
 
-        # Update the directory for the current subject
-        self._init_directory()
+        # Create experiment's metadata
+        self.write_metadata()
+
         messagebox.showinfo(title='bci4als', message='Start running trials...')
 
         # Init psychopy and screen params

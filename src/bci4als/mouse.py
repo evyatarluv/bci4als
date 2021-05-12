@@ -2,8 +2,8 @@ import os
 import time
 from typing import Optional, List
 from PyQt5.QtCore import Qt
-from bci4als.eeg import EEG
-from bci4als.ml_model import MLModel
+from bci4als import EEG
+from bci4als import MLModel
 from pynput.mouse import Button
 from pynput.mouse import Controller as Controller_mouse
 from pynput.keyboard import Key

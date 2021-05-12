@@ -1,7 +1,11 @@
+import json
+import os
 import random
 import sys
 import threading
 import time
+from tkinter import messagebox
+from tkinter.filedialog import askdirectory
 from typing import Dict, List
 
 import matplotlib
@@ -10,7 +14,7 @@ import mne
 import numpy as np
 from bci4als.dashboard import Dashboard
 from bci4als.eeg import EEG
-from bci4als.experiment import Experiment
+from .experiment import Experiment
 from bci4als.feedback import Feedback
 from bci4als.ml_model import MLModel
 from matplotlib.animation import FuncAnimation
@@ -59,6 +63,16 @@ class OnlineExperiment(Experiment):
         # Example: [ [(0, 2), (0,3), (0,0), (0,0), (0,0) ] , [ ...] , ... ,[] ]
         self.results = []
 
+        # paths
+        # show an "Open" dialog box and return the path to the selected file
+        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
+        recording_folder = askdirectory(initialdir=init_dir)
+        if not recording_folder:
+            sys.exit(-1)
+
+        # Init the current experiment folder
+        self.subject_directory = self.create_session_folder(recording_folder)
+
     def _init_trials(self) -> List[int]:
         """
         Create list with trials as num_trials attributes.
@@ -78,6 +92,28 @@ class OnlineExperiment(Experiment):
         # pd.DataFrame.from_dict({'name': self.labels}).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
         #                                                      index=False, header=False)
         return trials
+
+    def _init_directory(self):
+        """
+        init the current subject directory
+        :return: the subject directory
+        """
+
+        # get the CurrentStudy recording directory
+        if not messagebox.askokcancel(title='bci4als',
+                                      message="Welcome to the motor imagery EEG recorder."
+                                              "\n\nNumber of trials: {}\n\n"
+                                              "Please select the subject directory:".format(self.num_trials)):
+            sys.exit(-1)
+
+        # show an "Open" dialog box and return the path to the selected file
+        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
+        recording_folder = askdirectory(initialdir=init_dir)
+        if not recording_folder:
+            sys.exit(-1)
+
+        # Init the current experiment folder
+        self.subject_directory = self.create_session_folder(recording_folder)
 
     def _learning_model(self, feedback: Feedback, stim: int):
 
@@ -106,7 +142,7 @@ class OnlineExperiment(Experiment):
 
             # Predict the class
             prediction = self.model.online_predict(data, eeg=self.eeg)
-            target_predictions.append((stim, prediction))
+            target_predictions.append((stim, int(prediction)))
             # Reset the clock for the next buffer
             timer.reset()
 
@@ -204,6 +240,9 @@ class OnlineExperiment(Experiment):
 
     def run(self, use_eeg: bool = True, full_screen: bool = False):
 
+        # Update the directory for the current subject
+        self._init_directory()
+
         # Init experiments configurations
         self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
 
@@ -213,7 +252,7 @@ class OnlineExperiment(Experiment):
 
         # For each stim in the trials list
         for stim in self.trials:
-
+            # stim = self.labels_enum["left"]  # for debugging purposes
             # Init feedback instance
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
@@ -242,3 +281,8 @@ class OnlineExperiment(Experiment):
         # turn off EEG streaming
         if use_eeg:
             self.eeg.off()
+
+        # Save Results
+        json.dump(self.results, open(os.path.join(self.subject_directory, 'results.json'), "w"))
+
+# todo: dont ask twice for dir

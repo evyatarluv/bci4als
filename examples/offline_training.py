@@ -1,25 +1,13 @@
-import os
 import pickle
 from typing import List
 import mne
 import pandas as pd
 from bci4als.eeg import EEG
 from bci4als.ml_model import MLModel
-from bci4als.offline import OfflineExperiment
+from bci4als.experiments.offline import OfflineExperiment
 import numpy as np
-from mne.channels import make_standard_montage
-from mne.decoding import CSP
 from mne_features.feature_extraction import extract_features
-from numpy import ndarray
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_validate
-from sklearn.svm import SVC
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.pipeline import Pipeline
-from matplotlib.figure import Figure
-
 
 
 def laplacian(data, channels: List[str]):
@@ -92,9 +80,9 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
 
 def offline_experiment(run: bool = True, path: str = None):
 
-    eeg = EEG(board_id=2)
+    eeg = EEG(board_id=-1)
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=120, trial_length=4,
+    exp = OfflineExperiment(eeg=eeg, num_trials=6, trial_length=3,
                             full_screen=True, audio=False)
 
     if run:

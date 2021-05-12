@@ -1,7 +1,7 @@
 import os
 import time
 from collections import namedtuple
-from typing import Dict, List
+from typing import Dict
 from psychopy import visual
 
 # name tuple object for the progress bar params

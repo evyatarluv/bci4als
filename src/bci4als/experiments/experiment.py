@@ -1,4 +1,7 @@
 import os
+import sys
+from tkinter import messagebox
+from tkinter.filedialog import askdirectory
 
 from bci4als.eeg import EEG
 from bci4als.feedback import Feedback
@@ -6,13 +9,32 @@ from psychopy import event
 
 
 class Experiment:
-
     def __init__(self, eeg, num_trials):
         self.eeg: EEG = eeg
         self.num_trials: int = num_trials
 
     def run(self):
         pass
+
+    def _ask_subject_directory(self):
+        """
+        init the current subject directory
+        :return: the subject directory
+        """
+
+        # get the CurrentStudy recording directory
+        if not messagebox.askokcancel(title='bci4als',
+                                      message="Welcome to the motor imagery EEG recorder."
+                                              "\n\nNumber of trials: {}\n\n"
+                                              "Please select the subject directory:".format(self.num_trials)):
+            sys.exit(-1)
+
+        # show an "Open" dialog box and return the path to the selected file
+        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
+        subject_folder = askdirectory(initialdir=init_dir)
+        if not subject_folder:
+            sys.exit(-1)
+        return subject_folder
 
     @staticmethod
     def _wait_between_trials(feedback: Feedback, eeg: EEG, use_eeg: bool):
@@ -74,4 +96,3 @@ class Experiment:
         os.mkdir(session_folder)
 
         return session_folder
-
