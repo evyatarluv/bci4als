@@ -22,6 +22,7 @@ class OfflineExperiment(Experiment):
                  full_screen: bool = False, audio: bool = False):
 
         super().__init__(eeg, num_trials)
+        self.experiment_type = "Offline"
         self.window_params: Dict[str, Any] = {}
         self.labels: List[int] = []
         self.full_screen: bool = full_screen
@@ -46,29 +47,6 @@ class OfflineExperiment(Experiment):
         self.audio_path: Dict[str, str] = {label: os.path.join(os.path.dirname(__file__), 'audio', f'{label}.mp3')
                                            for label in self.enum_image.values()}
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
-
-
-    def write_metadata(self):
-        # The path of the metadata file
-        path = os.path.join(self.session_directory, 'metadata.txt')
-
-        with open(path, 'w') as file:
-            # Datetime
-            file.write(f'Experiment datetime: {datetime.datetime.now()}\n\n')
-
-            # Channels
-            file.write('EEG Channels:\n')
-            file.write('*************\n')
-            for index, ch in enumerate(self.eeg.get_board_names()):
-                file.write(f'Channel {index + 1}: {ch}\n')
-
-            # Experiment data
-            file.write('\nExperiment Data\n')
-            file.write('***************\n')
-            file.write(f'Num of trials: {self.num_trials}\n')
-            file.write(f'Trials length: {self.trial_length}\n')
-            file.write(f'Cue length: {self.cue_length}\n')
-            file.write(f'Labels Enum: {self.enum_image}\n')
 
     def _init_window(self):
         """
@@ -221,7 +199,6 @@ class OfflineExperiment(Experiment):
         pd.DataFrame.from_dict({'name': self.labels}).to_csv(labels_path, index=False, header=False)
 
     def run(self):
-        # artifacts
         # Init the current experiment folder
         self.subject_directory = self._ask_subject_directory()
         self.session_directory = self.create_session_folder(self.subject_directory)

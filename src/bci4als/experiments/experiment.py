@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 
@@ -10,11 +11,41 @@ from psychopy import event
 
 class Experiment:
     def __init__(self, eeg, num_trials):
-        self.eeg: EEG = eeg
         self.num_trials: int = num_trials
+        self.eeg: EEG = eeg
+
+        # override in subclass
+        self.cue_length = None
+        self.trial_length = None
+        self.session_directory = None
+        self.enum_image = None
+        self.experiment_type = None
 
     def run(self):
         pass
+
+    def write_metadata(self):
+        # The path of the metadata file
+        path = os.path.join(self.session_directory, 'metadata.txt')
+
+        with open(path, 'w') as file:
+            # Datetime
+            file.write(f'Experiment datetime: {datetime.now()}\n\n')
+
+            # Channels
+            file.write('EEG Channels:\n')
+            file.write('*************\n')
+            for index, ch in enumerate(self.eeg.get_board_names()):
+                file.write(f'Channel {index + 1}: {ch}\n')
+
+            # Experiment data
+            file.write('\nExperiment Data\n')
+            file.write('***************\n')
+            file.write(f'Experiment Type: {self.experiment_type}\n')
+            file.write(f'Num of trials: {self.num_trials}\n')
+            file.write(f'Trials length: {self.trial_length}\n')
+            file.write(f'Cue length: {self.cue_length}\n')
+            file.write(f'Labels Enum: {self.enum_image}\n')
 
     def _ask_subject_directory(self):
         """

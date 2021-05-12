@@ -93,9 +93,9 @@ def offline_experiment(run: bool = True, path: str = None):
 
     # Classification
     model = MLModel()
-    subject_folder = exp.subject_directory if run else path
+    session_directory = exp.session_directory if run else path
     model.offline_training(eeg=eeg, trials=trials, labels=labels,
-                           subject_folder=subject_folder, model_type='csp_lda')
+                           subject_folder=session_directory, model_type='csp_lda')
 
 
 if __name__ == '__main__':

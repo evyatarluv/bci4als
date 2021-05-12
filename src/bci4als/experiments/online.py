@@ -4,6 +4,7 @@ import random
 import sys
 import threading
 import time
+from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 from typing import Dict, List
@@ -46,6 +47,7 @@ class OnlineExperiment(Experiment):
                  buffer_time: float, threshold: int):
 
         super().__init__(eeg, num_trials)
+        self.experiment_type = "Online"
         self.threshold: int = threshold
         self.buffer_time: float = buffer_time
         self.model = model
@@ -62,16 +64,6 @@ class OnlineExperiment(Experiment):
         # Hold list of lists of target-prediction pairs per trial
         # Example: [ [(0, 2), (0,3), (0,0), (0,0), (0,0) ] , [ ...] , ... ,[] ]
         self.results = []
-
-        # paths
-        # show an "Open" dialog box and return the path to the selected file
-        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
-        recording_folder = askdirectory(initialdir=init_dir)
-        if not recording_folder:
-            sys.exit(-1)
-
-        # Init the current experiment folder
-        self.subject_directory = self.create_session_folder(recording_folder)
 
     def _init_trials(self) -> List[int]:
         """
@@ -238,7 +230,16 @@ class OnlineExperiment(Experiment):
 
         return X
 
+
     def run(self, use_eeg: bool = True, full_screen: bool = False):
+        # Init the current experiment folder
+        self.subject_directory = self._ask_subject_directory()
+        self.session_directory = self.create_session_folder(self.subject_directory)
+
+        # Create experiment's metadata
+        self.write_metadata()
+
+
 
         # Update the directory for the current subject
         self._init_directory()
