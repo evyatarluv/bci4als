@@ -41,7 +41,7 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
-                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False):
+                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False, debug=False):
 
         super().__init__(eeg, num_trials)
         # experiment params
@@ -50,6 +50,7 @@ class OnlineExperiment(Experiment):
         self.buffer_time: float = buffer_time
         self.model = model
         self.skip_after = skip_after
+        self.debug = debug
         self.win = None
 
         # Model configs
@@ -115,7 +116,11 @@ class OnlineExperiment(Experiment):
             data = self.eeg.get_channels_data()
 
             # Predict the class
-            prediction = self.model.online_predict(data, eeg=self.eeg)
+            if self.debug:
+                # in debug mode, be correct 2/3 of the time and incorrect 1/3 of the time.
+                prediction = stim if np.random.rand() <= 2 / 3 else (stim + 1) % len(self.labels_enum)
+            else:
+                prediction = self.model.online_predict(data, eeg=self.eeg)
             target_predictions.append((int(stim), int(prediction)))
             # Reset the clock for the next buffer
             timer.reset()
@@ -136,7 +141,6 @@ class OnlineExperiment(Experiment):
 
         # Save Results
         json.dump(self.results, open(os.path.join(self.session_directory, 'results.json'), "w"))
-
 
     def warmup(self, use_eeg: bool = True, target: str = 'right'):
 

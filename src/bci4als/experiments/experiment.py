@@ -17,7 +17,9 @@ class Experiment:
 
         if self.eeg.board_id == brainflow.BoardIds.SYNTHETIC_BOARD:
             messagebox.showwarning(title="bci4als WARNING", message="You are running a synthetic board!")
-
+            self.debug = True
+        else:
+            self.debug = False
         # override in subclass
         self.cue_length = None
         self.trial_length = None

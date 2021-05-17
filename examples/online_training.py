@@ -7,7 +7,9 @@ def run_experiment(model_path: str):
 
     model = MLModel(model_path=model_path)
 
-    eeg = EEG(board_id=2)
+    SYNTHETIC_BOARD = -1
+    CYTON_DAISY = 2
+    eeg = EEG(board_id=SYNTHETIC_BOARD)
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=3, buffer_time=4, threshold=3, skip_after=10)
 
@@ -19,6 +21,3 @@ def run_experiment(model_path: str):
 if __name__ == '__main__':
 
     run_experiment(model_path=r'C:\Users\noam\PycharmProjects\bci_4_als\recordings\noam\1\model.pickle')
-
-# todo:
-# skip after 10 tries
