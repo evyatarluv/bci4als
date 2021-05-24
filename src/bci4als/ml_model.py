@@ -18,7 +18,12 @@ class MLModel:
     def __init__(self, model_path: str = None):
 
         self.model_path = model_path
-        self.model = pickle.load(open(model_path, 'rb')) if model_path is not None else None
+        if self.model_path is None:
+            self.debug = True
+            self.model = None
+        else:
+            self.debug = False
+            self.model = pickle.load(open(model_path, 'rb')) if model_path is not None else None
 
     def offline_training(self, eeg: EEG, trials: List[pd.DataFrame], labels: List[int],
                          subject_folder: str, model_type: str):
@@ -73,7 +78,6 @@ class MLModel:
         csp_plot_figure.savefig(csp_figure_path)
 
     def online_predict(self, data: NDArray, eeg: EEG):
-
         # Prepare the data to MNE functions
         data = data.astype(np.float64)
 

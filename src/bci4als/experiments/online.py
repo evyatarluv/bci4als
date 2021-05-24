@@ -41,7 +41,7 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
-                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False, debug=False):
+                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False):
 
         super().__init__(eeg, num_trials)
         # experiment params
@@ -50,7 +50,7 @@ class OnlineExperiment(Experiment):
         self.buffer_time: float = buffer_time
         self.model = model
         self.skip_after = skip_after
-        self.debug = debug
+        self.debug = self.model.debug
         self.win = None
 
         # Model configs

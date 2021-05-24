@@ -19,5 +19,10 @@ def run_experiment(model_path: str):
 
 
 if __name__ == '__main__':
+    model_path = r'../recordings/avi/4/model.pickle'
+    model_path = None
+    run_experiment(model_path=model_path)
 
-    run_experiment(model_path=r'C:\Users\noam\PycharmProjects\bci_4_als\recordings\noam\1\model.pickle')
+# PAY ATTENTION!
+# If synthetic - model Path should be none
+# otherwise choose a model path
