@@ -33,7 +33,6 @@ class OfflineExperiment(Experiment):
         self.next_length: float = next_length
         self.ready_length: float = ready_length
         self.trial_length: float = trial_length
-        self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
 
         # paths
         self.subject_directory: str = ''
