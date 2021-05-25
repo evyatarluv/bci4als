@@ -188,12 +188,12 @@ class OfflineExperiment(Experiment):
         :return:
         """
         # Dump to pickle
-        trials_path = os.path.join(self.subject_directory, 'trials.pickle')
+        trials_path = os.path.join(self.session_directory, 'trials.pickle')
         print(f"Dumping extracted trials recordings to {trials_path}")
         pickle.dump(trials, open(trials_path, 'wb'))
 
         # Save the labels as csv file
-        labels_path = os.path.join(self.subject_directory, 'labels.csv')
+        labels_path = os.path.join(self.session_directory, 'labels.csv')
         print(f"Saving labels to {labels_path}")
         pd.DataFrame.from_dict({'name': self.labels}).to_csv(labels_path, index=False, header=False)
 
