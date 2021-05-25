@@ -117,7 +117,7 @@ class VirtualMouse:
             if ((x - x_center) ** 2) + ((y - y_center) ** 2) < r ** 2:
 
                 counter += 1
-                print(f'Counter: {counter}')
+                # print(f'Counter: {counter}')
 
             else:
 
@@ -126,6 +126,7 @@ class VirtualMouse:
 
             time.sleep(interval)
 
+        print('No movement monitored...')
         return True
 
     def predict(self, buffer_time: int) -> int:
@@ -137,6 +138,7 @@ class VirtualMouse:
         # todo: what about the threshold? predict according the first label?
 
         # Sleep in order to get EEG data
+        print('Predicting label...')
         time.sleep(buffer_time)
 
         # Data Acquisition
@@ -153,6 +155,9 @@ class VirtualMouse:
         :param action: the action to execute as str
         :return:
         """
+
+        # Debug
+        print(f'Executing action: {action}')
 
         if action is not None:
 
@@ -176,10 +181,10 @@ class VirtualMouse:
         self.mouse.release(Button.left)
 
     def scroll_up(self):
-        self.mouse.scroll(0, -2)
+        self.mouse.scroll(0, 2)
 
     def scroll_down(self):
-        self.mouse.scroll(0, 2)
+        self.mouse.scroll(0, -2)
 
     def ctrl_c(self):
 
