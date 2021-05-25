@@ -9,9 +9,9 @@ def run_experiment(model_path: str):
 
     SYNTHETIC_BOARD = -1
     CYTON_DAISY = 2
-    eeg = EEG(board_id=SYNTHETIC_BOARD)
+    eeg = EEG(board_id=CYTON_DAISY)
 
-    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=3, buffer_time=4, threshold=3, skip_after=10)
+    exp = OnlineExperiment(eeg=eeg, model=model, num_trials=10, buffer_time=4, threshold=3, skip_after=5)
 
     exp.run(use_eeg=True, full_screen=True)
 
@@ -20,7 +20,7 @@ def run_experiment(model_path: str):
 
 if __name__ == '__main__':
     model_path = r'../recordings/avi/4/model.pickle'
-    model_path = None
+    #model_path = None  # use if synthetic
     run_experiment(model_path=model_path)
 
 # PAY ATTENTION!

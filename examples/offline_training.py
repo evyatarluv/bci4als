@@ -80,9 +80,9 @@ def get_features(eeg: EEG, trials: List[np.ndarray]) -> List[np.ndarray]:
 
 def offline_experiment(run: bool = True, path: str = None):
 
-    eeg = EEG(board_id=-1)
+    eeg = EEG(board_id=2)
 
-    exp = OfflineExperiment(eeg=eeg, num_trials=6, trial_length=3,
+    exp = OfflineExperiment(eeg=eeg, num_trials=60, trial_length=3,
                             full_screen=True, audio=False)
 
     if run:
