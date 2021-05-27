@@ -94,7 +94,6 @@ class OnlineExperiment(Experiment):
         while not feedback.stop:
             # increase num_tries by 1
             print(f"num tries {num_tries}")
-            num_tries += 1
 
             # Sleep until the buffer full
             time.sleep(max(0, self.buffer_time - timer.getTime()))
@@ -107,6 +106,7 @@ class OnlineExperiment(Experiment):
                 # in debug mode, be correct 2/3 of the time and incorrect 1/3 of the time.
                 prediction = stim if np.random.rand() <= 2 / 3 else (stim + 1) % len(self.labels_enum)
             else:
+                # in normal mode, use the loaded model to make a prediction
                 prediction = self.model.online_predict(data, eeg=self.eeg)
 
             # play sound if successful
@@ -122,8 +122,16 @@ class OnlineExperiment(Experiment):
                 pickle.dump(self.model, open(os.path.join(self.session_directory, 'model.pickle'), 'wb'))
 
             target_predictions.append((int(stim), int(prediction)))
+
+
             # Reset the clock for the next buffer
             timer.reset()
+
+            if stim == prediction:
+                num_tries = 0  # if successful, reset num_tries to 0
+            else:
+                num_tries += 1
+
 
             # Update the feedback according the prediction
             feedback.update(prediction, skip=(num_tries >= self.skip_after))
