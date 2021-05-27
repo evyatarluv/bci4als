@@ -94,6 +94,7 @@ class Feedback:
         The update occur according to the model prediction. If the model was right
         the progress bar get wider, otherwise it stay the same size.
         :param predict_stim: prediction of the model.
+        :param skip: optionally skip this stimulus.
         :return:
         """
         # If the model predicted right
@@ -118,7 +119,7 @@ class Feedback:
 
         self._draw_time_bar(current_time)
 
-        # If confident draw finished message
+        # If time to stop trial draw finished message
         if self.stop:
             if self.confident:
                 text = 'Well done!\nPress any key to continue'
