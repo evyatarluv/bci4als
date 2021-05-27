@@ -16,6 +16,7 @@ browser = webdriver.Chrome(executable_path=ChromeDriverManager(chrome_type=Chrom
 # browser.implicitly_wait(10)
 print("Loading Avi's Auto Repair Shop")
 url = r'https://earth.google.com/web/search/%d7%9e%d7%95%d7%a1%d7%9a+%d7%90%d7%91%d7%99-%d7%93%d7%9f+2000+%d7%91%d7%a2%22%d7%9e,+Sorek+Street,+Be%27er+Sheva/@31.2247942,34.81324266,283.98703003a,0d,60y,190.93940552h,95.17478397t,0r/data=CqcBGn0SdwolMHgxNTAyNjYyYjkzN2E2ZjEzOjB4MTdmZjc3YWQ1MWE1YTcxNhlc3sH0Yjk_QCFajkb0IWhBQCo8157Xldeh15og15DXkdeZLdeT158gMjAwMCDXkdeiIteeLCBTb3JlayBTdHJlZXQsIEJlJ2VyIFNoZXZhGAEgASImCiQJ3OMoc5tGP0AR3hCKaZ1EP0AZQtIz6xpiQUAhyzTmmG1hQUAiGgoWeU9tVnpZQnNTLUhTNG9jemtaMUhvZxAC'
+url = r'https://www.google.com/maps/@30.624906,34.8271508,3a,75y,291.9h,89.66t/data=!3m6!1e1!3m4!1slAyOvjLlHutpFrBl1fGQgg!2e0!7i13312!8i6656'
 browser.get(url)
 
 # browser.implicitly_wait(35)
