@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import random
 import sys
 import threading
@@ -41,7 +42,8 @@ class OnlineExperiment(Experiment):
     """
 
     def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
-                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False):
+                 buffer_time: float, threshold: int, skip_after: Union[bool, int] = False,
+                 co_learning: bool = False):
 
         super().__init__(eeg, num_trials)
         # experiment params
@@ -52,6 +54,7 @@ class OnlineExperiment(Experiment):
         self.skip_after = skip_after
         self.debug = self.model.debug
         self.win = None
+        self.co_learning: bool = co_learning
 
         # Model configs
         self.labels_enum: Dict[str, int] = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
@@ -121,6 +124,12 @@ class OnlineExperiment(Experiment):
                 prediction = stim if np.random.rand() <= 2 / 3 else (stim + 1) % len(self.labels_enum)
             else:
                 prediction = self.model.online_predict(data, eeg=self.eeg)
+
+            if self.co_learning and (prediction == stim):
+
+                self.model.partial_fit(data, stim)
+                pickle.dump(self.model, open(os.path.join(self.session_directory, 'model.pickle'), 'wb'))
+
             target_predictions.append((int(stim), int(prediction)))
             # Reset the clock for the next buffer
             timer.reset()

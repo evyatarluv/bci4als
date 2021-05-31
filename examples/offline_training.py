@@ -1,3 +1,4 @@
+import os
 import pickle
 from typing import List
 import mne
@@ -92,10 +93,12 @@ def offline_experiment(run: bool = True, path: str = None):
         labels = [int(i) for i in np.genfromtxt(path.format('labels.csv'), delimiter=',')]
 
     # Classification
-    model = MLModel()
+    model = MLModel(trials=trials, labels=labels)
     session_directory = exp.session_directory if run else path
-    model.offline_training(eeg=eeg, trials=trials, labels=labels,
-                           subject_folder=session_directory, model_type='csp_lda')
+    model.offline_training(eeg=eeg, model_type='csp_lda')
+
+    # Dump the MLModel
+    pickle.dump(model, open(os.path.join(session_directory, 'model.pickle'), 'wb'))
 
 
 if __name__ == '__main__':
