@@ -127,7 +127,7 @@ class OnlineExperiment(Experiment):
 
             if self.co_learning and (prediction == stim):
 
-                self.model.partial_fit(data, stim)
+                self.model.partial_fit(self.eeg, data, stim)
                 pickle.dump(self.model, open(os.path.join(self.session_directory, 'model.pickle'), 'wb'))
 
             target_predictions.append((int(stim), int(prediction)))

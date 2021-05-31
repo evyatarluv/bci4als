@@ -40,8 +40,8 @@ class MLModel:
         ch_names = eeg.get_board_names()
         ch_types = ['eeg'] * len(ch_names)
         sfreq: int = eeg.sfreq
-        n_samples: int = min([t.shape[0] for t in self.trials])
-        epochs_array: np.ndarray = np.stack([t[:n_samples] for t in self.trials])
+        n_samples: int = min([t.shape[1] for t in self.trials])
+        epochs_array: np.ndarray = np.stack([t[:, :n_samples] for t in self.trials])
 
         info = mne.create_info(ch_names, sfreq, ch_types)
         epochs = mne.EpochsArray(epochs_array, info)
@@ -51,7 +51,7 @@ class MLModel:
         epochs.set_montage(montage)
 
         # Apply band-pass filter
-        epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
+        epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge', verbose=False)
 
         # Assemble a classifier
         lda = LinearDiscriminantAnalysis()
@@ -75,7 +75,7 @@ class MLModel:
 
         return prediction
 
-    def partial_fit(self, X: NDArray, y: int):
+    def partial_fit(self, eeg, X: NDArray, y: int):
 
         # Append X to trials
         self.trials.append(X)
@@ -84,5 +84,5 @@ class MLModel:
         self.labels.append(y)
 
         # Fit with trials and labels
-        self._csp_lda()
+        self._csp_lda(eeg)
 
