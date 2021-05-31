@@ -67,7 +67,7 @@ class MLModel:
         # Prepare the data to MNE functions
         data = data.astype(np.float64)
 
-        # Filter the data (band-pass only)
+        # Filter the data ( band-pass only)
         data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq, verbose=False)
 
         # Predict

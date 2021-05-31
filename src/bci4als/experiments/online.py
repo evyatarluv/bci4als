@@ -43,7 +43,7 @@ class OnlineExperiment(Experiment):
 
     def __init__(self, eeg: EEG, model: MLModel, num_trials: int,
                  buffer_time: float, threshold: int, skip_after: Union[bool, int] = False,
-                 co_learning: bool = False):
+                 co_learning: bool = False, debug=False):
 
         super().__init__(eeg, num_trials)
         # experiment params
@@ -52,7 +52,8 @@ class OnlineExperiment(Experiment):
         self.buffer_time: float = buffer_time
         self.model = model
         self.skip_after = skip_after
-        self.debug = self.model.debug
+        # self.debug = self.model.debug
+        self.debug = debug
         self.win = None
         self.co_learning: bool = co_learning
 
@@ -125,7 +126,8 @@ class OnlineExperiment(Experiment):
             else:
                 prediction = self.model.online_predict(data, eeg=self.eeg)
 
-            if self.co_learning and (prediction == stim):
+            # if self.co_learning and (prediction == stim):
+            if self.co_learning:
 
                 self.model.partial_fit(self.eeg, data, stim)
                 pickle.dump(self.model, open(os.path.join(self.session_directory, 'model.pickle'), 'wb'))
