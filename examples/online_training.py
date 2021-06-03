@@ -21,7 +21,7 @@ def run_experiment(model_path: str):
 
 
 if __name__ == '__main__':
-    model_path = r'../recordings/avi/8/model.pickle'
+    model_path = r'../recordings/avi/14/model.pickle'
     # model_path = None  # use if synthetic
     run_experiment(model_path=model_path)
 

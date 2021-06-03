@@ -3,7 +3,7 @@ import typing
 import matplotlib.pyplot as plt
 import numpy
 
-fpath = r"../recordings/avi/12/results.json"
+fpath = r"../recordings/avi/15/results.json"
 
 data = json.load(open(fpath))
 
