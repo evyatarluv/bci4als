@@ -14,6 +14,16 @@ from sklearn.pipeline import Pipeline
 
 
 class MLModel:
+    """
+    A class used to wrap all the ML model train, partial train and predictions
+
+    ...
+
+    Attributes
+    ----------
+    trials : list
+        a formatted string to print out what the animal says
+    """
 
     def __init__(self, trials: List[pd.DataFrame], labels: List[int]):
 
