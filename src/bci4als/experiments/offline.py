@@ -45,6 +45,7 @@ class OfflineExperiment(Experiment):
             'legs': os.path.join(os.path.dirname(__file__), 'images', 'legs.jpeg')}
         self.audio_path: Dict[str, str] = {label: os.path.join(os.path.dirname(__file__), 'audio', f'{label}.mp3')
                                            for label in self.enum_image.values()}
+        self.audio_success_path = os.path.join(os.path.dirname(__file__), 'audio', f'success.mp3')
         self.visual_params: Dict[str, Any] = {'text_color': 'white', 'text_height': 48}
 
     def _init_window(self):

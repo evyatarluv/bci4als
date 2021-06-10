@@ -11,6 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
+import playsound
 from bci4als.dashboard import Dashboard
 from bci4als.eeg import EEG
 from .experiment import Experiment
@@ -56,6 +57,12 @@ class OnlineExperiment(Experiment):
         self.debug = debug
         self.win = None
         self.co_learning: bool = co_learning
+
+
+        # audio
+        # self.audio_success_path = os.path.join(os.path.dirname(__file__), 'audio', f'success.mp3')
+        self.audio_success_path = r'C:\Users\noam\PycharmProjects\bci_4_als\src\bci4als\audio\success.mp3'
+        # todo: make this path generic
 
         # Model configs
         self.labels_enum: Dict[str, int] = {'right': 0, 'left': 1, 'idle': 2, 'tongue': 3, 'legs': 4}
@@ -125,6 +132,14 @@ class OnlineExperiment(Experiment):
                 prediction = stim if np.random.rand() <= 2 / 3 else (stim + 1) % len(self.labels_enum)
             else:
                 prediction = self.model.online_predict(data, eeg=self.eeg)
+
+            # play sound if successful
+            # todo: make this available to object params
+            self.play_sound = True
+            if self.play_sound:
+                if prediction == stim:
+                    playsound.playsound(self.audio_success_path)
+
 
             # if self.co_learning and (prediction == stim):
             if self.co_learning:
@@ -277,5 +292,3 @@ class OnlineExperiment(Experiment):
         # turn off EEG streaming
         if use_eeg:
             self.eeg.off()
-
-# todo: dont ask twice for dir
