@@ -24,7 +24,6 @@ class OfflineExperiment(Experiment):
         super().__init__(eeg, num_trials)
         self.experiment_type = "Offline"
         self.window_params: Dict[str, Any] = {}
-        self.labels: List[int] = []
         self.full_screen: bool = full_screen
         self.audio: bool = audio
 
@@ -66,20 +65,20 @@ class OfflineExperiment(Experiment):
 
         self.window_params = {'main_window': main_window, 'right': right_stim, 'left': left_stim,
                               'idle': idle_stim, 'tongue': tongue_stim, 'legs': legs_stim}
-
-    def _init_labels(self):
-        """
-        This method creates dict containing a stimulus vector
-        :return: the stimulus in each trial (list)
-        """
-
-        # Create the balance label vector
-        for i in self.enum_image.keys():
-            self.labels += [i] * (self.num_trials // len(self.enum_image.keys()))
-        self.labels += list(np.random.choice(list(self.enum_image.keys()),
-                                             size=self.num_trials % len(self.enum_image.keys()),
-                                             replace=True))
-        random.shuffle(self.labels)
+    #
+    # def _init_labels(self):
+    #     """
+    #     This method creates dict containing a stimulus vector
+    #     :return: the stimulus in each trial (list)
+    #     """
+    #
+    #     # Create the balance label vector
+    #     for i in self.enum_image.keys():
+    #         self.labels += [i] * (self.num_trials // len(self.enum_image.keys()))
+    #     self.labels += list(np.random.choice(list(self.enum_image.keys()),
+    #                                          size=self.num_trials % len(self.enum_image.keys()),
+    #                                          replace=True))
+    #     random.shuffle(self.labels)
 
     def _user_messages(self, trial_index):
         """
@@ -211,8 +210,10 @@ class OfflineExperiment(Experiment):
         # Init psychopy and screen params
         self._init_window()
 
-        # Init label vector
-        self._init_labels()
+
+        # This moved to the base class
+        # # Init label vector
+        # self._init_labels()
 
         # Start stream
         # initialize headset

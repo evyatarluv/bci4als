@@ -58,7 +58,6 @@ class OnlineExperiment(Experiment):
         self.win = None
         self.co_learning: bool = co_learning
 
-
         # audio
         # self.audio_success_path = os.path.join(os.path.dirname(__file__), 'audio', f'success.mp3')
         self.audio_success_path = r'C:\Users\noam\PycharmProjects\bci_4_als\src\bci4als\audio\success.mp3'
@@ -69,32 +68,9 @@ class OnlineExperiment(Experiment):
         self.label_dict: Dict[int, str] = dict([(value, key) for key, value in self.labels_enum.items()])
         self.num_labels: int = len(self.labels_enum)
 
-        # Init trials for the experiment
-        self.trials = self._init_trials()
-
         # Hold list of lists of target-prediction pairs per trial
         # Example: [ [(0, 2), (0,3), (0,0), (0,0), (0,0) ] , [ ...] , ... ,[] ]
         self.results = []
-
-    def _init_trials(self) -> List[int]:
-        """
-        Create list with trials as num_trials attributes.
-        The trials consists of equal number of right and left targets (0, 1).
-        :return:
-        """
-        trials = []
-        # Create the balance label vector
-        for i in range(self.num_labels):
-            trials += [i] * (self.num_trials // self.num_labels)
-        trials += list(np.random.choice(np.arange(self.num_labels),
-                                        size=self.num_trials % self.num_labels,
-                                        replace=True))
-        random.shuffle(trials)
-
-        # Save the labels as csv file
-        # pd.DataFrame.from_dict({'name': self.labels}).to_csv(os.path.join(self.subject_directory, 'labels.csv'),
-        #                                                      index=False, header=False)
-        return trials
 
     def _learning_model(self, feedback: Feedback, stim: int):
 
@@ -140,10 +116,8 @@ class OnlineExperiment(Experiment):
                 if prediction == stim:
                     playsound.playsound(self.audio_success_path)
 
-
             # if self.co_learning and (prediction == stim):
             if self.co_learning:
-
                 self.model.partial_fit(self.eeg, data, stim)
                 pickle.dump(self.model, open(os.path.join(self.session_directory, 'model.pickle'), 'wb'))
 
@@ -262,7 +236,7 @@ class OnlineExperiment(Experiment):
             self.eeg.on()
 
         # For each stim in the trials list
-        for stim in self.trials:
+        for stim in self.labels:
             # stim = self.labels_enum["left"]  # for debugging purposes
             # Init feedback instance
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)

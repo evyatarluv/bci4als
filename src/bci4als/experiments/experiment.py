@@ -1,10 +1,13 @@
 import os
+import random
 import sys
 from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 
 import brainflow
+import numpy as np
+
 from bci4als.eeg import EEG
 from bci4als.experiments.feedback import Feedback
 from psychopy import event
@@ -27,6 +30,10 @@ class Experiment:
         self.enum_image = {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
         self.experiment_type = None
         self.skip_after = None
+
+        #     labels
+        self.labels = []
+        self._init_labels()
 
     def run(self):
         pass
@@ -135,3 +142,19 @@ class Experiment:
         os.mkdir(session_folder)
 
         return session_folder
+
+    def _init_labels(self, keys=(0, 1, 2, 3, 4)):
+        """
+        This method creates dict containing a stimulus vector
+        :return: the stimulus in each trial (list)
+        """
+
+        # keys = [3, 4] #todo: make the list of keys programmable from main scope (run experiment with limited keys)
+        # Create the balance label vector
+        for i in keys:
+            self.labels += [i] * (self.num_trials // len(keys))
+        self.labels += list(np.random.choice(list(keys),
+                                             size=self.num_trials % len(keys),
+                                             replace=True))
+
+        random.shuffle(self.labels)
