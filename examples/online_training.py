@@ -13,7 +13,7 @@ def run_experiment(model_path: str):
     eeg = EEG(board_id=CYTON_DAISY)
 
     exp = OnlineExperiment(eeg=eeg, model=model, num_trials=10, buffer_time=4, threshold=3, skip_after=8,
-                           co_learning=True)
+                           co_learning=True, debug=False)
 
     exp.run(use_eeg=True, full_screen=True)
 
@@ -21,7 +21,7 @@ def run_experiment(model_path: str):
 
 
 if __name__ == '__main__':
-    model_path = r'../recordings/avi/14/model.pickle'
+    model_path = r'../recordings/avi/23/model.pickle'
     # model_path = None  # use if synthetic
     run_experiment(model_path=model_path)
 

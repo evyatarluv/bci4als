@@ -83,10 +83,10 @@ def offline_experiment():
 
     SYNTHETIC_BOARD = -1
     CYTON_DAISY = 2
-    eeg = EEG(board_id=SYNTHETIC_BOARD)
+    eeg = EEG(board_id=CYTON_DAISY)
 
     exp = OfflineExperiment(eeg=eeg, num_trials=20, trial_length=5,
-                            full_screen=False, audio=False)
+                            full_screen=True, audio=False)
 
     trials, labels = exp.run()
 
