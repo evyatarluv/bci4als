@@ -5,14 +5,12 @@ import random
 import sys
 import threading
 import time
-from typing import Dict, List, Union
-
+from typing import Dict, Union
 import matplotlib
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
 import playsound
-from bci4als.dashboard import Dashboard
 from bci4als.eeg import EEG
 from .experiment import Experiment
 from bci4als.experiments.feedback import Feedback
