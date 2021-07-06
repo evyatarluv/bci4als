@@ -10,9 +10,24 @@ from nptyping import NDArray
 
 
 class EEG:
+    """
+    A class used to wrap all the communication with the OpenBCI EEG
+    ...
 
+    Attributes
+    ----------
+    board_id : int
+        id of the OpenBCI board
+    ip_port : int
+        port for the board
+    serial_port : str
+        serial port for the board
+    headset : str
+        the headset name we use, will be presented in the metadata
+    """
     def __init__(self, board_id: int = BoardIds.CYTON_DAISY_BOARD.value, ip_port: int = 6677,
                  serial_port: Optional[str] = None, headset: str = "avi13"):
+
         # Board Id and Headset Name
         self.board_id = board_id
         self.headset: str = headset
@@ -187,6 +202,24 @@ class EEG:
         """Get NDArray only with the channels data (without all the markers and other stuff)"""
         return self.board.get_board_data()[self.get_board_channels()]
 
+    def find_serial_port(self) -> str:
+        """
+        Return the string of the serial port to which the FTDI dongle is connected.
+        If running in Synthetic mode, return ""
+        Example: return "COM5"
+        """
+        if self.board_id == BoardIds.SYNTHETIC_BOARD:
+            return ""
+        else:
+            plist = serial.tools.list_ports.comports()
+            FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
+            if len(FTDIlist) > 1:
+                raise LookupError(
+                    "More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
+            if len(FTDIlist) < 1:
+                raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
+            return FTDIlist[0].name
+
     @staticmethod
     def filter_data(data: mne.io.RawArray,
                     notch: float, low_pass: float, high_pass: float) -> mne.io.RawArray:
@@ -218,24 +251,6 @@ class EEG:
         markerValue += 100 * index
 
         return markerValue
-
-    def find_serial_port(self) -> str:
-        """
-        Return the string of the serial port to which the FTDI dongle is connected.
-        If running in Synthetic mode, return ""
-        Example: return "COM5"
-        """
-        if self.board_id == BoardIds.SYNTHETIC_BOARD:
-            return ""
-        else:
-            plist = serial.tools.list_ports.comports()
-            FTDIlist = [comport for comport in plist if comport.manufacturer == 'FTDI']
-            if len(FTDIlist) > 1:
-                raise LookupError(
-                    "More than one FTDI-manufactured device is connected. Please enter serial_port manually.")
-            if len(FTDIlist) < 1:
-                raise LookupError("FTDI-manufactured device not found. Please check the dongle is connected")
-            return FTDIlist[0].name
 
     @staticmethod
     def decode_marker(marker_value: int) -> (str, int, int):

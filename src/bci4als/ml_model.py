@@ -14,29 +14,35 @@ from sklearn.pipeline import Pipeline
 
 
 class MLModel:
+    """
+    A class used to wrap all the ML model train, partial train and predictions
 
-    def __init__(self, model_path: str = None):
+    ...
 
-        self.model_path = model_path
-        if self.model_path is None:
-            self.debug = True
-            self.model = None
-        else:
-            self.debug = False
-            self.model = pickle.load(open(model_path, 'rb')) if model_path is not None else None
+    Attributes
+    ----------
+    trials : list
+        a formatted string to print out what the animal says
+    """
 
-    def offline_training(self, eeg: EEG, trials: List[pd.DataFrame], labels: List[int],
-                         subject_folder: str, model_type: str):
+    def __init__(self, trials: List[pd.DataFrame], labels: List[int]):
+
+        self.trials: List[NDArray] = [t.to_numpy().T for t in trials]
+        self.labels: List[int] = labels
+        self.debug = True
+        self.clf = None
+
+    def offline_training(self, eeg: EEG, model_type: str):
 
         if model_type.lower() == 'csp_lda':
 
-            self._csp_lda(eeg, trials, labels, subject_folder)
+            self._csp_lda(eeg)
 
         else:
 
             raise NotImplementedError(f'The model type `{model_type}` is not implemented yet')
 
-    def _csp_lda(self, eeg: EEG, trials: List[pd.DataFrame], labels: List[int], subject_folder: str):
+    def _csp_lda(self, eeg: EEG):
 
         print('Training CSP & LDA model')
 
@@ -44,8 +50,8 @@ class MLModel:
         ch_names = eeg.get_board_names()
         ch_types = ['eeg'] * len(ch_names)
         sfreq: int = eeg.sfreq
-        n_samples: int = min([t.shape[0] for t in trials])
-        epochs_array: np.ndarray = np.stack([df[:n_samples].to_numpy().T for df in trials])
+        n_samples: int = min([t.shape[1] for t in self.trials])
+        epochs_array: np.ndarray = np.stack([t[:, :n_samples] for t in self.trials])
 
         info = mne.create_info(ch_names, sfreq, ch_types)
         epochs = mne.EpochsArray(epochs_array, info)
@@ -55,37 +61,38 @@ class MLModel:
         epochs.set_montage(montage)
 
         # Apply band-pass filter
-        epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge')
+        epochs.filter(7., 30., fir_design='firwin', skip_by_annotation='edge', verbose=False)
 
         # Assemble a classifier
         lda = LinearDiscriminantAnalysis()
         csp = CSP(n_components=6, reg=None, log=True, norm_trace=False)
 
         # Use scikit-learn Pipeline
-        clf = Pipeline([('CSP', csp), ('LDA', lda)])
+        self.clf = Pipeline([('CSP', csp), ('LDA', lda)])
 
         # fit transformer and classifier to data
-        clf.fit(epochs.get_data(), labels)
-
-        # save pipeline
-        self.model_path = os.path.join(subject_folder, 'model.pickle')
-        pickle.dump(clf, open(self.model_path, 'wb'))
-
-        # save csp filters
-        csp_figure_path = os.path.join(subject_folder, 'csp_filters.png')
-        csp_plot_figure: Figure = csp.plot_patterns(epochs.info, ch_type='eeg', units='Patterns (AU)', size=1.5,
-                                                    show=False)
-        csp_plot_figure.savefig(csp_figure_path)
+        self.clf.fit(epochs.get_data(), self.labels)
 
     def online_predict(self, data: NDArray, eeg: EEG):
         # Prepare the data to MNE functions
         data = data.astype(np.float64)
 
-        # Filter the data (band-pass only)
+        # Filter the data ( band-pass only)
         data = mne.filter.filter_data(data, l_freq=8, h_freq=30, sfreq=eeg.sfreq, verbose=False)
 
         # Predict
-        prediction = self.model.predict(data[np.newaxis])[0]
+        prediction = self.clf.predict(data[np.newaxis])[0]
 
         return prediction
+
+    def partial_fit(self, eeg, X: NDArray, y: int):
+
+        # Append X to trials
+        self.trials.append(X)
+
+        # Append y to labels
+        self.labels.append(y)
+
+        # Fit with trials and labels
+        self._csp_lda(eeg)
 
