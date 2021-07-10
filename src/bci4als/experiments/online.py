@@ -148,57 +148,6 @@ class OnlineExperiment(Experiment):
         # Save Results
         json.dump(self.results, open(os.path.join(self.session_directory, 'results.json'), "w"))
 
-    def warmup(self, use_eeg: bool = True, target: str = 'right'):
-
-        # matplotlib config
-        matplotlib.use('TkAgg')
-        fig, ax = plt.subplots(1, 2)
-
-        # Turn on the EEG streaming
-        if use_eeg:
-            self.eeg.on()
-
-        # Define the animation function
-        target_num = self.labels_enum[target]
-        correct, total = 0, 0
-        timer = core.Clock()
-
-        def animate(i: int, exp: OnlineExperiment, dash: Dashboard):
-
-            nonlocal correct, total, target, timer
-
-            # Wait for the buffer to fill up
-            time.sleep(max(0, exp.buffer_time - timer.getTime()))
-
-            # Get features from the current EEG data
-            data = exp.eeg.get_channels_data()
-            # data = np.random.rand(16, 125 * 4)  # debug
-            x = exp.online_pipe(data)
-            # x = Nystroem(kernel='rbf', gamma=1/8).fit_transform(x.reshape(1,-1))  # test transform
-
-            # Reset the timer for the next round
-            timer.reset()
-
-            # Predict using the model
-            confidence = exp.model.decision_function([x])[0]
-            prediction = exp.model.predict([x])[0]
-
-            # Plots
-            # Confidence plot
-            ax[0] = dash.confidence_plot(ax[0], list(exp.labels_enum.keys()), confidence)
-
-            # Accuracy
-            if prediction == target_num:
-                correct += 1
-            total += 1
-            ax[1] = dash.accuracy_plot(ax[1], correct / total, target.capitalize())
-
-        # Start Animation
-        ani = FuncAnimation(fig, animate,
-                            fargs=(self, Dashboard()),
-                            interval=10)
-        plt.show()
-
     def online_pipe(self, data: NDArray) -> NDArray:
         """
         The method get the data as ndarray with dimensions of (n_channels, n_samples).

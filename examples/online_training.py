@@ -17,8 +17,6 @@ def run_experiment(model_path: str):
 
     exp.run(use_eeg=True, full_screen=True)
 
-    # exp.warmup(use_eeg=True, target='right')
-
 
 if __name__ == '__main__':
     model_path = r'../recordings/avi/23/model.pickle'
