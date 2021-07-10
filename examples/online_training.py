@@ -6,6 +6,7 @@ from bci4als.eeg import EEG
 
 
 def run_experiment(model_path: str):
+
     model = pickle.load(open(model_path, 'rb'))
 
     SYNTHETIC_BOARD = -1
@@ -19,6 +20,7 @@ def run_experiment(model_path: str):
 
 
 if __name__ == '__main__':
+
     model_path = r'../recordings/avi/23/model.pickle'
     # model_path = None  # use if synthetic
     run_experiment(model_path=model_path)

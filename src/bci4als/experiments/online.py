@@ -121,7 +121,6 @@ class OnlineExperiment(Experiment):
 
             target_predictions.append((int(stim), int(prediction)))
 
-
             # Reset the clock for the next buffer
             timer.reset()
 
@@ -129,7 +128,6 @@ class OnlineExperiment(Experiment):
                 num_tries = 0  # if successful, reset num_tries to 0
             else:
                 num_tries += 1
-
 
             # Update the feedback according the prediction
             feedback.update(prediction, skip=(num_tries >= self.skip_after))
@@ -176,6 +174,7 @@ class OnlineExperiment(Experiment):
         return X
 
     def run(self, use_eeg: bool = True, full_screen: bool = False):
+
         # Init the current experiment folder
         self.subject_directory = self._ask_subject_directory()
         self.session_directory = self.create_session_folder(self.subject_directory)
@@ -192,7 +191,7 @@ class OnlineExperiment(Experiment):
 
         # For each stim in the trials list
         for stim in self.labels:
-            # stim = self.labels_enum["left"]  # for debugging purposes
+
             # Init feedback instance
             feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
 
