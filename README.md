@@ -101,7 +101,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-* [LabRecorder](https://github.com/labstreaminglayer/App-LabRecorder)
+* [python v. 3.6 or above](https://www.python.org/downloads/)
 * [OpenBCI GUI (recommended)](https://openbci.com/index.php/downloads)
 
 
@@ -110,7 +110,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Install python modules
    ```sh
-   pip install -i https://test.pypi.org/simple/ bci4als
+   pip install bci4als
 
    ```
 
@@ -122,6 +122,9 @@ To get a local copy up and running follow these simple example steps.
 
 For more examples, please refer to the [examples][examples-url]
 
+## Development
+
+Please see the [developer's guide](https://docs.google.com/document/d/1sr8dy3VjsJ6DX7J1P9QhAKxHvQSiQT5waMQo-BLgpKA/edit?usp=sharing)
 
 
 <!-- ROADMAP -->
@@ -158,6 +161,11 @@ Evyatar Luvaton - [luvaton@post.bgu.ac.il ](mailto:luvaton@post.bgu.ac.il )
 
 Noam Siegel - [noamsi@post.bgu.ac.il](mailto:noamsi@post.bgu.ac.il)
 
+Adi Nissim - [adinis@post.bgu.ac.il](mailto:adinis@post.bgu.ac.il)
+
+Eden Zohar - [edenzo@post.bgu.ac.il](edenzo@post.bgu.ac.il)
+
+
 Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyatarluv/BCI-4-ALS)
 
 
@@ -165,7 +173,6 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Computational Psychiatry Lab @ BGU](https://www.computational-psychiatry.com/)
-* [Lab Streaming Layer](https://github.com/sccn/labstreaminglayer)
 * [MIT License](https://choosealicense.com/licenses/mit/)
 
 
@@ -188,5 +195,5 @@ Project Link: [https://github.com/evyatarluv/BCI-4-ALS](https://github.com/evyat
 [linkedin-url]: https://www.linkedin.com/in/evyatar-luvaton/
 [product-screenshot]: images/screenshot.png
 [docs-url]: https://github.com/evyatarluv/BCI-4-ALS
-[examples-url]: recycle bin/semester A report/Report.ipynb
+[examples-url]: https://github.com/evyatarluv/bci4als/tree/master/examples
 
