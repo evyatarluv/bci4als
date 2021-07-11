@@ -32,7 +32,7 @@ class MLModel:
         self.debug = True
         self.clf = None
 
-    def offline_training(self, eeg: EEG, model_type: str):
+    def offline_training(self, eeg: EEG, model_type: str = 'csp_lda'):
 
         if model_type.lower() == 'csp_lda':
 
