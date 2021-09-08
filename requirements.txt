@@ -14,7 +14,7 @@ matplotlib>=3.1.1
 pyxdf>=1.16.3
 
 pyqt5>=5.15.4
-bci4als>=0.1.2
+# bci4als>=0.1.2
 sklearn>=0.0
 importlib_metadata>=0.23
 pytest>=5.2.1

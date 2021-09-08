@@ -2,7 +2,7 @@ import os
 import time
 from collections import namedtuple
 from typing import Dict
-from psychopy import visual
+from psychopy import visual, event
 
 # name tuple object for the progress bar params
 Bar = namedtuple('Bar', ['pos', 'line_size', 'frame_size', 'frame_color', 'fill_color'])
@@ -43,10 +43,9 @@ class Feedback:
 
     """
 
-    def __init__(self, win: visual.Window, stim: int, buffer_time: float, threshold: int = 3,
-                 refresh_rate: float = 0.1):
+    def __init__(self, buffer_time: float, threshold: int = 3, refresh_rate: float = 0.1):
 
-        self.stim: int = stim
+        self.stim: int = None
         self.threshold: int = threshold
         self.confident: bool = False
         self.stop = False
@@ -70,8 +69,8 @@ class Feedback:
                                  frame_color='white', fill_color='white')
 
         # Psychopy objects
-        self.win: visual.Window = win
-        self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
+        self.win = visual.Window(monitor='testMonitor')
+        self.img_stim: visual.ImageStim = None
         self.center_line: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.line_size,
                                                     lineColor=None, fillColor=self.bar.frame_color, autoDraw=False)
         self.feedback_frame: visual.Rect = visual.Rect(self.win, pos=self.bar.pos, size=self.bar.frame_size,
@@ -87,6 +86,23 @@ class Feedback:
         self.time_bar: visual.Rect = visual.Rect(win=self.win, pos=(0, self.time_bar_frame.pos[1]),
                                                  size=(0, self.time_bar_frame.size[1]),
                                                  fillColor=self.time_bar.fill_color)
+
+    def set_stimulation(self, stim: int):
+        self.stop = False
+        self.stim = int(stim)
+        self.confident = False
+        self.progress = 0
+
+        self.img_stim: visual.ImageStim = visual.ImageStim(self.win, image=self.images_path[self.enum_image[self.stim]])
+
+    def end_trial(self):
+        # Show empty feedback
+        self.display(0)
+        # Wait for key-press
+        event.waitKeys()
+
+    def close(self):
+        pass
 
     def update(self, predict_stim: int, skip: bool = False):
         """

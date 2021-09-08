@@ -21,6 +21,8 @@ from nptyping import NDArray
 from psychopy import visual, core
 from sklearn.preprocessing import StandardScaler
 
+from .feedback_unity import FeedbackUnity
+
 
 class OnlineExperiment(Experiment):
     """
@@ -53,7 +55,6 @@ class OnlineExperiment(Experiment):
         self.skip_after = skip_after
         # self.debug = self.model.debug
         self.debug = debug
-        self.win = None
         self.co_learning: bool = co_learning
 
         # audio
@@ -109,7 +110,7 @@ class OnlineExperiment(Experiment):
 
             # play sound if successful
             # todo: make this available to object params
-            self.play_sound = True
+            self.play_sound = False
             if self.play_sound:
                 if prediction == stim:
                     playsound.playsound(self.audio_success_path)
@@ -130,7 +131,7 @@ class OnlineExperiment(Experiment):
                 num_tries += 1
 
             # Update the feedback according the prediction
-            feedback.update(prediction, skip=(num_tries >= self.skip_after))
+            feedback.update(prediction, skip=True)
             # feedback.update(stim)  # For debugging purposes
 
             # Update the model using partial-fit with the new EEG data
@@ -182,18 +183,18 @@ class OnlineExperiment(Experiment):
         # Create experiment's metadata
         self.write_metadata()
 
-        # Init experiments configurations
-        self.win = visual.Window(monitor='testMonitor', fullscr=full_screen)
-
         # turn on EEG streaming
         if use_eeg:
             self.eeg.on()
 
+        # Init feedback instance
+        feedback = FeedbackUnity(buffer_time=self.buffer_time, threshold=self.threshold)
+
         # For each stim in the trials list
         for stim in self.labels:
 
-            # Init feedback instance
-            feedback = Feedback(self.win, stim, self.buffer_time, self.threshold)
+            # Init feedback stimulation
+            feedback.set_stimulation(stim)
 
             # Use different thread for online learning of the model
             threading.Thread(target=self._learning_model,
@@ -216,6 +217,8 @@ class OnlineExperiment(Experiment):
 
             # Waiting for key-press between trials
             self._wait_between_trials(feedback, self.eeg, use_eeg)
+
+        feedback.close()
 
         # turn off EEG streaming
         if use_eeg:

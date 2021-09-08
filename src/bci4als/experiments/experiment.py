@@ -92,11 +92,7 @@ class Experiment:
         3. Empty the EEG board
         """
 
-        # Show empty feedback
-        feedback.display(0)
-
-        # Wait for key-press
-        event.waitKeys()
+        feedback.end_trial()
 
         # Empty the board
         if use_eeg:
