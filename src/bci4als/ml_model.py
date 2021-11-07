@@ -73,7 +73,7 @@ class MLModel:
         # fit transformer and classifier to data
         self.clf.fit(epochs.get_data(), self.labels)
 
-    def online_predict(self, data: NDArray, eeg: EEG):
+    def online_predict(self, data: NDArray, eeg: EEG, return_confidence=True):
         # Prepare the data to MNE functions
         data = data.astype(np.float64)
 
@@ -83,7 +83,12 @@ class MLModel:
         # Predict
         prediction = self.clf.predict(data[np.newaxis])[0]
 
+        if return_confidence:
+            confidence = self.clf.predict_proba(data[np.newaxis])[0, prediction]
+            return prediction, confidence
+
         return prediction
+
 
     def partial_fit(self, eeg, X: NDArray, y: int):
 

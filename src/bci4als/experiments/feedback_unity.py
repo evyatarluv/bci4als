@@ -67,7 +67,7 @@ class FeedbackUnity:
         self.stop = False
         self.stim = int(stim)
 
-    def update(self, predict_stim: int, skip: bool = False):
+    def update(self, predict_stim: int, predict_confidence: float, skip: bool = False):
         """
         Update the feedback on screen.
         The update occur according to the model prediction. If the model was right
@@ -77,7 +77,8 @@ class FeedbackUnity:
         :return:
         """
         predict_stim = int(predict_stim)
-        message = {'type': 'PREDICT', 'message': predict_stim}
+        predict_confidence = predict_confidence
+        message = {'type': 'PREDICT', 'message': predict_stim, 'confidence': predict_confidence}
         print(f'Sending message - "{message}"')
         self.socket.send_json(message)
         self._target_updated = False

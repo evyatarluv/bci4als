@@ -71,7 +71,7 @@ class OnlineExperiment(Experiment):
         # Example: [ [(0, 2), (0,3), (0,0), (0,0), (0,0) ] , [ ...] , ... ,[] ]
         self.results = []
 
-    def _learning_model(self, feedback: Feedback, stim: int):
+    def _learning_model(self, feedback: FeedbackUnity, stim: int):
 
         """
         The method for learning the model from the current stim.
@@ -106,7 +106,8 @@ class OnlineExperiment(Experiment):
                 prediction = stim if np.random.rand() <= 2 / 3 else (stim + 1) % len(self.labels_enum)
             else:
                 # in normal mode, use the loaded model to make a prediction
-                prediction = self.model.online_predict(data, eeg=self.eeg)
+                prediction, confidence = self.model.online_predict(data, eeg=self.eeg, return_confidence=True)
+                # predict_confidence = self.model.clf.steps[1][1].predict_proba(data)
 
             # play sound if successful
             # todo: make this available to object params
@@ -131,7 +132,7 @@ class OnlineExperiment(Experiment):
                 num_tries += 1
 
             # Update the feedback according the prediction
-            feedback.update(prediction, skip=True)
+            feedback.update(prediction, confidence, skip=True)
             # feedback.update(stim)  # For debugging purposes
 
             # Update the model using partial-fit with the new EEG data
