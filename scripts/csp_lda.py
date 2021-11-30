@@ -20,7 +20,7 @@ from sklearn.pipeline import Pipeline
 # Prepare Data
 
 # recordings_path = 'recordings'
-# recordings_path = 'examples'
+# recordings_path = 'scripts'
 recordings_path = '../recordings'
 subject = 'adi'
 session_id = '6'

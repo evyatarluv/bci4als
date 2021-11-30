@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # Init the app window
     app = QApplication(sys.argv)
     configuration = MouseConfig()
-    clf_path = r'../recordings/avi/4/model.pickle'
+    clf_path = r'../../recordings/avi/4/model.pickle'
 
     # Start the virtual mouse
     threading.Thread(target=control_mouse,

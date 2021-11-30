@@ -1,8 +1,0 @@
-project_name
-├── data
-│   ├── subject1
-│   └── subject2
-│          └── session1
-│               ├── EEG.xdf
-│               └── stimulus_vectors.csv
-└── main.py

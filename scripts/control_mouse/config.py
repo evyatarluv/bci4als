@@ -24,7 +24,7 @@ class Config(QWidget):
         # Widgets for the window
         self.label = QLabel(self)
         # self.pixmap = QPixmap(self.configs[self.current_config])
-        self.pixmap = QPixmap('configs/config.png')
+        self.pixmap = QPixmap('pynput examples/configs/config.png')
 
         # # key = config image, value = actions
         # # assume: {0: 'right', 1: 'left', 2: 'idle', 3: 'tongue', 4: 'legs'}
